@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 # Load .env file
 load_dotenv()
-api_key = os.getenv("MISTRAL_API_KEY")
+api_key = os.getenv("MISTRAL_API_KEY","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")
 
 def call_mistral_resume_analyzer(resume_text, api_key):
     """
@@ -69,66 +69,69 @@ Resume:
 # 👇 EXAMPLE USAGE 👇
 if __name__ == "__main__":
     resume_text = """
-    --- Page 1 ---
-Ronnie A Jeffrey
-ronnieallen2005@gmail.com (cid:211) +91 99528 60468 fl LinkedIn (cid:135) GitHub (cid:140) Portfolio
-Education
-• Karunya Institute of Technology, Coimbatore, India
-B.Tech in Artificial Intelligence and Data Science May 2027
-Experience
-• Mobile App Developer Intern June 2024 – July 2024
-Nandha Infotech, Coimbatore, India
-– Worked on Flutter-based mobile apps with real-time API integration in the agriculture
-domain.
-• Full Stack and Mobile App Trainee Aug 2024 – Mar 2025
-KIDS, Karunya University, Coimbatore, India
-– Built dynamic web applications using React.js and Node.js; focused on UI/UX, REST    
-APIs, and Mobile application with Flutter and database integration.
-Skills
-• Languages: Python, Java, C, Dart, JavaScript
-• Frameworks/Tools: React.js, Tailwind CSS, ShadCN UI, Flask, FastAPI, TensorFlow,     
-Keras, Scikit-learn, Git
-• Domains: Data Analysis, Machine Learning, Full-Stack Development, Mobile App Develop-
-ment, Generative AI
-Projects
-• Mindkraft’25 - Event Website (cid:135)
-– Built a full-featured event site with auth and payments; used by 1000+ students for regis-
-tration.
-– TechStack: Django, React.js, Stripe API
-• Water Potability Prediction Analysis (cid:135)
-– Compared multiple ML models to predict water potability; best model achieved 92% ac- 
-curacy.
-– Contributed to SDG 6 and 13 for sustainable water and climate goals.
-– TechStack: Django, React.js, ShadCN UI
-• CropAI – Crop Recommendation & Yield Prediction API (cid:135)
-– BuiltanML-poweredAPItorecommendbestcropsandpredictyieldbasedonsoil,climate,
-and accurate values.
-– Accuracy reached 88% for crop prediction using RandomForestClassifier.
-– TechStack: Django, React.js, Scikit-learn
-1
-
---- Page 2 ---
-• Music Genre Classification with CNN (cid:135)
-– Built a CNN model to classify music genres from raw audio files.
-– Achieved 87% classification accuracy using MFCC features; deployed via Streamlit.    
-– TechStack: Python, TensorFlow, Keras, Librosa
-• Hoodigo - Frontend Website (cid:135)
-– Created a stylish responsive frontend using modern UI/UX design patterns.
-– Enhanced responsiveness and layout performance across mobile/desktop.
-– TechStack: HTML, CSS, JavaScript, Bootstrap
-Achievements & Hackathons
-• Special Mention – Intel OneAPI India Hackathon 2024
-Project: Patient Monitoring System for Hospitals (cid:135)
-– Developed an AI-driven platform that allows hospitals to upload lab reports via admin
-portal.
-– System provides personalized AI recommendations for medicine, diet, and workouts.    
-– Doctors can review and approve suggestions; patient app syncs real-time health notifica-
-tions.
-Certifications
-• Google CyberSecurity Specialization Google, Jul 2024
-• Data Analytics Internship YBI Foundation, Sep 2024
-• CSS Skill Test HackerRank, Sep 2024
-• Java Programming Fundamentals Infosys, Sep 2024
+ --- Page 1 ---
+FRANZ
+9092043143
+KINGSTEIN N franzkingstein@gmail.com
+Pannimadai, Coimbatore 641017
+D A T A S C I E N T I S T franzkingstein.site
+P R O F I L E
+E D U C A T I O N
+Aspiring Data Scientist with expertise in Machine Learning, 2023 - 2027
+AI, and Data Analytics. Skilled in Python, SQL, and deep
+KARUNYA INSTITUTE OF
+learning frameworks like TensorFlow. Experienced in
+TECHNOLOGY AND SCIENCE
+computer vision, predictive modeling, and database
+management. Passionate about solving real-world Bachelor of Technology, GPA: 9.62 / 10.0
+problems using data-driven insights.
+2021 - 2023
+W O R K E X P E R I E N C E
+STANES ANGLO INDIAN HIGHER
+SECONDARY SCHOOL
+JUNE 2024
+Intern at Nandha Infotech
+Higher Secondary
+Computer Vision & Data Scientist
+S K I L L S
+Implemented deep learning models (CNN, ResNet,
+Programming: Python, SQL, MongoDB
+DenseNet, VGG16, YOLO, COCO) for disease
+Machine Learning & AI: Deep Learning,
+detection.
+Optimized image classification through data TensorFlow, Computer Vision
+augmentation. Data Engineering & Analytics: Tableau,
+Skills Earned: MACHINE LEARNING, DEEP
+Data Preprocessing
+LEARNING, DOCUMENTATION, COMMUNICATION
+Soft Skills: Effective Communication,
+Solution-Oriented Thinking
+P R O J E C T
+R E S E A R C H
+May 2024
+Echonet Dynamics
+MLCARE
+Unique approach to identify heart
+Developed a lung cancer prediction system using
+disease
+Random Forest for early detection.
+Use ECG calibration and medical report
+Integrated a Python-based GUI for a user-friendly
+to identify Heart Disease
+clinical decision support interface.
+Skills Earned: Conference paper
+Skill Gained: Medical knowledge, Research Paper
+experience, Hybrid model development,
+presentation, Machine Learning, Tkinter
+Medical terms,documentation
+September 2024
+C.L.A.V.E - Smart India hackathon 2025
+Designed a deep learning model combining CNN
+and GRU to classify Micro-Doppler signals.
+Extracted and analyzed spatial and temporal
+features to improve accuracy.
+Skills Gained: Micro Doppler signature knowledge,
+Hybrid Model development, Leadership
 """
 
     result = call_mistral_resume_analyzer(resume_text, api_key)
