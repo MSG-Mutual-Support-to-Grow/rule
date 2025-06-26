@@ -32,7 +32,7 @@ def extract_text_easyocr_from_pdf(pdf_path: str, dpi: int = 300) -> str:
     return all_text.strip()
 
 if __name__ == "__main__":
-    pdf_path = "../resumes/ocr/Sam_Resume.pdf"  # change to your file
+    pdf_path = "../resumes/ocr/SolaiArulMurugan_Resume.pdf"  # change to your file
     if os.path.exists(pdf_path):
         output = extract_text_easyocr_from_pdf(pdf_path)
         print("\n🧾 Final OCR Output:\n")
