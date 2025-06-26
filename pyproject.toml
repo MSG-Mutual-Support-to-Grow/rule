@@ -7,6 +7,7 @@ requires-python = ">=3.10"
 dependencies = [
     "black==24.4.2",
     "clean-text==0.6.0",
+    "easyocr>=1.7.2",
     "isort==5.13.2",
     "multiprocess==0.70.15",
     "opencv-python==4.9.0.80",
