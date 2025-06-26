@@ -852,6 +852,18 @@ wheels = [
 ]
 
 [[package]]
+name = "pdf2image"
+version = "1.17.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pillow" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/00/d8/b280f01045555dc257b8153c00dee3bc75830f91a744cd5f84ef3a0a64b1/pdf2image-1.17.0.tar.gz", hash = "sha256:eaa959bc116b420dd7ec415fcae49b98100dda3dd18cd2fdfa86d09f112f6d57", size = 12811, upload-time = "2024-01-07T20:33:01.965Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/62/33/61766ae033518957f877ab246f87ca30a85b778ebaad65b7f74fa7e52988/pdf2image-1.17.0-py3-none-any.whl", hash = "sha256:ecdd58d7afb810dffe21ef2b1bbc057ef434dabbac6c33778a38a3f7744a27e2", size = 11618, upload-time = "2024-01-07T20:32:59.957Z" },
+]
+
+[[package]]
 name = "pdfminer-six"
 version = "20221105"
 source = { registry = "https://pypi.org/simple" }
@@ -1270,6 +1282,7 @@ dependencies = [
     { name = "isort" },
     { name = "multiprocess" },
     { name = "opencv-python" },
+    { name = "pdf2image" },
     { name = "pdfplumber" },
     { name = "pillow" },
     { name = "pytesseract" },
@@ -1287,6 +1300,7 @@ requires-dist = [
     { name = "isort", specifier = "==5.13.2" },
     { name = "multiprocess", specifier = "==0.70.15" },
     { name = "opencv-python", specifier = "==4.9.0.80" },
+    { name = "pdf2image", specifier = "==1.17.0" },
     { name = "pdfplumber", specifier = "==0.10.3" },
     { name = "pillow", specifier = "==10.0.0" },
     { name = "pytesseract", specifier = "==0.3.10" },

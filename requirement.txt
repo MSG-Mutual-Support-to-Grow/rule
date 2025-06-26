@@ -11,3 +11,4 @@ streamlit==1.34.0
 multiprocess==0.70.15
 black==24.4.2
 isort==5.13.2
+pdf2image==1.17.0
