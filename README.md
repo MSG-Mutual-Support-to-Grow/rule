@@ -1,4 +1,3 @@
-
 # 🔍 Smart Resume Intelligence Tool using Mistral (OpenRouter)
 
 This tool analyzes and understands resumes intelligently using a powerful local LLM (Mistral 7B via OpenRouter API). Unlike traditional resume parsers that just extract text, this system understands skills, projects, and experience depth — helping recruiters shortlist ideal candidates faster.

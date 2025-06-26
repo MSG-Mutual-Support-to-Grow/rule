@@ -10,6 +10,7 @@ dependencies = [
     "isort==5.13.2",
     "multiprocess==0.70.15",
     "opencv-python==4.9.0.80",
+    "pdf2image==1.17.0",
     "pdfplumber==0.10.3",
     "pillow==10.0.0",
     "pytesseract==0.3.10",
