@@ -1,370 +1,167 @@
+# Resume Parser
 
-# 🧠 Resume Parser — Advanced Text Extraction Pipeline
+A powerful AI-powered resume parser that extracts structured information from resumes using both text extraction and OCR techniques, followed by intelligent analysis using the Mistral AI model.
 
-This module is designed to **extract, clean, and structure text from PDF resumes** using both traditional parsing and advanced OCR technology. It forms the foundation for downstream tasks like resume screening, keyword extraction, candidate ranking, and AI-based matching.
+## 📋 Overview
 
-## ✅ What's Inside
+This project provides a comprehensive pipeline for parsing and analyzing resumes in PDF format. It can:
 
-This version of the Resume Parser supports:
+- Extract text from standard PDF documents using pdfplumber
+- Process scanned PDFs using OCR (EasyOCR)
+- Use Mistral AI to analyze and structure resume information
+- Output standardized JSON with candidate details
 
-- 📄 **PDF text parsing** (text-based resumes)
-- 🔍 **OCR extraction** (image-based/scanned resumes using EasyOCR)
-- 🧠 **Preserves sections**: Profile, Education, Work Experience, Projects, Skills, etc.
-- 📊 **Highly accurate extraction** (98%+ tested on multiple real resumes)
-- 🖼️ **Image-to-text conversion** for challenging resume formats
+## ✨ Features
 
----
+- **Smart Text Extraction**: Supports both native PDF text extraction and OCR for scanned documents
+- **AI-Powered Analysis**: Uses Mistral AI to intelligently parse resume content
+- **Structured Output**: Generates standardized JSON with key candidate information:
+  - Personal details (name, email, phone)
+  - Work experience and roles
+  - Skills with experience levels
+  - Projects with descriptions and technologies
+  - Leadership indicators
+  - Candidate fit summary
 
-## 🏗️ Folder Structure
-
-```bash
-resume_parser/
-├── scripts/
-│   ├── extract_text.py          # Main script for text-based PDF parsing
-│   ├── ocr_only_extract.py      # OCR-based extraction using EasyOCR
-├── resumes/
-│   ├── text/                    # Text-based PDF resumes
-│   └── ocr/                     # Image-based/scanned PDF resumes
-├── outputs/                     # Folder to store extracted text
-├── README.md                    # You are here!
-├── requirements.txt             # Python dependencies
-└── pyproject.toml              # Project configuration
-```
-
-## 🔧 Technologies Used
-
-- **EasyOCR**: Advanced optical character recognition
-- **pdf2image**: PDF to image conversion
-- **PIL (Python Imaging Library)**: Image processing
-- **Python**: Core programming language
-
-## 🚀 Getting Started
+## 🔧 Setup
 
 ### Prerequisites
-```bash
-pip install easyocr pdf2image pillow
-```
 
-### Usage
+- Python 3.8+
+- PDF processing libraries
+- OCR dependencies
 
-#### For OCR-based extraction:
-```bash
-cd scripts
-python ocr_only_extract.py
-```
+### Installation
 
-#### For text-based extraction:
-```bash
-cd scripts
-python extract_text.py
-```
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/dharshan-kumarj/Resume_Parser.git
+   cd Resume_Parser
+   ```
 
----
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
 
-## 🧾 Sample OCR Output Preview
+3. Install dependencies using uv:
+   ```bash
+   uv pip install -r requirement.txt
+   ```
 
-Below are actual OCR extractions from tested resumes using EasyOCR:
-
----
-
-### 🔹 Solai Alagu Murugan M
-
-```
---- Page 1 ---
-SOLAI ALAGU MURUGAN.M B.Sc] M.B.A
-ADDITIONAL COURSES
-Fundamentals of Digital Marketing HR Technology with Five Pillar Frame Work
-Social Media Marketing Marketing Stragetic Frame Work
-+91-7904404542
-solaisam4672@gmailcom
-33a/1 Indra nagar; Kamarajapuram Madurai-625009
-Microsoft Excel (Ongoing)
-PROFILE
-PROJECT
-Looking for a challenging position where can make optimum use of my knowledge and experience; which would enable me to improve my skill and strengths and to the growth of the organization:
-Indusind Bank, Chennai March April
-Topic : A study on customer satisfaction on the loan process of Indusind Bank:
-EDUCATION
-MBA HR MARKETING THE AMERICAN COLLEGE
-2020 2022
-B.SC COMPUTER SCIENCE THIYAGARAJA COLLEGE OF ARTS & SCIENCE
-2016 2019
-LANGUAGE
-HSC (Computer science)
-VHN HIGHER SECONDARY SCHOOL MADURAI
-Tamil (Native)
-English
-SSLC
-VHN HIGHER SECONDARY SCHOOL MADURAI
-EXPERIENCE
-SKILLS
-COMMUNICATION SKILLS
-Doco Sales Executive Berger Paints (Jan 2023 to Nov 2023) Handle a showroom Meeting with clients virtually or during sales visits Demonstrating and presenting products Establishing new business
-HIGHLY ADAPTABLE
-MS POWERPOINT AND EXCEL
-Demand Generator Berger Paints (Nov 2023 to Feb 2024) Handle five stores Meeting with clients virtually or during sales visits Demonstrating and presenting products Establishing new business
-INTERPERSONAL SKILLS
-TEAM PLAYER
-```
-
----
-
-### 🔹 David Eliot
-
-```
---- Page 1 ---
-David Eliot
-Summary Bartender Wiln 7 vears" experience ina restaurant bar settina; Successfulat consistently delivering the hlehest qualily serwice, Quick worker wno always E0es thup? extra mile to sell miore and Kcep customers happy Trained Mxologist witha #ide-ranging repertoire of cocktails; Irom the classics to crEimal recipes
-Experience Bartender 0W/017to0/2019 Momo Restaurant; New Ycr Promptly seryed all cocktails andalcoholic dnnk (p guests. Malntaln stock lexels (Q pevent shortares, Strictty abided Lx allstate liquor regulations, particulary in regard to Intoxicatedpersons and minors Participate in par contests [0 drve gales and prcmcte the venwe Taking care Qi Your mppejrjnce (cleanlness, neainess, elegance],
-Contact
-+1(9701333. 3333 davideliotiqail Eot Wxw Ikedin com Axld;Iat
-Highlights
-Mastery 0l classic cocktai [ecipet Bar Mianapemeni Friendly Excels Jt Up slng Clean andneat Cocktail Ingredients expert
-Bartender 09/2015 [0 C5/z017 Si Italian Restaunnt New York Preparing cocktalls; drinks and cther drinks crdered by the restarant guests_ Efticient and courteoys service ofrestaurant guests _ Taking care ol Your appearance (cleanlness, neatness, elejancel Taking care 0f cleanliness and order In the workplce,
-Education
-@achelar cl Scicnee; Cook W114 Coukery Schaol (HIph Schanlp; Dublin
-```
-
----
-
-### 🔹 Jennifer Melon
-
-```
---- Page 1 ---
-JENNIFER MELON
-Associaie m purchasinC
-SUMMARY
-EnthirpbicEurrcnoScclii cantr tocont dulciobimiuecest Iniouah nond#OIk Dllnieon Io ttl4 widcreuknt Oown MLonuuiekint cwar unekitljndinn ? Pitchtltta tttont (jattuknanddanetunzoed PoctJuie indon Don2 #Jucmton Itaurd na [7i4tt Jnd #upDYcnkn Ininioci"niydaisd(elkuin Diey, dndeuetnikokeanatrpl ehln [nduln
-CONTACT
--nlomttlunicamieom "ugsuk0d nfhLaota
-In mtr Kan unertnytvianm Hieh
-EXPERIENCE
-#nyneluniantoomti
-Aocidie  Putchaxin? Jul Z014 Piditng Inblbeo Migio Inicponybl t" purchlude pedudaittrotototleettiyny 0444 'Nont]nJMhintjin "pprepnjiv Inktnion Iotoll MoOoudibol Dtuk#xntrnkrundteVIt7 JuntioNcr I0 qu4  Ionudrlath #anutul Intwlloec#anmuil pl  totoal dgqulltkonit [0 [otann d rteouirIl (cuted Dinoicin7 {Apntontt ic @aoentehotaporiailtin 7 In Jtptel ai4 {07 EEtedMelctucie #ee FuncilondtuppqE
-SkILLS
-Pwtchr InD
-Orddi Kmloeitunl
-Antctouclen
-```
-
----
-
-### 🔹 Solai Arul Murugan M (Business Development Manager)
-
-```
---- Page 1 ---
-SOLA/ ALAGUMU RUGAN. M
-BUSINESS DEVELOPMENT MANAGER
-CONIACT
-PROFILE
-+91-7904404542 solaisam4672egmailcom 330/1 Indra nogar, Kamarojopuram Madurai-625C09
-Dynamic and goal-oriented profersional witn nancs-on expeience in {ales DUsiness development; and custome; relationchip management acros: the banking and paint industries. Proven ability to generate leads close seles, ana manage poin individual and buciness clients. Skilled in handling retail operations promoting procucts, and delivering tailored colutions t0 meet client need: Acept at criving Tevenue growth througn strategic account acquisition and procuct promotion
-SKILLS
-EXPERIENCE
-COMMUNICATION SKILLS
-Induslnd Bank Business Development Manager (Aug 2024 5 Present) Icentified and prospected potential customers through networking  referral:, and cold calling Built strong client relationships to undertand need: and recommend :Uitable panking products Drove revenue growtn by acquiring new CASA and other banking products Delivered excellent customer service i0 ensure {atisfaction ana reteniion Concistently achieved sdlertargets ana contributed to buciness Cevelooment
-HIGHLY ADAPIABLE
-MS POWERPOInT AND EXCEL INTERPERSONAL SKILLS COMMUNICATION TEAM PLAYER
-EDUCATION
-2020 2022 M3A HR / MARKETING THE AMERICAN COLLEGE
-Berger Paints Sales Executive (Jan 2023 5 Nov 2023)
-2016 2019 BC - COMPUTER SCIENCE THIYAGARAJA COLLEGE OF ARTS & SCIENCE
-Managed a snowroom and conducted product demonstraiion: Met with clients virually and during tale: visits Built customer relationship: and initiated new buciness opporunitie:
-HSC (Computer Science) VANHIGHER SECONDARY SCHOOL MADURAI
-Demand Generator (Nov 2023 Mar 2024)
-SSLC VANJIGHER SECONDARY SCHOOL MADURAI
-Oversow five retail store: and promoted product vicibility Engaged with client: through virtual and in-peron meeting: Continued t0 drive sale: and business growth througn lead generation
-```
-
----
-
-## 📊 Performance Metrics
-
-- **Extraction Speed**: ~2-5 seconds per page (depending on image complexity)
-- **Character Recognition**: High accuracy for printed text
-- **Language Support**: English (can be extended to other languages)
-- **File Format Support**: PDF to image conversion supported
-- **Processing**: Automatic temporary file cleanup
-
----
-
-## 🛠️ How It Works
-
-1. **PDF to Image Conversion**: Uses `pdf2image` to convert PDF pages to high-resolution images
-2. **OCR Processing**: EasyOCR analyzes each image and extracts text with paragraph detection
-3. **Text Structuring**: Organizes extracted text by pages with clear demarcation
-4. **Output Generation**: Returns clean, structured text ready for further processing
-
----
-
-## ⚙️ Configuration Options
-
-The OCR script supports several parameters:
-
-- `dpi`: Image resolution for better OCR accuracy (default: 300)
-- `detail`: OCR detail level (0 = text only, 1 = with coordinates)
-- `paragraph`: Enable paragraph detection for better text structure
-
----
-
-## 🔄 Future Enhancements
-
-- [ ] Multi-language OCR support
-- [ ] Batch processing for multiple files
-- [ ] AI-powered text cleaning and structuring
-- [ ] Integration with existing text extraction pipeline
-- [ ] Output format options (JSON, XML, structured data)
-
----
-
-## 📝 Notes
-
-- OCR accuracy varies based on image quality and text clarity
-- Some character recognition errors may occur with poor quality scans
-- Temporary image files are automatically cleaned up after processing
-- Processing time depends on document complexity and page count
-
----
-
-## 🤝 Contributing
-
-Feel free to contribute improvements, bug fixes, or new features to enhance the OCR extraction capabilities!
-=======
-# 🔍 Smart Resume Intelligence Tool using Mistral (OpenRouter)
-
-This tool analyzes and understands resumes intelligently using a powerful local LLM (Mistral 7B via OpenRouter API). Unlike traditional resume parsers that just extract text, this system understands skills, projects, and experience depth — helping recruiters shortlist ideal candidates faster.
-
----
-
-## 🚀 Features
-
-- ✅ Extracts detailed candidate info from plain resume text
-- ✅ Understands and links skills to projects/experience
-- ✅ Detects project contributions and tech stack
-- ✅ Suggests best-fit roles for candidates
-- ✅ Returns structured, clean JSON
-- ✅ Secure: uses your own OpenRouter API key
-- ✅ Fully open-source and customizable
-
----
-
-## 🧠 Tech Stack
-
-| Component         | Tool / Library        | Purpose                          |
-|------------------|------------------------|----------------------------------|
-| Programming      | Python                 | Scripting language               |
-| LLM Inference    | Mistral (via OpenRouter) | Understand resumes contextually |
-| API Access       | requests               | To communicate with OpenRouter   |
-| Env Management   | python-dotenv          | Store API keys securely          |
-
----
+4. Create a `.env` file in the project root with your API key:
+   ```
+   MISTRAL_API_KEY=your_api_key_here
+   ```
 
 ## 📁 Project Structure
 
 ```
-
-resume-analyzer/
-├── smart\_resume\_parser.py       # Main code to parse resume
-├── .env                         # Contains your OpenRouter API key
-├── README.md                    # This documentation
-
-````
-
----
-
-## ⚙️ Setup Instructions
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/yourusername/resume-analyzer.git
-cd resume-analyzer
-````
-
-2. Install dependencies:
-
-```bash
-pip install -r requirements.txt
+Resume_Parser/
+├── .venv/                  # Python virtual environment
+├── outputs/                # Output directory for parsed resumes
+├── resumes/                # Input directory for resume PDFs
+│   ├── ocr/                # PDFs requiring OCR processing
+│   └── text/               # PDFs with extractable text
+├── scripts/
+│   ├── modules/
+│   │   ├── llm_prompts/
+│   │   │   └── parse_resume_llm.py
+│   │   └── text_extract/
+│   │       ├── extract_native_pdf.py
+│   │       └── extract_ocr_pdf.py
+│   └── pipelines/
+│       └── analyze_resume.py
+├── .env                    # Environment variables
+├── .gitignore
+├── main.py                 # Main entry point
+├── pyproject.toml          # Project configuration
+├── README.md               # Documentation
+└── requirement.txt         # Dependencies
 ```
 
-or manually:
+## 🚀 Usage
+
+### Basic Usage
+
+Run the main script to process a resume:
 
 ```bash
-pip install requests python-dotenv
+python main.py
 ```
 
-3. Create a .env file and paste your API key:
+### Customizing the Pipeline
 
-.env
+You can process specific resumes by modifying the input path in `run_pipeline.py`:
 
-```env
-OPENROUTER_API_KEY=your_openrouter_api_key_here
+```python
+if __name__ == "__main__":
+    pdf_file = "resumes/text/your_resume.pdf"
+    process_resume(pdf_file)
 ```
 
----
+## 🔍 How It Works
 
-## 🧪 Usage
+1. **Text Extraction**: 
+   - For standard PDFs: Uses pdfplumber to extract text content
+   - For scanned PDFs: Uses EasyOCR to perform optical character recognition
 
-Run the parser:
+2. **AI Analysis**:
+   - Sends extracted text to Mistral AI model
+   - Uses structured prompting to extract key information
 
-```bash
-python smart_resume_parser.py
-```
+3. **Output**:
+   - Returns structured JSON with parsed resume information
 
-You can replace the resume\_text inside the script with real extracted data (from PDF or OCR).
-
----
-
-## ✅ Output Format (Example)
+## 📝 Example Output
 
 ```json
 {
-  "full_name": "Ronnie A Jeffrey",
-  "email": "ronnieallen2005@gmail.com",
-  "phone_number": "+91 99528 60468",
-  "total_experience_years": 2,
+  "full_name": "John Doe",
+  "email": "john.doe@example.com",
+  "phone_number": "123-456-7890",
+  "total_experience_years": 5,
   "roles": [
-    { "title": "Mobile App Developer Intern", "company": "Nandha Infotech", "years": 0.2 },
-    { "title": "Full Stack and Mobile App Trainee", "company": "KIDS", "years": 0.7 }
+    {
+      "title": "Software Engineer",
+      "company": "Tech Corp",
+      "years": 3
+    },
+    {
+      "title": "Junior Developer",
+      "company": "Startup Inc",
+      "years": 2
+    }
   ],
   "skills": {
-    "Flutter": { "source": "Nandha Infotech + KIDS", "years": 1 },
-    "React.js": { "source": "KIDS", "years": 0.7 },
-    "Django": { "source": "projects", "years": null }
+    "Python": {"source": "professional", "years": 5},
+    "React": {"source": "professional", "years": 3},
+    "Docker": {"source": "project", "years": 2}
   },
   "projects": [
     {
-      "name": "CropAI",
-      "tech_stack": ["Django", "React.js", "Scikit-learn"],
-      "description": "ML API to recommend best crops based on soil and climate data"
+      "name": "E-commerce Platform",
+      "tech_stack": ["Python", "Django", "React"],
+      "description": "Built scalable online shopping platform"
     }
   ],
   "leadership_signals": true,
-  "candidate_fit_summary": "Well-suited for roles involving full-stack or Flutter-based mobile app development. Shows initiative and end-to-end project ownership."
+  "leadership_justification": "Led team of 5 developers in project delivery",
+  "candidate_fit_summary": "Experienced full-stack developer with strong Python skills and team leadership experience"
 }
 ```
 
----
+## 🤝 Contributing
 
-## 🔐 API Source
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-* Model: mistral / mistral-7b-instruct
-* Provider: [OpenRouter.ai](https://openrouter.ai/)
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
----
+## 📄 License
 
-## 🔧 Coming Soon
-
-* 📄 Resume PDF text extractor
-* 🧮 Candidate scoring engine
-* 🌐 Streamlit/Gradio UI
-* 📂 Batch resume folder parser
-* ☁️ Export to Airtable / Google Sheets
-
----
-
-## 👨‍💻 Author
-
-Built with ❤️ by [Ronnie A Jeffrey](https://github.com/yourusername)
-
----
+This project is licensed under the MIT License - see the LICENSE file for details.
