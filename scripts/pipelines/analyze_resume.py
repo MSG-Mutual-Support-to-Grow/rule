@@ -2,8 +2,12 @@
 import os
 import json
 from dotenv import load_dotenv
-from scripts.extract_text import extract_lines_from_pdf
-from scripts.llm_prompt import call_mistral_resume_analyzer
+
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+from scripts.modules.text_extract.extract_native_pdf import extract_lines_from_pdf
+from scripts.modules.llm_prompts.parse_resume_llm import call_mistral_resume_analyzer
 
 load_dotenv()
 api_key = os.getenv("MISTRAL_API_KEY")  # or OPENROUTER_API_KEY
