@@ -3,12 +3,17 @@ import UploadCard from "../components/UploadCard";
 import OutputViewer from "../components/OutputViewer";
 import Sidebar from "../components/Sidebar";
 import BlurText from "../blocks/BlurText";
+import { mockCandidateData } from "../const/mockdata"; // make sure this exists
 
 export default function LandingPage() {
-  const [outputData, setOutputData] = useState<object | null>(null);
+  const [outputData, setOutputData] = useState<object>(mockCandidateData); // 👈 Set mock data initially
 
-  const handleUpload = (type: "file" | "folder") => {
-    setOutputData({ example: "Parsed resume output…" });
+  const handleUpload = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    console.log("Uploaded files:", files);
+    // For now: Set mock data regardless of actual file
+    setOutputData(mockCandidateData);
   };
 
   const handleAnimationComplete = () => {
@@ -16,7 +21,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="relative min-h-screen w-screen overflow-hidden text-white flex ">
+    <div className="relative min-h-screen w-screen overflow-hidden text-white flex">
       {/* Sidebar */}
       <Sidebar />
 
@@ -40,26 +45,23 @@ export default function LandingPage() {
           <UploadCard
             title="Upload File"
             description="Click or drag a single resume"
-            onUpload={(files) => {
-              console.log("File uploaded:", files);
-            }}
+            onUpload={handleUpload}
           />
 
+          {/* Optional: Enable this if you want folder upload */}
+          {/* 
           <UploadCard
             title="Upload Folder"
             description="Upload a folder of resumes"
             folder
-            onUpload={(files) => {
-              console.log("Folder uploaded:", files);
-            }}
-          />
+            onUpload={handleUpload}
+          /> 
+          */}
         </div>
 
-        {outputData && (
-          <div className="mt-10 w-full max-w-3xl">
-            <OutputViewer data={outputData} />
-          </div>
-        )}
+        <div className="mt-10 w-full max-w-4xl">
+          <OutputViewer data={outputData} />
+        </div>
       </main>
     </div>
   );
