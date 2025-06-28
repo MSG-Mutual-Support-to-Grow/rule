@@ -1,0 +1,19 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
+
+export default function App() {
+  return (
+    <Router>
+      <div className="relative min-h-screen w-screen overflow-hidden text-white">
+        {/* Full-Page Gradient Background */}
+        <div className="absolute inset-0 -z-10 bg-white [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]" />
+
+        {/* Main Routes */}
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          {/* Future routes can be added here */}
+        </Routes>
+      </div>
+    </Router>
+  );
+}
