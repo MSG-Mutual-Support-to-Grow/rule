@@ -2,43 +2,13 @@
   "full_name": "David Eliot",
   "email": "davideliot@mail.com",
   "phone_number": "+1(970)1333.3333",
-  "total_experience_years": 7,
-  "roles": [
-    {
-      "title": "Bartender",
-      "company": "Momo Restaurant",
-      "years": "01/2017 to 01/2019"
-    },
-    {
-      "title": "Bartender",
-      "company": "Si Italian Restaurant",
-      "years": "09/2015 to 05/2017"
-    }
-  ],
-  "skills": {
-    "Classic Cocktails": {
-      "source": "Mastery of classic cocktail recipes",
-      "years": "7"
-    },
-    "Bar Management": {
-      "source": "Experience",
-      "years": "7"
-    },
-    "Customer Service": {
-      "source": "Experience",
-      "years": "7"
-    },
-    "Cleanliness and Neatness": {
-      "source": "Experience",
-      "years": "7"
-    },
-    "Cocktail Ingredients Expert": {
-      "source": "Experience",
-      "years": "7"
-    }
-  },
+  "total_experience_years": 0,
+  "roles": [],
+  "skills": {},
   "projects": [],
   "leadership_signals": false,
   "leadership_justification": "",
-  "candidate_fit_summary": "David Eliot is a skilled bartender with 7 years of experience in high-quality service and cocktail preparation. He would be a strong fit for roles requiring expertise in mixology and customer service in a restaurant setting."
+  "candidate_fit_summary": "The candidate has no relevant experience in software development or the required skills for the Junior Software Developer role.",
+  "eligibility_status": "Not Eligible",
+  "eligibility_reason": "The candidate has no experience in Python, web development, Django, Flask, REST APIs, or Git, and their background is in bartending, not software development."
 }

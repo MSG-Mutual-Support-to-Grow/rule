@@ -5,6 +5,7 @@ import os
 import shutil
 import sys
 import uuid
+import tempfile
 
 # Ensure correct root path for module imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
@@ -25,30 +26,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "resumes")
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-
 @app.post("/upload-resume/")
 async def upload_resume(file: UploadFile = File(...)):
     # Validate file type (optional)
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted.")
 
-    # Generate unique filename to avoid overwriting
-    ext = os.path.splitext(file.filename)[1]
-    unique_filename = f"{uuid.uuid4().hex}{ext}"
-    file_path = os.path.join(UPLOAD_DIR, unique_filename)
+    # Save uploaded file to a temporary location (in-memory or temp dir)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+        shutil.copyfileobj(file.file, temp_file)
+        temp_file_path = temp_file.name
 
     try:
-        # Save uploaded file
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-
         # Detect PDF type and process accordingly
-        if is_pdf_text_based(file_path):
-            result = process_resume(file_path)
+        if is_pdf_text_based(temp_file_path):
+            result = process_resume(temp_file_path)
         else:
-            result = process_resume_ocr(file_path)
+            result = process_resume_ocr(temp_file_path)
+
+        # Clean up the temp file
+        os.remove(temp_file_path)
 
         if not result:
             return JSONResponse(content={"error": "AI analysis failed"}, status_code=500)
@@ -57,4 +54,7 @@ async def upload_resume(file: UploadFile = File(...)):
         return JSONResponse(content=result, status_code=200)
 
     except Exception as e:
+        # Clean up the temp file if it still exists
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
         return JSONResponse(content={"error": str(e)}, status_code=500)
