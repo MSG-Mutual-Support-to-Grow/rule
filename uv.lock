@@ -1544,14 +1544,11 @@ wheels = [
 
 [[package]]
 name = "pypdf"
-version = "5.6.1"
+version = "3.14.0"
 source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/f7/8e/9d9346c36bb02fc6d6e5c5412dcc104e422738c3391ef32032bcb7fb183f/pypdf-5.6.1.tar.gz", hash = "sha256:dde36cd67afe3afd733a562a0dd08a3c1dcdf01fe01de13785291319c8a883ff", size = 5025128, upload-time = "2025-06-22T11:05:25.587Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/66/be/f14b8abbe90573b3ae91e2153198376e97e53b8795177f49e8537aaf4300/pypdf-3.14.0.tar.gz", hash = "sha256:1fb4edffa5d3a448f964d0ad2a31cd8e408ea5d76d45efac042a8c3448c83b0a", size = 267578, upload-time = "2023-07-29T10:24:10.823Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c5/16/a5619a9d9bd4601126b95a9026eccfe4ebb74d725b7fdf624680e5a1f502/pypdf-5.6.1-py3-none-any.whl", hash = "sha256:ff09d03d37addbc40f75db3624997a660ff5fe41c61e7ae4db6828dc3f581e4d", size = 304638, upload-time = "2025-06-22T11:05:24.285Z" },
+    { url = "https://files.pythonhosted.org/packages/fe/e6/a23048e3ae56daf03479f5fe2f49af8d989cab1bcc1f8d2f15de83a3eaea/pypdf-3.14.0-py3-none-any.whl", hash = "sha256:55a5943d9a598ff6b9d301acf8fa33303656a1ea86fd3d754c6d20d417636c6f", size = 269765, upload-time = "2023-07-29T10:24:08.505Z" },
 ]
 
 [[package]]
@@ -1813,7 +1810,7 @@ requires-dist = [
     { name = "pdf2image", specifier = "==1.17.0" },
     { name = "pdfplumber", specifier = "==0.10.3" },
     { name = "pillow", specifier = "==10.0.0" },
-    { name = "pypdf", specifier = ">=5.6.1" },
+    { name = "pypdf", specifier = "==3.14.0" },
     { name = "pytesseract", specifier = "==0.3.10" },
     { name = "python-dotenv", specifier = "==1.0.1" },
     { name = "python-multipart", specifier = ">=0.0.20" },

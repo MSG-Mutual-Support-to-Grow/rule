@@ -82,9 +82,28 @@ def save_result_to_json(result: dict, pdf_path: str):
         return
 
     output_dir = get_output_dir()
-    base_name = os.path.basename(pdf_path)
-    base_name = os.path.splitext(base_name)[0].replace(" ", "").replace("_", "").lower()
-    json_name = base_name + ".json"
+    # Use the full_name from the result if available, else fallback to PDF filename
+    full_name = result.get("full_name")
+    if full_name:
+        # Clean the name for filesystem safety
+        safe_name = (
+            full_name.replace(" ", "_")
+            .replace("/", "-")
+            .replace("\\", "-")
+            .replace(".", "")
+            .replace(",", "")
+            .replace("'", "")
+            .replace('"', "")
+            .replace(":", "")
+            .replace("|", "")
+            .replace("?", "")
+            .replace("*", "")
+        )
+        json_name = f"{safe_name}_Resume.json"
+    else:
+        base_name = os.path.basename(pdf_path)
+        base_name = os.path.splitext(base_name)[0].replace(" ", "").replace("_", "").lower()
+        json_name = base_name + ".json"
     json_path = os.path.join(output_dir, json_name)
 
     try:
