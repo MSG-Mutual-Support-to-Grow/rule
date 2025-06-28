@@ -15,7 +15,7 @@ dependencies = [
     "pdf2image==1.17.0",
     "pdfplumber==0.10.3",
     "pillow==10.0.0",
-    "pypdf>=5.6.1",
+    "pypdf==3.14.0",
     "pytesseract==0.3.10",
     "python-dotenv==1.0.1",
     "python-multipart>=0.0.20",

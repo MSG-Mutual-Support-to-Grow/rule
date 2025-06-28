@@ -10,6 +10,7 @@ api_key = os.getenv("MISTRAL_API_KEY")
 def call_mistral_resume_analyzer(resume_text, api_key):
     """
     Sends resume text to Mistral (via OpenRouter API) and returns structured JSON analysis.
+    Handles both direct JSON and markdown-wrapped JSON responses.
     """
 
     prompt = f"""
@@ -58,7 +59,18 @@ Resume:
     if response.status_code == 200:
         try:
             raw = response.json()['choices'][0]['message']['content']
-            return json.loads(raw)
+            # Clean markdown code block if present
+            cleaned = raw.strip()
+            if cleaned.startswith("```"):
+                first_newline = cleaned.find('\n')
+                if first_newline != -1:
+                    cleaned = cleaned[first_newline + 1:]
+                else:
+                    cleaned = cleaned[3:]
+            if cleaned.endswith("```"):
+                cleaned = cleaned[:-3]
+            cleaned = cleaned.strip()
+            return json.loads(cleaned)
         except Exception as e:
             print("[ERROR] Failed to parse JSON:", e)
             print("Raw response:", raw)
