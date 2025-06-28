@@ -1,158 +1,49 @@
-# # run_pipeline.py
-# import os
-# import json
-# from dotenv import load_dotenv
-# from pypdf import PdfReader
-
-# import sys
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-
-# from scripts.modules.text_extract.extract_native_pdf import extract_lines_from_pdf
-# from scripts.modules.llm_prompts.parse_resume_llm import call_mistral_resume_analyzer
-# from scripts.modules.text_extract.extract_ocr_pdf import extract_text_easyocr_from_pdf
-
-# load_dotenv()
-# api_key = os.getenv("MISTRAL_API_KEY")  # or OPENROUTER_API_KEY
-
-# def is_pdf_text_based(pdf_path: str) -> bool:
-#     """Detect if the PDF contains extractable text on any page, with debug prints."""
-#     try:
-#         print(f"📄 Checking if PDF is text-based: {pdf_path}")
-#         reader = PdfReader(pdf_path)
-#         for i, page in enumerate(reader.pages, start=1):
-#             text = page.extract_text()
-#             if text and text.strip():
-#                 print(f"Page {i}: Extracted {len(text.strip())} characters of text.")
-#                 return True
-#             else:
-#                 print(f"Page {i}: No extractable text found.")
-#         return False
-#     except Exception as e:
-#         print(f"❌ Error reading PDF for text detection: {e}")
-#         return False
-
-# def process_resume(pdf_path: str):
-#     if not os.path.exists(pdf_path):
-#         print("❌ Resume not found:", pdf_path)
-#         return
-
-#     print(f"\n📄 Extracting resume from: {pdf_path}")
-#     resume_text = extract_lines_from_pdf(pdf_path)
-
-#     if not resume_text.strip():
-#         print("❌ Extracted text is empty!")
-#         return
-
-#     print("\n🤖 Analyzing resume using Mistral...")
-#     result = call_mistral_resume_analyzer(resume_text, api_key)
-
-#     try:
-#         if result:
-#             print("\n✅ Candidate Summary (AI-generated):")
-#             print(json.dumps(result, indent=2))
-#         else:
-#             print("❌ AI analysis failed. Response was None or empty.")
-#     except Exception as e:
-#         print("🚨 Unexpected error while printing result:")
-#         print(f"{type(e).__name__}: {e}")
-#         print("Raw result object:", result)
-
-# def process_resume_ocr(pdf_path: str):
-#     if not os.path.exists(pdf_path):
-#         print("❌ Resume not found:", pdf_path)
-#         return
-
-#     print(f"\n📄 Extracting resume text via OCR from: {pdf_path}")
-#     resume_text = extract_text_easyocr_from_pdf(pdf_path)
-
-#     if not resume_text.strip():
-#         print("❌ Extracted OCR text is empty!")
-#         return
-
-#     print("\n🤖 Analyzing OCR-extracted resume using Mistral...")
-#     result = call_mistral_resume_analyzer(resume_text, api_key)
-
-#     try:
-#         if result:
-#             print("\n✅ Candidate Summary (AI-generated from OCR):")
-#             print(json.dumps(result, indent=2))
-#         else:
-#             print("❌ AI analysis failed. Response was None or empty.")
-#     except Exception as e:
-#         print("🚨 Unexpected error while printing OCR analysis result:")
-#         print(f"{type(e).__name__}: {e}")
-#         print("Raw result object:", result)
-
-
-# if __name__ == "__main__":
-#     pdf_file = "/home/danish/Desktop/projects/Resume_Parser/resumes/DanishPrabhu_Resume.pdf"
-
-#     if not os.path.exists(pdf_file):
-#         print(f"❌ File not found: {pdf_file}")
-#     else:
-#         print(f"Detecting if PDF is text or image based...")
-#         if is_pdf_text_based(pdf_file):
-#             print("✅ Detected PDF as text-based.")
-#             process_resume(pdf_file)
-#         else:
-#             print("⚠️ Detected PDF as image-based (OCR required).")
-#             process_resume_ocr(pdf_file)
-
-
-
 import os
 import json
 from dotenv import load_dotenv
 from pypdf import PdfReader
-
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 from scripts.modules.text_extract.extract_native_pdf import extract_lines_from_pdf
 from scripts.modules.llm_prompts.parse_resume_llm import call_mistral_resume_analyzer
 from scripts.modules.text_extract.extract_ocr_pdf import extract_text_easyocr_from_pdf
 
 load_dotenv()
-api_key = os.getenv("MISTRAL_API_KEY")  # or OPENROUTER_API_KEY
-
+api_key = os.getenv("MISTRAL_API_KEY")
 
 def is_pdf_text_based(pdf_path: str) -> bool:
-    """Detect if the PDF contains extractable text on any page, with debug prints."""
     try:
-        print(f"📄 Checking if PDF is text-based: {pdf_path}")
+        print(f"[DEBUG] Checking if PDF is text-based: {pdf_path}")
         reader = PdfReader(pdf_path)
         for i, page in enumerate(reader.pages, start=1):
             text = page.extract_text()
             if text and text.strip():
-                print(f"Page {i}: Extracted {len(text.strip())} characters of text.")
+                print(f"[DEBUG] Page {i}: Extracted {len(text.strip())} characters.")
                 return True
             else:
-                print(f"Page {i}: No extractable text found.")
+                print(f"[DEBUG] Page {i}: No extractable text.")
         return False
     except Exception as e:
-        print(f"❌ Error reading PDF for text detection: {e}")
+        print(f"[ERROR] PDF read failed: {e}")
         return False
 
+def get_output_dir() -> str:
+    root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+    output_dir = os.path.join(root, "outputs")
+    os.makedirs(output_dir, exist_ok=True)
+    return output_dir
 
-def save_result_to_json(result: dict, pdf_path: str, output_dir: str = "/home/danish/Desktop/projects/Resume_Parser/outputs"):
-    """
-    Save the AI analysis result to a JSON file named after the PDF file.
-    Ensures directory exists and handles exceptions.
-    """
+def save_result_to_json(result: dict, pdf_path: str):
     if not result:
         print("❌ No result to save.")
         return
 
-    if not os.path.exists(output_dir):
-        try:
-            os.makedirs(output_dir)
-            print(f"📁 Created output directory: {output_dir}")
-        except Exception as e:
-            print(f"❌ Failed to create output directory '{output_dir}': {e}")
-            return
-
+    output_dir = get_output_dir()
     base_name = os.path.basename(pdf_path)
-    json_name = os.path.splitext(base_name)[0] + ".json"
+    base_name = os.path.splitext(base_name)[0].replace(" ", "").replace("_", "").lower()
+    json_name = base_name + ".json"
     json_path = os.path.join(output_dir, json_name)
 
     try:
@@ -160,75 +51,63 @@ def save_result_to_json(result: dict, pdf_path: str, output_dir: str = "/home/da
             json.dump(result, f, indent=2, ensure_ascii=False)
         print(f"✅ Result saved to {json_path}")
     except Exception as e:
-        print(f"❌ Failed to save JSON result: {e}")
-
+        print(f"[ERROR] Failed to save JSON: {e}")
 
 def process_resume(pdf_path: str):
     if not os.path.exists(pdf_path):
         print("❌ Resume not found:", pdf_path)
         return
 
-    print(f"\n📄 Extracting resume from: {pdf_path}")
+    print(f"[DEBUG] Extracting resume from: {pdf_path}")
     resume_text = extract_lines_from_pdf(pdf_path)
 
     if not resume_text.strip():
         print("❌ Extracted text is empty!")
         return
 
-    print("\n🤖 Analyzing resume using Mistral...")
+    print("[DEBUG] Calling Mistral LLM for analysis...")
     result = call_mistral_resume_analyzer(resume_text, api_key)
 
     try:
+        if isinstance(result, str):
+            try:
+                result = json.loads(result)
+            except json.JSONDecodeError:
+                print("[WARNING] Mistral returned malformed JSON string.")
+                print("Raw result:", result)
+                return None
         if result:
-            print("\n✅ Candidate Summary (AI-generated):")
-            print(json.dumps(result, indent=2))
             save_result_to_json(result, pdf_path)
+            return result
         else:
-            print("❌ AI analysis failed. Response was None or empty.")
+            print("❌ AI analysis failed.")
     except Exception as e:
-        print("🚨 Unexpected error while printing result:")
-        print(f"{type(e).__name__}: {e}")
-        print("Raw result object:", result)
-
+        print(f"[ERROR] Unexpected result error: {e}")
+        print("Raw result:", result)
 
 def process_resume_ocr(pdf_path: str):
     if not os.path.exists(pdf_path):
         print("❌ Resume not found:", pdf_path)
         return
 
-    print(f"\n📄 Extracting resume text via OCR from: {pdf_path}")
+    print(f"[DEBUG] Extracting OCR text from: {pdf_path}")
     resume_text = extract_text_easyocr_from_pdf(pdf_path)
 
     if not resume_text.strip():
         print("❌ Extracted OCR text is empty!")
         return
 
-    print("\n🤖 Analyzing OCR-extracted resume using Mistral...")
+    print("[DEBUG] Calling Mistral LLM for OCR analysis...")
     result = call_mistral_resume_analyzer(resume_text, api_key)
 
     try:
+        if isinstance(result, str):
+            result = json.loads(result)
         if result:
-            print("\n✅ Candidate Summary (AI-generated from OCR):")
-            print(json.dumps(result, indent=2))
             save_result_to_json(result, pdf_path)
+            return result
         else:
-            print("❌ AI analysis failed. Response was None or empty.")
+            print("❌ AI OCR analysis failed.")
     except Exception as e:
-        print("🚨 Unexpected error while printing OCR analysis result:")
-        print(f"{type(e).__name__}: {e}")
-        print("Raw result object:", result)
-
-
-if __name__ == "__main__":
-    pdf_file = "/home/danish/Desktop/projects/Resume_Parser/resumes/David_Resume.pdf"
-
-    if not os.path.exists(pdf_file):
-        print(f"❌ File not found: {pdf_file}")
-    else:
-        print(f"Detecting if PDF is text or image based...")
-        if is_pdf_text_based(pdf_file):
-            print("✅ Detected PDF as text-based.")
-            process_resume(pdf_file)
-        else:
-            print("⚠️ Detected PDF as image-based (OCR required).")
-            process_resume_ocr(pdf_file)
+        print(f"[ERROR] Unexpected OCR result error: {e}")
+        print("Raw result:", result)
