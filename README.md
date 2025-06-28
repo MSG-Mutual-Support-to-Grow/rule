@@ -1,122 +1,95 @@
-# Resume Parser
+# 🧠 Resume Parser API (FastAPI)
 
-A powerful AI-powered resume parser that extracts structured information from resumes using both text extraction and OCR techniques, followed by intelligent analysis using the Mistral AI model.
+This FastAPI-based API allows you to upload PDF resumes and automatically extracts structured information using a smart AI pipeline. It handles both *text-based* and *image-based* PDFs using OCR when needed.
 
-## 📋 Overview
+---
 
-This project provides a comprehensive pipeline for parsing and analyzing resumes in PDF format. It can:
+## 🚀 Features
 
-- Extract text from standard PDF documents using pdfplumber
-- Process scanned PDFs using OCR (EasyOCR)
-- Use Mistral AI to analyze and structure resume information
-- Output standardized JSON with candidate details
+- ✅ Upload .pdf resumes
+- 🧠 Automatically detects whether the resume is text or image
+- 🔍 Parses data using NLP pipelines or OCR
+- 🌐 CORS-enabled for frontend integrations
+- 🔐 Safe file uploads with UUID-based filenames
 
-## ✨ Features
-
-- **Smart Text Extraction**: Supports both native PDF text extraction and OCR for scanned documents
-- **AI-Powered Analysis**: Uses Mistral AI to intelligently parse resume content
-- **Structured Output**: Generates standardized JSON with key candidate information:
-  - Personal details (name, email, phone)
-  - Work experience and roles
-  - Skills with experience levels
-  - Projects with descriptions and technologies
-  - Leadership indicators
-  - Candidate fit summary
-
-## 🔧 Setup
-
-### Prerequisites
-
-- Python 3.8+
-- PDF processing libraries
-- OCR dependencies
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/dharshan-kumarj/Resume_Parser.git
-   cd Resume_Parser
-   ```
-
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
-
-3. Install dependencies using uv:
-   ```bash
-   uv pip install -r requirement.txt
-   ```
-
-4. Create a `.env` file in the project root with your API key:
-   ```
-   MISTRAL_API_KEY=your_api_key_here
-   ```
+---
 
 ## 📁 Project Structure
 
-```
-Resume_Parser/
-├── .venv/                  # Python virtual environment
-├── outputs/                # Output directory for parsed resumes
-├── resumes/                # Input directory for resume PDFs
-│   ├── ocr/                # PDFs requiring OCR processing
-│   └── text/               # PDFs with extractable text
-├── scripts/
-│   ├── modules/
-│   │   ├── llm_prompts/
-│   │   │   └── parse_resume_llm.py
-│   │   └── text_extract/
-│   │       ├── extract_native_pdf.py
-│   │       └── extract_ocr_pdf.py
-│   └── pipelines/
-│       └── analyze_resume.py
-├── .env                    # Environment variables
-├── .gitignore
-├── main.py                 # Main entry point
-├── pyproject.toml          # Project configuration
-├── README.md               # Documentation
-└── requirement.txt         # Dependencies
-```
 
-## 🚀 Usage
 
-### Basic Usage
+resume\_parser\_api/
+├── main.py                           # FastAPI app
+├── resumes/                          # Uploaded resume storage
+└── scripts/
+└── pipelines/
+├── analyze\_resume.py         # Core AI processing logic
 
-Run the main script to process a resume:
+`
 
-```bash
-python main.py
-```
+---
 
-### Customizing the Pipeline
+## ⚙️ Setup Instructions
 
-You can process specific resumes by modifying the input path in `run_pipeline.py`:
+### 1. Clone the Repo
 
-```python
-if __name__ == "__main__":
-    pdf_file = "resumes/text/your_resume.pdf"
-    process_resume(pdf_file)
-```
+bash
+git clone https://github.com/your-username/your-repo.git
+cd your-repo
+`
 
-## 🔍 How It Works
+### 2. Create & Activate Virtual Environment
 
-1. **Text Extraction**: 
-   - For standard PDFs: Uses pdfplumber to extract text content
-   - For scanned PDFs: Uses EasyOCR to perform optical character recognition
+bash
+python -m venv venv
+source venv/bin/activate     # Linux/macOS
+venv\Scripts\activate        # Windows
 
-2. **AI Analysis**:
-   - Sends extracted text to Mistral AI model
-   - Uses structured prompting to extract key information
 
-3. **Output**:
-   - Returns structured JSON with parsed resume information
+### 3. Install Requirements
 
-## 📝 Example Output
+bash
+pip install -r requirements.txt
 
-```json
+
+> *Note:* Add dependencies like fastapi, uvicorn, pytesseract, PyMuPDF, pdfplumber, etc. to requirements.txt.
+
+---
+
+## ▶️ Run the API
+
+bash
+uvicorn main:app --reload
+
+
+API will be available at:
+👉 http://localhost:8000
+
+---
+
+## 📤 API Endpoint
+
+### POST /upload-resume/
+
+#### Description:
+
+Upload a PDF resume for AI-based analysis.
+
+#### Request:
+
+* *Content-Type:* multipart/form-data
+* *Field:* file (PDF resume)
+
+#### Example with curl:
+
+bash
+curl -X POST http://localhost:8000/upload-resume/ \
+  -F "file=@/path/to/resume.pdf"
+
+
+#### Response:
+
+json
 {
   "full_name": "John Doe",
   "email": "john.doe@example.com",
@@ -128,40 +101,22 @@ if __name__ == "__main__":
       "company": "Tech Corp",
       "years": 3
     },
-    {
-      "title": "Junior Developer",
-      "company": "Startup Inc",
-      "years": 2
-    }
-  ],
-  "skills": {
-    "Python": {"source": "professional", "years": 5},
-    "React": {"source": "professional", "years": 3},
-    "Docker": {"source": "project", "years": 2}
-  },
-  "projects": [
-    {
-      "name": "E-commerce Platform",
-      "tech_stack": ["Python", "Django", "React"],
-      "description": "Built scalable online shopping platform"
-    }
-  ],
-  "leadership_signals": true,
-  "leadership_justification": "Led team of 5 developers in project delivery",
-  "candidate_fit_summary": "Experienced full-stack developer with strong Python skills and team leadership experience"
+    ...
+  ]
 }
-```
 
-## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+---
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## 🧠 AI Pipeline (Under the Hood)
 
-## 📄 License
+* is_pdf_text_based()
+  ➜ Detects whether the PDF contains selectable text
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+* process_resume()
+  ➜ Uses NLP pipeline for text-based resumes
+
+* process_resume_ocr()
+  ➜ Falls back to OCR (e.g., EasyOCR or Tesseract) for scanned/image PDFs
+
+---
