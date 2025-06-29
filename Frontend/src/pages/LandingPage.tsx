@@ -1,19 +1,37 @@
 import { useState } from "react";
-import UploadCard from "../components/UploadCard";
-import OutputViewer from "../components/OutputViewer";
-import Sidebar from "../components/Sidebar";
+import UploadCard from "../components/layout/UploadCard";
+import OutputViewer from "../components/layout/OutputViewer";
+import Sidebar from "../components/layout/Sidebar";
 import BlurText from "../blocks/BlurText";
-import { mockCandidateData } from "../const/mockdata"; // make sure this exists
+import { uploadResume, ResumeAnalysisResult } from "../lib/api";
 
 export default function LandingPage() {
-  const [outputData, setOutputData] = useState<object>(mockCandidateData); // 👈 Set mock data initially
+  const [outputData, setOutputData] = useState<ResumeAnalysisResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleUpload = (files: FileList | null) => {
+  const handleUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
-    console.log("Uploaded files:", files);
-    // For now: Set mock data regardless of actual file
-    setOutputData(mockCandidateData);
+    const file = files[0];
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+      setError("Please upload a PDF file only.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setOutputData(null);
+
+    try {
+      const result = await uploadResume(file);
+      setOutputData(result);
+    } catch (err) {
+      console.error('Upload error:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred while processing the resume');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleAnimationComplete = () => {
@@ -59,9 +77,28 @@ export default function LandingPage() {
           */}
         </div>
 
-        <div className="mt-10 w-full max-w-4xl">
-          <OutputViewer data={outputData} />
-        </div>
+        {/* Loading State */}
+        {isLoading && (
+          <div className="mt-8 text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="mt-2 text-gray-600">Processing resume...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="mt-8 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg max-w-md mx-auto">
+            <p className="font-semibold">Error:</p>
+            <p>{error}</p>
+          </div>
+        )}
+
+        {/* Results */}
+        {outputData && !isLoading && (
+          <div className="mt-10 w-full max-w-4xl">
+            <OutputViewer data={outputData} />
+          </div>
+        )}
       </main>
     </div>
   );
