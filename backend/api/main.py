@@ -10,7 +10,7 @@ import tempfile
 # Ensure correct root path for module imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-from scripts.pipelines.analyze_resume import (
+from backend.pipelines.analyze_resume import (
     is_pdf_text_based,
     process_resume,
     process_resume_ocr,

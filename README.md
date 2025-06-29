@@ -42,7 +42,7 @@ This project provides a comprehensive pipeline for parsing and analyzing resumes
 2. Create and activate a virtual environment:
    ```bash
    python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   source .venv/bin/activate  # On Windows: .venv\backend\activate
    ```
 
 3. Install dependencies using uv:
@@ -64,7 +64,7 @@ Resume_Parser/
 ├── resumes/                # Input directory for resume PDFs
 │   ├── ocr/                # PDFs requiring OCR processing
 │   └── text/               # PDFs with extractable text
-├── scripts/
+├── backend/
 │   ├── modules/
 │   │   ├── llm_prompts/
 │   │   │   └── parse_resume_llm.py
