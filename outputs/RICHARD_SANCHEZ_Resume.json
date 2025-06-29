@@ -1,0 +1,59 @@
+{
+  "full_name": "RICHARD SANCHEZ",
+  "email": "hello@reallygreatsite.com",
+  "phone_number": "+123-456-7890",
+  "total_experience_years": 5,
+  "roles": [
+    {
+      "title": "Marketing Manager & Specialist",
+      "company": "Borcelle Studio",
+      "years": "2030 - PRESENT"
+    },
+    {
+      "title": "Marketing Manager & Specialist",
+      "company": "Fauget Studio",
+      "years": "2025 - 2029"
+    },
+    {
+      "title": "Marketing Manager & Specialist",
+      "company": "Studio Shodwe",
+      "years": "2024 - 2025"
+    }
+  ],
+  "skills": {
+    "Project Management": {
+      "source": "Work Experience",
+      "years": "Estimated 5 years"
+    },
+    "Public Relations": {
+      "source": "Work Experience",
+      "years": "Estimated 5 years"
+    },
+    "Teamwork": {
+      "source": "Work Experience",
+      "years": "Estimated 5 years"
+    },
+    "Time Management": {
+      "source": "Work Experience",
+      "years": "Estimated 5 years"
+    },
+    "Leadership": {
+      "source": "Work Experience",
+      "years": "Estimated 5 years"
+    },
+    "Effective Communication": {
+      "source": "Work Experience",
+      "years": "Estimated 5 years"
+    },
+    "Critical Thinking": {
+      "source": "Work Experience",
+      "years": "Estimated 5 years"
+    }
+  },
+  "projects": [],
+  "leadership_signals": true,
+  "leadership_justification": "Lead, mentor, and manage a high-performing marketing team, fostering a collaborative and results-driven work environment.",
+  "candidate_fit_summary": "Richard Sanchez has extensive experience in marketing and leadership but lacks the required technical skills in Python, Django, Flask, REST APIs, and Git for the Junior Software Developer role.",
+  "eligibility_status": "Not Eligible",
+  "eligibility_reason": "The candidate has no experience in Python, Django, Flask, REST APIs, or Git, which are essential for the Junior Software Developer role."
+}

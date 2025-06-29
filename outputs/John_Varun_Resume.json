@@ -1,0 +1,132 @@
+{
+  "full_name": "John Varun",
+  "email": "johnvarun.tech@example.com",
+  "phone_number": "+91 9876543210",
+  "total_experience_years": 1,
+  "roles": [
+    {
+      "title": "Backend Development Intern",
+      "company": "NeoMatrix Tech",
+      "years": 0.17
+    },
+    {
+      "title": "Junior Software Engineer Intern",
+      "company": "Bitcrest Solutions",
+      "years": 0.42
+    }
+  ],
+  "skills": {
+    "Python": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "Django": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "Flask": {
+      "source": "not mentioned",
+      "years": "not mentioned"
+    },
+    "REST APIs": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "Git": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "HTML": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "CSS": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "JavaScript": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "Node.js": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "Golang": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "PHP": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "Laravel": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "React.js": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "MySQL": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "MongoDB": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "Docker": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "GitHub": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "DevOps": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "Leadership": {
+      "source": "skills section",
+      "years": "not mentioned"
+    },
+    "Problem Solving": {
+      "source": "skills section",
+      "years": "not mentioned"
+    }
+  },
+  "projects": [
+    {
+      "name": "FestSync",
+      "tech_stack": "Django, SQLite, Redis, JWT, SMTP, AWS, Nginx, Docker",
+      "description": "Backend lead for the university's national-level fest portal."
+    },
+    {
+      "name": "ReqTesty",
+      "tech_stack": "React.js, Golang, Docker, MySQL",
+      "description": "API testing platform built during internship."
+    },
+    {
+      "name": "MailBridge",
+      "tech_stack": "not mentioned",
+      "description": "Automated email gateway API for no-reply messages and contact form submissions."
+    },
+    {
+      "name": "MediaSnap",
+      "tech_stack": "PHP, MySQL",
+      "description": "Social media prototype with posts, likes, and comments."
+    },
+    {
+      "name": "FarmIQ",
+      "tech_stack": "Laravel",
+      "description": "Backend for farmer crop monitoring platform."
+    }
+  ],
+  "leadership_signals": true,
+  "leadership_justification": "Backend lead for the university's national-level fest portal.",
+  "candidate_fit_summary": "John Varun is a Junior Software Developer with experience in Python, Django, and REST APIs, making him a strong fit for the role. His leadership experience and full-stack development skills are valuable assets.",
+  "eligibility_status": "Eligible",
+  "eligibility_reason": "John Varun has 1 year of experience in Python and Django, along with knowledge of REST APIs and Git. His leadership experience and full-stack development skills make him a strong candidate for the Junior Software Developer role."
+}
