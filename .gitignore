@@ -26,7 +26,7 @@ uv.lock
 docker-compose.override.yml
 
 # Node modules (if running locally)
-Frontend/node_modules/
+frontend/node_modules/
 
 # Environment files
 .env

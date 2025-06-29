@@ -16,8 +16,8 @@ env/
 venv/
 
 # Node
-Frontend/node_modules/
-Frontend/dist/
+frontend/node_modules/
+frontend/dist/
 
 # Docker
 Dockerfile*

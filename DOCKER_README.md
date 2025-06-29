@@ -14,7 +14,7 @@
    ```
 
 3. **Access the applications:**
-   - Frontend: http://localhost:5173
+   - frontend: http://localhost:5173
    - Backend API: http://localhost:8000
    - API Documentation: http://localhost:8000/docs
 
@@ -54,8 +54,8 @@ docker-compose logs -f frontend
 ## Development
 
 The setup includes volume mounts for hot reloading:
-- Frontend: Changes to `Frontend/src` will auto-reload
-- Backend: Changes to `scripts/` will auto-reload
+- frontend: Changes to `frontend/src` will auto-reload
+- Backend: Changes to `backend/` will auto-reload
 
 ## Troubleshooting
 
@@ -66,4 +66,4 @@ The setup includes volume mounts for hot reloading:
 ## Services Overview
 
 - **Backend**: FastAPI application running on port 8000
-- **Frontend**: React + Vite application running on port 5173
+- **frontend**: React + Vite application running on port 5173

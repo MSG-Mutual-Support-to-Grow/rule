@@ -10,7 +10,7 @@ services:
       - "8000:8000"
     volumes:
       - ./outputs:/app/outputs
-      - ./scripts:/app/scripts
+      - ./backend:/app/backend
     environment:
       - PYTHONPATH=/app
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}
@@ -26,8 +26,8 @@ services:
     ports:
       - "5173:5173"
     volumes:
-      - ./Frontend/src:/app/src
-      - ./Frontend/public:/app/public
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
     depends_on:
       - backend
     restart: unless-stopped

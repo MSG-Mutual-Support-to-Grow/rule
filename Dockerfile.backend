@@ -35,4 +35,4 @@ RUN mkdir -p outputs
 EXPOSE 8000
 
 # Command to run the application
-CMD ["uvicorn", "scripts.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "backend.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

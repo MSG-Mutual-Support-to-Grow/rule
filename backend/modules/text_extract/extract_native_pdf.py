@@ -1,4 +1,4 @@
-# scripts/extract_text_lines.py
+# backend/extract_text_lines.py
 
 import pdfplumber
 import os
