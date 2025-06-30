@@ -9,7 +9,6 @@ A modern, user-friendly web application for uploading resumes and viewing parsed
 - **PDF Resume Upload:** Upload one or more PDF resumes for parsing.
 - **Instant Results:** View structured candidate data (name, contact, skills, experience, etc.) right after upload.
 - **Beautiful UI:** Built with React, Tailwind CSS, and ShadCN UI for a clean, responsive experience.
-- **Sidebar Navigation:** Quick access to sessions and settings.
 - **Reusable Components:** Modular design for easy extension and maintenance.
 
 ---
@@ -34,7 +33,7 @@ frontend/
 │   ├── assets/            # SVGs and images
 │   ├── blocks/            # Animated/utility blocks (e.g., BlurText)
 │   ├── components/
-│   │   ├── layout/        # Layout components (Sidebar, UploadCard, OutputViewer)
+│   │   ├── layout/        # Layout components (UploadCard, OutputViewer)
 │   │   └── ui/            # UI primitives (Button, Card, Table)
 │   ├── const/             # Static/mock data
 │   ├── lib/               # API and utility functions
