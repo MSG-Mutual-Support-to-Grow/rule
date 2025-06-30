@@ -13,7 +13,7 @@ export default function App() {
           <p className="text-sm mt-1">Date: 30/06/2025</p>
           <p className="mt-4 font-semibold">Team Members:</p>
           <ul className="list-disc ml-6">
-            <li>Dharhan Kumar J – AI Engineer</li>
+            <li>Dharshan Kumar J – Backend Software Developer</li>
             <li>Ronnie A. Jeffrey – Systems Architect</li>
             <li>Danish Prabu – Backend Developer</li>
             <li>Aparna – UX Researcher</li>
