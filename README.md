@@ -1,167 +1,152 @@
-# Resume Parser
+# Resume Parser Frontend
 
-A powerful AI-powered resume parser that extracts structured information from resumes using both text extraction and OCR techniques, followed by intelligent analysis using the Mistral AI model.
+A modern, user-friendly web application for uploading resumes and viewing parsed results from the Resume Parser backend.
 
-## 📋 Overview
+---
 
-This project provides a comprehensive pipeline for parsing and analyzing resumes in PDF format. It can:
+## 🚀 Features
 
-- Extract text from standard PDF documents using pdfplumber
-- Process scanned PDFs using OCR (EasyOCR)
-- Use Mistral AI to analyze and structure resume information
-- Output standardized JSON with candidate details
+- **PDF Resume Upload:** Upload one or more PDF resumes for parsing.
+- **Instant Results:** View structured candidate data (name, contact, skills, experience, etc.) right after upload.
+- **Beautiful UI:** Built with React, Tailwind CSS, and ShadCN UI for a clean, responsive experience.
+- **Reusable Components:** Modular design for easy extension and maintenance.
 
-## ✨ Features
+---
 
-- **Smart Text Extraction**: Supports both native PDF text extraction and OCR for scanned documents
-- **AI-Powered Analysis**: Uses Mistral AI to intelligently parse resume content
-- **Structured Output**: Generates standardized JSON with key candidate information:
-  - Personal details (name, email, phone)
-  - Work experience and roles
-  - Skills with experience levels
-  - Projects with descriptions and technologies
-  - Leadership indicators
-  - Candidate fit summary
+## 🧰 Tech Stack
 
-## 🔧 Setup
+- React (with TypeScript)
+- Vite (fast dev/build tool)
+- Tailwind CSS (utility-first styling)
+- ShadCN UI (accessible, customizable UI components)
+- Framer Motion (animations)
+- Lucide Icons (icon set)
 
-### Prerequisites
+---
 
-- Python 3.8+
-- PDF processing libraries
-- OCR dependencies
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/dharshan-kumarj/Resume_Parser.git
-   cd Resume_Parser
-   ```
-
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\backend\activate
-   ```
-
-3. Install dependencies using uv:
-   ```bash
-   uv pip install -r requirement.txt
-   ```
-
-4. Create a `.env` file in the project root with your API key:
-   ```
-   MISTRAL_API_KEY=your_api_key_here
-   ```
-
-## 📁 Project Structure
+## 📁 Folder Structure
 
 ```
-Resume_Parser/
-├── .venv/                  # Python virtual environment
-├── outputs/                # Output directory for parsed resumes
-├── resumes/                # Input directory for resume PDFs
-│   ├── ocr/                # PDFs requiring OCR processing
-│   └── text/               # PDFs with extractable text
-├── backend/
-│   ├── modules/
-│   │   ├── llm_prompts/
-│   │   │   └── parse_resume_llm.py
-│   │   └── text_extract/
-│   │       ├── extract_native_pdf.py
-│   │       └── extract_ocr_pdf.py
-│   └── pipelines/
-│       └── analyze_resume.py
-├── .env                    # Environment variables
-├── .gitignore
-├── main.py                 # Main entry point
-├── pyproject.toml          # Project configuration
-├── README.md               # Documentation
-└── requirement.txt         # Dependencies
+frontend/
+├── public/                # Static assets (images, icons)
+├── src/
+│   ├── assets/            # SVGs and images
+│   ├── blocks/            # Animated/utility blocks (e.g., BlurText)
+│   ├── components/
+│   │   ├── layout/        # Layout components (UploadCard, OutputViewer)
+│   │   └── ui/            # UI primitives (Button, Card, Table)
+│   ├── const/             # Static/mock data
+│   ├── lib/               # API and utility functions
+│   ├── pages/             # Page-level components (LandingPage)
+│   ├── App.tsx            # Main app component
+│   ├── main.tsx           # Entry point
+│   └── index.css          # Tailwind base styles
+├── index.html             # App HTML template
+├── tailwind.config.js     # Tailwind config
+├── postcss.config.cjs     # PostCSS config
+├── vite.config.ts         # Vite config
+├── tsconfig*.json         # TypeScript configs
+└── README.md              # This file
 ```
 
-## 🚀 Usage
+---
 
-### Basic Usage
+## ⚡ Getting Started
 
-Run the main script to process a resume:
+### 1. Clone the Repository
 
 ```bash
-python main.py
+git clone https://github.com/dharshan-kumarj/Resume_Parser>
+cd <Resume_Parser>/frontend
 ```
 
-### Customizing the Pipeline
+### 2. Install Dependencies
 
-You can process specific resumes by modifying the input path in `run_pipeline.py`:
-
-```python
-if __name__ == "__main__":
-    pdf_file = "resumes/text/your_resume.pdf"
-    process_resume(pdf_file)
+```bash
+npm install
 ```
 
-## 🔍 How It Works
+### 3. Start the Development Server
 
-1. **Text Extraction**: 
-   - For standard PDFs: Uses pdfplumber to extract text content
-   - For scanned PDFs: Uses EasyOCR to perform optical character recognition
-
-2. **AI Analysis**:
-   - Sends extracted text to Mistral AI model
-   - Uses structured prompting to extract key information
-
-3. **Output**:
-   - Returns structured JSON with parsed resume information
-
-## 📝 Example Output
-
-```json
-{
-  "full_name": "John Doe",
-  "email": "john.doe@example.com",
-  "phone_number": "123-456-7890",
-  "total_experience_years": 5,
-  "roles": [
-    {
-      "title": "Software Engineer",
-      "company": "Tech Corp",
-      "years": 3
-    },
-    {
-      "title": "Junior Developer",
-      "company": "Startup Inc",
-      "years": 2
-    }
-  ],
-  "skills": {
-    "Python": {"source": "professional", "years": 5},
-    "React": {"source": "professional", "years": 3},
-    "Docker": {"source": "project", "years": 2}
-  },
-  "projects": [
-    {
-      "name": "E-commerce Platform",
-      "tech_stack": ["Python", "Django", "React"],
-      "description": "Built scalable online shopping platform"
-    }
-  ],
-  "leadership_signals": true,
-  "leadership_justification": "Led team of 5 developers in project delivery",
-  "candidate_fit_summary": "Experienced full-stack developer with strong Python skills and team leadership experience"
-}
+```bash
+npm run dev
 ```
+
+- The app will be available at http://localhost:5173 (or as shown in your terminal).
+
+### 4. Build for Production
+
+```bash
+npm run build
+```
+
+- Output will be in the `dist/` folder.
+
+### 5. Preview the Production Build
+
+```bash
+npm run preview
+```
+
+---
+
+## 🖇️ Connecting to the Backend
+
+- The frontend expects the Resume Parser backend (FastAPI) to be running and accessible (default: http://localhost:8000).
+- You can configure the backend URL in `src/lib/api.ts` if needed.
+
+---
+
+## 🧩 Customization
+
+- **UI Components:** All UI elements are in `src/components/ui/` and can be easily customized or extended.
+- **Theme:** Tailwind and ShadCN UI make it easy to adjust colors, fonts, and layout.
+- **API Integration:** The upload logic is in `src/lib/api.ts` and can be adapted for different endpoints.
+
+---
+
+## 📝 Example Usage
+
+1. Click the upload card to select a PDF resume.
+2. The file is sent to the backend and parsed.
+3. The parsed candidate data is displayed in a structured, readable format.
+
+---
+
+## 🛠️ Additional Setup Details
+
+### Tailwind CSS
+- Configured in `tailwind.config.js` and `postcss.config.cjs`.
+- Styles are imported in `src/index.css`.
+
+### ShadCN UI
+- Components are generated and managed via `components.json`.
+- To add a new UI component, run:
+  ```bash
+  npx shadcn-ui@latest add <component>
+  ```
+
+### TypeScript
+- TypeScript configuration is in `tsconfig.json`, `tsconfig.app.json`, and `tsconfig.node.json`.
+
+### Linting
+- ESLint is configured via `eslint.config.js` for code quality and consistency.
+
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+1. Fork this repo and create a new branch.
+2. Make your changes and commit.
+3. Open a Pull Request with a clear description.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
+
+---
+
+**Questions?**  
+Open an issue or contact the maintainer.
