@@ -56,8 +56,8 @@ frontend/
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repo-url>
-cd <your-repo>/frontend
+git clone https://github.com/dharshan-kumarj/Resume_Parser>
+cd <Resume_Parser>/frontend
 ```
 
 ### 2. Install Dependencies
