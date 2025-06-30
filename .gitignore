@@ -20,3 +20,14 @@ Thumbs.db
 
 # UV lock file
 uv.lock
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Node modules (if running locally)
+frontend/node_modules/
+
+# Environment files
+.env
+.env.local
