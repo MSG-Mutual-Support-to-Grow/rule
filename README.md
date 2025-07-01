@@ -40,6 +40,7 @@ Welcome to Resume Understanding Language Engine, a cutting-edge full-stack appli
 - [Contributing](#contributing)
 - [Troubleshooting](#troubleshooting)
 - [FAQ](#faq)
+- [Contributors](#contributors)
 - [License](#license)
 
 ## Features
@@ -429,6 +430,15 @@ A: The application includes CORS configuration and input validation. For product
 - **Advanced Analytics**: Candidate comparison, ranking, and filtering
 - **Custom Job Profiles**: Configurable evaluation criteria per role
 - **Multi-LLM Support**: Integration with multiple AI providers (OpenAI, Anthropic, Groq, etc.) with custom API key configuration for local usage
+
+## Contributors
+
+- **Dharshan Kumar J** – Backend Software Developer  
+- **Ronnie A. Jeffrey** – Systems Architect  
+- **Danish Prabu** – Backend Developer  
+- **Aparna** – UX Researcher  
+- **Franz Kingstein N** – OCR & Data Engineer  
+
 
 ## License
 
