@@ -431,13 +431,13 @@ A: The application includes CORS configuration and input validation. For product
 - **Custom Job Profiles**: Configurable evaluation criteria per role
 - **Multi-LLM Support**: Integration with multiple AI providers (OpenAI, Anthropic, Groq, etc.) with custom API key configuration for local usage
 
-## Contributors
+### 🙌 Contributors
 
-- **Dharshan Kumar J** – Backend Software Developer  
-- **Ronnie A. Jeffrey** – Systems Architect  
-- **Danish Prabu** – Backend Developer  
-- **Aparna** – UX Researcher  
-- **Franz Kingstein N** – OCR & Data Engineer  
+- [@dharshan-kumarj](https://github.com/dharshan-kumarj)  
+- [@ronnie-allen](https://github.com/ronnie-allen)  
+- [@Aparna0224](https://github.com/Aparna0224)  
+- [@Franz-kingstein](https://github.com/Franz-kingstein)  
+- [@Danishprabhu04](https://github.com/Danishprabhu04)
 
 
 ## License
