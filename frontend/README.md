@@ -1,6 +1,6 @@
-# Resume Parser Frontend
+# Resume Understanding Language Engine Frontend
 
-A modern, user-friendly web application for uploading resumes and viewing parsed results from the Resume Parser backend.
+A modern, user-friendly web application for uploading resumes and viewing parsed results from the Resume Understanding Language Engine backend.
 
 ---
 
@@ -26,28 +26,30 @@ A modern, user-friendly web application for uploading resumes and viewing parsed
 
 ## 📁 Folder Structure
 
-```
 frontend/
-├── public/                # Static assets (images, icons)
+├── public/ # Static assets (images, icons)
 ├── src/
-│   ├── assets/            # SVGs and images
-│   ├── blocks/            # Animated/utility blocks (e.g., BlurText)
-│   ├── components/
-│   │   ├── layout/        # Layout components (UploadCard, OutputViewer)
-│   │   └── ui/            # UI primitives (Button, Card, Table)
-│   ├── const/             # Static/mock data
-│   ├── lib/               # API and utility functions
-│   ├── pages/             # Page-level components (LandingPage)
-│   ├── App.tsx            # Main app component
-│   ├── main.tsx           # Entry point
-│   └── index.css          # Tailwind base styles
-├── index.html             # App HTML template
-├── tailwind.config.js     # Tailwind config
-├── postcss.config.cjs     # PostCSS config
-├── vite.config.ts         # Vite config
-├── tsconfig*.json         # TypeScript configs
-└── README.md              # This file
-```
+│ ├── assets/ # SVGs and images
+│ ├── blocks/ # Animated/utility blocks (e.g., BlurText)
+│ ├── components/
+│ │ ├── layout/ # Layout components (UploadCard, OutputViewer)
+│ │ └── ui/ # UI primitives (Button, Card, Table)
+│ ├── const/ # Static/mock data
+│ ├── lib/ # API and utility functions
+│ ├── pages/ # Page-level components (LandingPage)
+│ ├── App.tsx # Main app component
+│ ├── main.tsx # Entry point
+│ └── index.css # Tailwind base styles
+├── index.html # App HTML template
+├── tailwind.config.js # Tailwind config
+├── postcss.config.cjs # PostCSS config
+├── vite.config.ts # Vite config
+├── tsconfig*.json # TypeScript configs
+└── README.md # This file
+
+yaml
+Copy
+Edit
 
 ---
 
@@ -58,95 +60,79 @@ frontend/
 ```bash
 git clone https://github.com/dharshan-kumarj/rule/tree/frontend/phase_oneAPi_integration
 cd rule/frontend
-```
-
-### 2. Install Dependencies
-
-```bash
+2. Install Dependencies
+bash
+Copy
+Edit
 npm install
-```
-
-### 3. Start the Development Server
-
-```bash
+3. Start the Development Server
+bash
+Copy
+Edit
 npm run dev
-```
+The app will be available at http://localhost:5173 (or as shown in your terminal).
 
-- The app will be available at http://localhost:5173 (or as shown in your terminal).
-
-### 4. Build for Production
-
-```bash
+4. Build for Production
+bash
+Copy
+Edit
 npm run build
-```
+Output will be in the dist/ folder.
 
-- Output will be in the `dist/` folder.
-
-### 5. Preview the Production Build
-
-```bash
+5. Preview the Production Build
+bash
+Copy
+Edit
 npm run preview
-```
+🖇️ Connecting to the Backend
+The frontend expects the Resume Understanding Language Engine backend (FastAPI) to be running and accessible (default: http://localhost:8000).
 
----
+You can configure the backend URL in src/lib/api.ts if needed.
 
-## 🖇️ Connecting to the Backend
+🧩 Customization
+UI Components: All UI elements are in src/components/ui/ and can be easily customized or extended.
 
-- The frontend expects the Resume Parser backend (FastAPI) to be running and accessible (default: http://localhost:8000).
-- You can configure the backend URL in `src/lib/api.ts` if needed.
+Theme: Tailwind and ShadCN UI make it easy to adjust colors, fonts, and layout.
 
----
+API Integration: The upload logic is in src/lib/api.ts and can be adapted for different endpoints.
 
-## 🧩 Customization
+📝 Example Usage
+Click the upload card to select a PDF resume.
 
-- **UI Components:** All UI elements are in `src/components/ui/` and can be easily customized or extended.
-- **Theme:** Tailwind and ShadCN UI make it easy to adjust colors, fonts, and layout.
-- **API Integration:** The upload logic is in `src/lib/api.ts` and can be adapted for different endpoints.
+The file is sent to the backend and parsed.
 
----
+The parsed candidate data is displayed in a structured, readable format.
 
-## 📝 Example Usage
+🛠️ Additional Setup Details
+Tailwind CSS
+Configured in tailwind.config.js and postcss.config.cjs.
 
-1. Click the upload card to select a PDF resume.
-2. The file is sent to the backend and parsed.
-3. The parsed candidate data is displayed in a structured, readable format.
+Styles are imported in src/index.css.
 
----
+ShadCN UI
+Components are generated and managed via components.json.
 
-## 🛠️ Additional Setup Details
+To add a new UI component, run:
 
-### Tailwind CSS
-- Configured in `tailwind.config.js` and `postcss.config.cjs`.
-- Styles are imported in `src/index.css`.
+bash
+Copy
+Edit
+npx shadcn-ui@latest add <component>
+TypeScript
+TypeScript configuration is in tsconfig.json, tsconfig.app.json, and tsconfig.node.json.
 
-### ShadCN UI
-- Components are generated and managed via `components.json`.
-- To add a new UI component, run:
-  ```bash
-  npx shadcn-ui@latest add <component>
-  ```
+Linting
+ESLint is configured via eslint.config.js for code quality and consistency.
 
-### TypeScript
-- TypeScript configuration is in `tsconfig.json`, `tsconfig.app.json`, and `tsconfig.node.json`.
+🤝 Contributing
+Fork this repo and create a new branch.
 
-### Linting
-- ESLint is configured via `eslint.config.js` for code quality and consistency.
+Make your changes and commit.
 
----
+Open a Pull Request with a clear description.
 
-## 🤝 Contributing
-
-1. Fork this repo and create a new branch.
-2. Make your changes and commit.
-3. Open a Pull Request with a clear description.
-
----
-
-## 📄 License
-
+📄 License
 This project is licensed under the MIT License.
 
----
-
-**Questions?**  
+Questions?
 Open an issue or contact the maintainer.
