@@ -1,14 +1,30 @@
-# Resume Understanding Language Engine (RULE)
+# Resume Understanding Language Engine (RULE)
 
 **RULE**: AI-Powered Resume Parsing and Analysis Platform
 
-Welcome to  Resume Understanding Language Engine, a cutting-edge full-stack application that leverages AI to parse, analyze, and extract structured data from resumes instantly. Upload resumes individually or in bulk, and let our intelligent system provide comprehensive candidate analysis with eligibility assessments and detailed insights.
+![Landing Page](https://raw.githubusercontent.com/dharshan-kumarj/rule/main/docs/images/Landing_Page.png)
+
+<div align="center">
+
+Upload resumes individually. Let AI parse and export structured data instantly.
+
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://docker.com)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org)
+
+[📖 Documentation](https://rule-docs.onrender.com/) • [❓ FAQ](https://rule-docs.onrender.com/#faq) • [🚀 Quick Start](#quick-start)
+
+</div>
+
+
+Welcome to Resume Understanding Language Engine, a cutting-edge full-stack application that leverages AI to parse, analyze, and extract structured data from resumes instantly. Upload resumes individually or in bulk, and let our intelligent system provide comprehensive candidate analysis with eligibility assessments and detailed insights.
 
 📖 **Documentation**: [Visit our comprehensive docs](https://rule-docs.onrender.com/)
 
 🤔 **FAQ**: [Find answers to common questions](https://rule-docs.onrender.com/#faq)
 
-🎯 **Live Demo**: Experience the power of AI-driven resume analysis in action!
+<!-- 🎯 *Live Demo*: Experience the power of AI-driven resume analysis in action! -->
 
 ## Table of Contents
 - [Features](#features)
@@ -69,7 +85,7 @@ Welcome to  Resume Understanding Language Engine, a cutting-edge full-stack app
 
 ## Quick Start
 
-Get  Resume Understanding Language Engine running on your machine in under 5 minutes!
+Get Resume Understanding Language Engine running on your machine in under 5 minutes!
 
 ### Prerequisites
 - **Docker** and **Docker Compose** (Recommended)
@@ -80,8 +96,8 @@ Get  Resume Understanding Language Engine running on your machine in under 5 mi
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/resume_parser.git
-   cd resume_parser
+   git clone https://github.com/dharshan-kumarj/rule
+   cd rule
    ```
 
 2. **Start the application**
@@ -94,7 +110,7 @@ Get  Resume Understanding Language Engine running on your machine in under 5 mi
    - **Backend API**: http://localhost:8000
    - **API Documentation**: http://localhost:8000/docs
 
-That's it! 🎉 Your  Resume Understanding Language Engine platform is now running!
+That's it! 🎉 Your Resume Understanding Language Engine platform is now running!
 
 ## Setup Options
 
@@ -132,7 +148,7 @@ docker-compose logs -f frontend
 #### Backend Setup
 1. **Navigate to project root**
    ```bash
-   cd resume_parser
+   cd rule
    ```
 
 2. **Install Python dependencies**
@@ -172,7 +188,7 @@ docker-compose logs -f frontend
 ## Configuration
 
 ### Environment Variables
-Create a `.env` file in the project root:
+Create a .env file in the project root:
 
 ```env
 # AI/LLM Configuration
@@ -212,10 +228,11 @@ Response:
 }
 ```
 
+
 ## Project Structure
 
 ```
-resume_parser/
+rule/
 ├── 📁 backend/
 │   ├── 📁 api/
 │   │   └── main.py                 # FastAPI application
@@ -251,6 +268,7 @@ resume_parser/
 └── 📄 README.md                   # This file
 ```
 
+
 ## Available Scripts
 
 ### Frontend Scripts
@@ -275,9 +293,10 @@ docker-compose logs -f backend    # View backend logs
 docker-compose logs -f frontend   # View frontend logs
 ```
 
+
 ## Contributing
 
-We welcome contributions to  Resume Understanding Language Engine! Here's how to get started:
+We welcome contributions to Resume Understanding Language Engine! Here's how to get started:
 
 ### Development Workflow
 1. **Fork the repository**
@@ -313,7 +332,7 @@ We welcome contributions to  Resume Understanding Language Engine! Here's how t
 ### Common Issues
 
 #### Port Conflicts
-**Problem**: `Port 5173 or 8000 already in use`
+**Problem**: Port 5173 or 8000 already in use
 **Solution**: 
 ```bash
 # Kill processes using the ports
@@ -324,7 +343,7 @@ lsof -ti:8000 | xargs kill -9
 ```
 
 #### Docker Build Failures
-**Problem**: `Docker build fails`
+**Problem**: Docker build fails
 **Solution**:
 ```bash
 # Clear Docker cache
@@ -335,14 +354,14 @@ docker-compose build --no-cache
 ```
 
 #### PDF Processing Errors
-**Problem**: `Error processing PDF files`
+**Problem**: Error processing PDF files
 **Solutions**:
 - Ensure PDF is not password protected
 - Check if PDF contains extractable text
 - For scanned PDFs, OCR processing may take longer
 
 #### Python Dependencies
-**Problem**: `Module not found errors`
+**Problem**: Module not found errors
 **Solution**:
 ```bash
 # Reinstall dependencies
@@ -353,11 +372,11 @@ pip cache purge
 pip install -r requirements.txt --force-reinstall
 ```
 
+
 ### Getting Help
 - 📚 **Documentation**: [https://rule-docs.onrender.com/](https://rule-docs.onrender.com/)
 - ❓ **FAQ**: [https://rule-docs.onrender.com/#faq](https://rule-docs.onrender.com/#faq)
 - 🐛 **Issues**: Open a GitHub issue with detailed description
-- 💬 **Discussions**: Use GitHub Discussions for questions
 
 ## FAQ
 
@@ -430,14 +449,10 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 ### Get Help
 - 📖 **Documentation**: [https://rule-docs.onrender.com/](https://rule-docs.onrender.com/)
 - ❓ **FAQ**: [https://rule-docs.onrender.com/#faq](https://rule-docs.onrender.com/#faq)
-- 🐛 **Bug Reports**: [Open an issue](https://github.com/yourusername/resume_parser/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/resume_parser/discussions)
-
-### Commercial Support
-For enterprise deployments, custom integrations, or commercial support, please contact us at contact@dharshankumar.com.
+- 🐛 **Bug Reports**: [Open an issue](https://github.com/dharshan-kumarj/rule/issues)
 
 ---
 
-**Developed with ❤️ by MSG - (Mutual Support to Grow) community**
+**Developed with ❤ by MSG - (Mutual Support to Grow) community**
 
-*Transform your hiring process with AI-powered resume analysis!*
+Transform your hiring process with AI-powered resume analysis!
