@@ -1,167 +1,443 @@
-# Resume Parser
+# Resume Understanding Language Engine (RULE)
 
-A powerful AI-powered resume parser that extracts structured information from resumes using both text extraction and OCR techniques, followed by intelligent analysis using the Mistral AI model.
+**RULE**: AI-Powered Resume Parsing and Analysis Platform
 
-## 📋 Overview
+Welcome to  Resume Understanding Language Engine, a cutting-edge full-stack application that leverages AI to parse, analyze, and extract structured data from resumes instantly. Upload resumes individually or in bulk, and let our intelligent system provide comprehensive candidate analysis with eligibility assessments and detailed insights.
 
-This project provides a comprehensive pipeline for parsing and analyzing resumes in PDF format. It can:
+📖 **Documentation**: [Visit our comprehensive docs](https://rule-docs.onrender.com/)
 
-- Extract text from standard PDF documents using pdfplumber
-- Process scanned PDFs using OCR (EasyOCR)
-- Use Mistral AI to analyze and structure resume information
-- Output standardized JSON with candidate details
+🤔 **FAQ**: [Find answers to common questions](https://rule-docs.onrender.com/#faq)
 
-## ✨ Features
+🎯 **Live Demo**: Experience the power of AI-driven resume analysis in action!
 
-- **Smart Text Extraction**: Supports both native PDF text extraction and OCR for scanned documents
-- **AI-Powered Analysis**: Uses Mistral AI to intelligently parse resume content
-- **Structured Output**: Generates standardized JSON with key candidate information:
-  - Personal details (name, email, phone)
-  - Work experience and roles
-  - Skills with experience levels
-  - Projects with descriptions and technologies
-  - Leadership indicators
-  - Candidate fit summary
+## Table of Contents
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Quick Start](#quick-start)
+- [Setup Options](#setup-options)
+- [Docker Installation](#docker-installation)
+- [Manual Installation](#manual-installation)
+- [Configuration](#configuration)
+- [API Documentation](#api-documentation)
+- [Project Structure](#project-structure)
+- [Available Scripts](#available-scripts)
+- [Contributing](#contributing)
+- [Troubleshooting](#troubleshooting)
+- [FAQ](#faq)
+- [License](#license)
 
-## 🔧 Setup
+## Features
+
+🤖 **AI-Powered Analysis**: Advanced LLM integration for intelligent resume parsing and candidate evaluation
+
+📄 **Multi-Format Support**: Seamless processing of text-based and scanned PDF resumes using OCR technology
+
+⚡ **Real-time Processing**: Instant resume analysis with structured data extraction
+
+🎯 **Eligibility Assessment**: Smart candidate evaluation against job requirements with detailed feedback
+
+📊 **Comprehensive Insights**: Extract candidate information, experience analysis, leadership assessment, and role fit analysis
+
+📱 **Modern UI/UX**: Beautiful, responsive interface built with React, Tailwind CSS, and ShadCN UI
+
+🚀 **Export Options**: Download analysis results in CSV or JSON formats
+
+🐳 **Docker Ready**: Containerized application for easy deployment and development
+
+🔧 **API-First Design**: RESTful API with comprehensive documentation
+
+## Tech Stack
+
+### Frontend
+- **React 19** with TypeScript
+- **Vite** for lightning-fast development
+- **Tailwind CSS** for modern styling
+- **ShadCN UI** for accessible components
+- **Framer Motion** for smooth animations
+- **Lucide Icons** for beautiful iconography
+
+### Backend
+- **FastAPI** for high-performance API
+- **Python 3.10+** with modern async/await patterns
+- **PDFPlumber** and **PyPDF** for text extraction
+- **EasyOCR** for scanned document processing
+
+### Infrastructure
+- **Docker** & **Docker Compose** for containerization
+- **UV** for fast Python package management
+- **CORS** enabled for cross-origin requests
+
+## Quick Start
+
+Get  Resume Understanding Language Engine running on your machine in under 5 minutes!
 
 ### Prerequisites
+- **Docker** and **Docker Compose** (Recommended)
+- **Node.js 18+** (for manual setup)
+- **Python 3.10+** (for manual setup)
 
-- Python 3.8+
-- PDF processing libraries
-- OCR dependencies
+### Option 1: Docker Setup (Recommended)
 
-### Installation
-
-1. Clone the repository:
+1. **Clone the repository**
    ```bash
-   git clone https://github.com/dharshan-kumarj/Resume_Parser.git
-   cd Resume_Parser
+   git clone https://github.com/yourusername/resume_parser.git
+   cd resume_parser
    ```
 
-2. Create and activate a virtual environment:
+2. **Start the application**
    ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   docker-compose up --build
    ```
 
-3. Install dependencies using uv:
-   ```bash
-   uv pip install -r requirement.txt
-   ```
+3. **Access the applications**
+   - **Frontend**: http://localhost:5173
+   - **Backend API**: http://localhost:8000
+   - **API Documentation**: http://localhost:8000/docs
 
-4. Create a `.env` file in the project root with your API key:
-   ```
-   MISTRAL_API_KEY=your_api_key_here
-   ```
+That's it! 🎉 Your  Resume Understanding Language Engine platform is now running!
 
-## 📁 Project Structure
+## Setup Options
 
-```
-Resume_Parser/
-├── .venv/                  # Python virtual environment
-├── outputs/                # Output directory for parsed resumes
-├── resumes/                # Input directory for resume PDFs
-│   ├── ocr/                # PDFs requiring OCR processing
-│   └── text/               # PDFs with extractable text
-├── scripts/
-│   ├── modules/
-│   │   ├── llm_prompts/
-│   │   │   └── parse_resume_llm.py
-│   │   └── text_extract/
-│   │       ├── extract_native_pdf.py
-│   │       └── extract_ocr_pdf.py
-│   └── pipelines/
-│       └── analyze_resume.py
-├── .env                    # Environment variables
-├── .gitignore
-├── main.py                 # Main entry point
-├── pyproject.toml          # Project configuration
-├── README.md               # Documentation
-└── requirement.txt         # Dependencies
-```
+### Docker Installation
 
-## 🚀 Usage
-
-### Basic Usage
-
-Run the main script to process a resume:
-
+#### Quick Commands
 ```bash
-python main.py
+# Start services
+docker-compose up
+
+# Start in background
+docker-compose up -d
+
+# Rebuild and start
+docker-compose up --build
+
+# Stop services
+docker-compose down
+
+# View logs
+docker-compose logs -f
+
+# View specific service logs
+docker-compose logs -f backend
+docker-compose logs -f frontend
 ```
 
-### Customizing the Pipeline
+#### Development Features
+- **Hot Reload**: Changes to frontend/backend automatically reload
+- **Volume Mounts**: Local development with instant updates
+- **Isolated Environment**: No dependency conflicts
 
-You can process specific resumes by modifying the input path in `run_pipeline.py`:
+### Manual Installation
 
-```python
-if __name__ == "__main__":
-    pdf_file = "resumes/text/your_resume.pdf"
-    process_resume(pdf_file)
+#### Backend Setup
+1. **Navigate to project root**
+   ```bash
+   cd resume_parser
+   ```
+
+2. **Install Python dependencies**
+   ```bash
+   # Using UV (recommended)
+   uv add -r requirements.txt
+   
+   # Or using pip
+   pip install -r requirements.txt
+   ```
+
+3. **Start the backend server**
+   ```bash
+   # Using UV
+   uv run uvicorn backend.api.main:app --reload --host 0.0.0.0 --port 8000
+   
+   # Or direct uvicorn
+   uvicorn backend.api.main:app --reload --host 0.0.0.0 --port 8000
+   ```
+
+#### Frontend Setup
+1. **Navigate to frontend directory**
+   ```bash
+   cd frontend
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start development server**
+   ```bash
+   npm run dev
+   ```
+
+## Configuration
+
+### Environment Variables
+Create a `.env` file in the project root:
+
+```env
+# AI/LLM Configuration
+MISTRAL_API_KEY="sk-or-v1-your-openrouter-mistral-api-key-here"
 ```
 
-## 🔍 How It Works
+### Customizing Analysis Criteria
+Modify the analysis prompts in `backend/modules/llm_prompts/parse_resume_llm.py` to customize:
+- Job requirements
+- Skill assessment criteria
+- Experience evaluation parameters
+- Eligibility thresholds
 
-1. **Text Extraction**: 
-   - For standard PDFs: Uses pdfplumber to extract text content
-   - For scanned PDFs: Uses EasyOCR to perform optical character recognition
+## API Documentation
 
-2. **AI Analysis**:
-   - Sends extracted text to Mistral AI model
-   - Uses structured prompting to extract key information
+### Main Endpoints
 
-3. **Output**:
-   - Returns structured JSON with parsed resume information
+#### Upload Resume
+```http
+POST /upload-resume/
+Content-Type: multipart/form-data
 
-## 📝 Example Output
+Parameters:
+- file: PDF file (required)
 
-```json
+Response:
 {
-  "full_name": "John Doe",
-  "email": "john.doe@example.com",
-  "phone_number": "123-456-7890",
-  "total_experience_years": 5,
-  "roles": [
-    {
-      "title": "Software Engineer",
-      "company": "Tech Corp",
-      "years": 3
-    },
-    {
-      "title": "Junior Developer",
-      "company": "Startup Inc",
-      "years": 2
-    }
-  ],
-  "skills": {
-    "Python": {"source": "professional", "years": 5},
-    "React": {"source": "professional", "years": 3},
-    "Docker": {"source": "project", "years": 2}
+  "candidate_info": {
+    "name": "John Doe",
+    "email": "john@example.com",
+    "phone": "+1-234-567-8900"
   },
-  "projects": [
-    {
-      "name": "E-commerce Platform",
-      "tech_stack": ["Python", "Django", "React"],
-      "description": "Built scalable online shopping platform"
-    }
-  ],
-  "leadership_signals": true,
-  "leadership_justification": "Led team of 5 developers in project delivery",
-  "candidate_fit_summary": "Experienced full-stack developer with strong Python skills and team leadership experience"
+  "eligibility_status": "Eligible",
+  "experience_analysis": {...},
+  "role_fit_analysis": {...},
+  "key_skills": [...]
 }
 ```
 
-## 🤝 Contributing
+## Project Structure
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+```
+resume_parser/
+├── 📁 backend/
+│   ├── 📁 api/
+│   │   └── main.py                 # FastAPI application
+│   ├── 📁 modules/
+│   │   ├── 📁 llm_prompts/
+│   │   │   └── parse_resume_llm.py # AI prompts and analysis
+│   │   └── 📁 text_extract/
+│   │       ├── extract_native_pdf.py  # Native PDF processing
+│   │       └── extract_ocr_pdf.py     # OCR-based processing
+│   └── 📁 pipelines/
+│       └── analyze_resume.py       # Main processing pipeline
+├── 📁 frontend/
+│   ├── 📁 src/
+│   │   ├── 📁 components/
+│   │   │   ├── 📁 layout/
+│   │   │   │   ├── UploadCard.tsx      # File upload interface
+│   │   │   │   ├── OutputViewer.tsx    # Results display
+│   │   │   │   └── Sidebar.tsx         # Navigation sidebar
+│   │   │   └── 📁 ui/                  # Reusable UI components
+│   │   ├── 📁 lib/
+│   │   │   ├── api.ts              # API integration
+│   │   │   └── utils.ts            # Utility functions
+│   │   ├── 📁 pages/
+│   │   │   └── LandingPage.tsx     # Main application page
+│   │   └── App.tsx                 # Root component
+│   ├── package.json                # Frontend dependencies
+│   └── vite.config.ts             # Vite configuration
+├── 📄 docker-compose.yml          # Docker orchestration
+├── 📄 Dockerfile.backend          # Backend container
+├── 📄 Dockerfile.frontend         # Frontend container
+├── 📄 pyproject.toml              # Python project config
+├── 📄 requirements.txt            # Python dependencies
+└── 📄 README.md                   # This file
+```
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## Available Scripts
 
-## 📄 License
+### Frontend Scripts
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+```
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+### Backend Scripts
+```bash
+uv run uvicorn backend.api.main:app --reload    # Development server
+uv run python -m backend.api.main               # Alternative start
+```
+
+### Docker Scripts
+```bash
+docker-compose up --build         # Build and start all services
+docker-compose down               # Stop all services
+docker-compose logs -f backend    # View backend logs
+docker-compose logs -f frontend   # View frontend logs
+```
+
+## Contributing
+
+We welcome contributions to  Resume Understanding Language Engine! Here's how to get started:
+
+### Development Workflow
+1. **Fork the repository**
+2. **Create a feature branch**
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+3. **Make your changes**
+4. **Run tests** (when available)
+5. **Commit your changes**
+   ```bash
+   git commit -m "Add amazing feature"
+   ```
+6. **Push to your branch**
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+7. **Open a Pull Request**
+
+### Code Standards
+- **Frontend**: ESLint configuration with React/TypeScript best practices
+- **Backend**: Black formatting with isort import sorting
+- **Commits**: Conventional commit messages preferred
+
+### Development Guidelines
+- Follow existing code structure and patterns
+- Add comments for complex logic
+- Update documentation for new features
+- Test your changes thoroughly
+
+## Troubleshooting
+
+### Common Issues
+
+#### Port Conflicts
+**Problem**: `Port 5173 or 8000 already in use`
+**Solution**: 
+```bash
+# Kill processes using the ports
+lsof -ti:5173 | xargs kill -9
+lsof -ti:8000 | xargs kill -9
+
+# Or change ports in docker-compose.yml
+```
+
+#### Docker Build Failures
+**Problem**: `Docker build fails`
+**Solution**:
+```bash
+# Clear Docker cache
+docker system prune -a
+
+# Rebuild without cache
+docker-compose build --no-cache
+```
+
+#### PDF Processing Errors
+**Problem**: `Error processing PDF files`
+**Solutions**:
+- Ensure PDF is not password protected
+- Check if PDF contains extractable text
+- For scanned PDFs, OCR processing may take longer
+
+#### Python Dependencies
+**Problem**: `Module not found errors`
+**Solution**:
+```bash
+# Reinstall dependencies
+uv add -r requirements.txt
+
+# Or clear cache and reinstall
+pip cache purge
+pip install -r requirements.txt --force-reinstall
+```
+
+### Getting Help
+- 📚 **Documentation**: [https://rule-docs.onrender.com/](https://rule-docs.onrender.com/)
+- ❓ **FAQ**: [https://rule-docs.onrender.com/#faq](https://rule-docs.onrender.com/#faq)
+- 🐛 **Issues**: Open a GitHub issue with detailed description
+- 💬 **Discussions**: Use GitHub Discussions for questions
+
+## FAQ
+
+### General Questions
+
+**Q: What file formats are supported?**
+A: Currently, only PDF files are supported. The system handles both text-based PDFs and scanned documents using OCR.
+
+**Q: Is there a file size limit?**
+A: The default limit is 10MB per file. This can be configured in the FastAPI settings.
+
+**Q: Can I process multiple resumes at once?**
+A: Not currently, but we are implementing bulk upload functionality for future releases. Currently, each resume is processed individually.
+
+### Technical Questions
+
+**Q: Which AI models are used for analysis?**
+A: Currently, we use OpenRouter's Mistral API for intelligent resume analysis. The system uses configurable LLM prompts that can be customized in the backend configuration.
+
+**Q: How accurate is the OCR for scanned documents?**
+A: The system uses EasyOCR which provides good accuracy for most documents. Quality depends on scan resolution and document clarity.
+
+**Q: Can I customize the analysis criteria?**
+A: Yes! Modify the prompts in `backend/modules/llm_prompts/parse_resume_llm.py` to adjust evaluation criteria.
+
+### Deployment Questions
+
+**Q: How do I deploy to production?**
+A: Use the provided Docker configuration. For cloud deployment, consider platforms like AWS, Google Cloud, or Azure with container support.
+
+**Q: Is the application secure?**
+A: The application includes CORS configuration and input validation. For production, implement additional security measures like authentication, rate limiting, and HTTPS.
+
+## Roadmap
+
+### Current Features ✅
+- PDF resume upload and processing
+- Text extraction from native and scanned PDFs
+- AI-powered candidate analysis
+- Eligibility assessment based on job requirements
+- Experience and leadership evaluation
+- Skills extraction and categorization
+- Modern React frontend with responsive design
+- RESTful API with documentation
+- Docker containerization
+- Export functionality (CSV/JSON)
+
+### Planned Features 🚧
+- **Bulk Processing**: Enhanced bulk upload with progress tracking
+- **Advanced Analytics**: Candidate comparison, ranking, and filtering
+- **Custom Job Profiles**: Configurable evaluation criteria per role
+- **Multi-LLM Support**: Integration with multiple AI providers (OpenAI, Anthropic, Groq, etc.) with custom API key configuration for local usage
+
+## License
+
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+
+### MIT License Summary
+- ✅ Commercial use
+- ✅ Modification
+- ✅ Distribution
+- ✅ Private use
+- ❌ Liability
+- ❌ Warranty
+
+---
+
+## Support
+
+### Get Help
+- 📖 **Documentation**: [https://rule-docs.onrender.com/](https://rule-docs.onrender.com/)
+- ❓ **FAQ**: [https://rule-docs.onrender.com/#faq](https://rule-docs.onrender.com/#faq)
+- 🐛 **Bug Reports**: [Open an issue](https://github.com/yourusername/resume_parser/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/resume_parser/discussions)
+
+### Commercial Support
+For enterprise deployments, custom integrations, or commercial support, please contact us at contact@dharshankumar.com.
+
+---
+
+**Developed with ❤️ by MSG - (Mutual Support to Grow) community**
+
+*Transform your hiring process with AI-powered resume analysis!*

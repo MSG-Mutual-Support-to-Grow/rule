@@ -46,13 +46,13 @@ export default function LandingPage() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col justify-center items-center px-6 py-20 text-center">
         <BlurText
-          text="Resume Understanding Language Engine"
-          delay={150}
-          animateBy="words"
-          direction="top"
-          onAnimationComplete={handleAnimationComplete}
-          className="text-5xl md:text-6xl mb-6 text-black"
-        />
+  text="Resume Understanding Language Engine"
+  delay={150}
+  animateBy="words"
+  direction="top"
+  onAnimationComplete={handleAnimationComplete}
+  className="text-5xl md:text-6xl mb-6 text-black"
+/>
 
         <p className="text-lg text-gray-700 max-w-xl mb-8">
           Upload resumes individually or in bulk. Let AI parse and export

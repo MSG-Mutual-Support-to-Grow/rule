@@ -4,6 +4,12 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+{
+  "name": "Shadcn_configured_React_Template",
+  "description": "A React template with Tailwind CSS configured, using Vite as the build tool.",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

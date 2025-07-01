@@ -1,6 +1,10 @@
+fastapi==0.104.1
+uvicorn==0.24.0
+python-multipart==0.0.6
+easyocr==1.7.0
 pdfplumber==0.10.3
 pytesseract==0.3.10
-Pillow==10.0.0
+Pillow==10.3.0
 opencv-python==4.9.0.80
 clean-text==0.6.0
 typer<0.10.0
