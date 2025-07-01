@@ -1,170 +1,152 @@
-# React + Tailwind CSS + ShadCN UI + Vite + TypeScript Template
+# Resume Parser Frontend
 
-This branch features a fully configured **React** setup using **ShadCN UI**, **Tailwind CSS**, **Vite**, and **TypeScript** — ideal for scalable, modern UI development using utility-first styling and accessible components.
+A modern, user-friendly web application for uploading resumes and viewing parsed results from the Resume Parser backend.
 
 ---
 
-## 📁 Folder Structure
+## 🚀 Features
 
-
-```
-.  
-├── public/  
-├── src/  
-├── .gitignore  
-├── README.md  
-├── components.json  
-├── eslint.config.js  
-├── index.html  
-├── package-lock.json  
-├── package.json  
-├── postcss.config.cjs  
-├── tailwind.config.js  
-├── tsconfig.json  
-├── tsconfig.app.json  
-├── tsconfig.node.json  
-└── vite.config.ts
-
-```
+- **PDF Resume Upload:** Upload one or more PDF resumes for parsing.
+- **Instant Results:** View structured candidate data (name, contact, skills, experience, etc.) right after upload.
+- **Beautiful UI:** Built with React, Tailwind CSS, and ShadCN UI for a clean, responsive experience.
+- **Reusable Components:** Modular design for easy extension and maintenance.
 
 ---
 
 ## 🧰 Tech Stack
 
-- ⚛️ React
-- ⚡ Vite
-- 🟦 TypeScript
-- 🎨 Tailwind CSS
-- 🧩 ShadCN UI (`@shadcn/ui`)
-- 🌐 Radix UI (used under the hood by ShadCN)
-
+- React (with TypeScript)
+- Vite (fast dev/build tool)
+- Tailwind CSS (utility-first styling)
+- ShadCN UI (accessible, customizable UI components)
+- Framer Motion (animations)
+- Lucide Icons (icon set)
 
 ---
 
-## 🚀 Getting Started
+## 📁 Folder Structure
 
-### 1. Clone the Repository & Checkout the ShadCN Branch
+```
+frontend/
+├── public/                # Static assets (images, icons)
+├── src/
+│   ├── assets/            # SVGs and images
+│   ├── blocks/            # Animated/utility blocks (e.g., BlurText)
+│   ├── components/
+│   │   ├── layout/        # Layout components (UploadCard, OutputViewer)
+│   │   └── ui/            # UI primitives (Button, Card, Table)
+│   ├── const/             # Static/mock data
+│   ├── lib/               # API and utility functions
+│   ├── pages/             # Page-level components (LandingPage)
+│   ├── App.tsx            # Main app component
+│   ├── main.tsx           # Entry point
+│   └── index.css          # Tailwind base styles
+├── index.html             # App HTML template
+├── tailwind.config.js     # Tailwind config
+├── postcss.config.cjs     # PostCSS config
+├── vite.config.ts         # Vite config
+├── tsconfig*.json         # TypeScript configs
+└── README.md              # This file
+```
+
+---
+
+## ⚡ Getting Started
+
+### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/dharshan-kumarj/React_CSS_Frameworks_Starter/tree/Shadcn
-cd React_CSS_Frameworks_Starter
-git checkout Shadcn
-
+git clone https://github.com/dharshan-kumarj/rule/tree/frontend/phase_oneAPi_integration
+cd rule/frontend
 ```
 
 ### 2. Install Dependencies
 
 ```bash
 npm install
-
 ```
 
 ### 3. Start the Development Server
 
 ```bash
 npm run dev
-
 ```
 
-----------
+- The app will be available at http://localhost:5173 (or as shown in your terminal).
 
-## 🎨 ShadCN UI Setup
-
-ShadCN components are auto-generated and configured using the `components.json` file.
-
-### ShadCN Component Generator
-
-To add a new component (e.g., Button):
-
-```bash
-npx shadcn-ui@latest add button
-
-```
-
-You can also configure default settings in `components.json`.
-
-###  Example Usage
-
-In `src/App.tsx`:
-
-```tsx
-import { Button } from "@/components/ui/button";
-
-function App() {
-  return (
-    <div className="p-4">
-      <Button variant="default">Click Me</Button>
-    </div>
-  );
-}
-
-```
-
-----------
-
-## 🧩 Tailwind CSS Configuration
-
-### `tailwind.config.js`
-
-```js
-const { fontFamily } = require("tailwindcss/defaultTheme");
-
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{ts,tsx}"
-  ],
-  theme: {
-    extend: {
-      fontFamily: {
-        sans: ["Inter", ...fontFamily.sans],
-      },
-    },
-  },
-  plugins: [require("tailwindcss-animate")],
-}
-
-```
-
-### `postcss.config.cjs`
-
-```js
-module.exports = {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-}
-
-```
-
-----------
-
-## 🏗️ Build for Production
+### 4. Build for Production
 
 ```bash
 npm run build
-
 ```
 
-Preview the built app:
+- Output will be in the `dist/` folder.
+
+### 5. Preview the Production Build
 
 ```bash
 npm run preview
-
 ```
 
-----------
+---
 
-## 💡 Tips
+## 🖇️ Connecting to the Backend
 
--   Customize ShadCN themes in `tailwind.config.js` and `components.json`
-    
--   All components are stored in `src/components/ui`
-    
--   You can extend with your own components using ShadCN CLI
-    
+- The frontend expects the Resume Parser backend (FastAPI) to be running and accessible (default: http://localhost:8000).
+- You can configure the backend URL in `src/lib/api.ts` if needed.
 
-----------
+---
+
+## 🧩 Customization
+
+- **UI Components:** All UI elements are in `src/components/ui/` and can be easily customized or extended.
+- **Theme:** Tailwind and ShadCN UI make it easy to adjust colors, fonts, and layout.
+- **API Integration:** The upload logic is in `src/lib/api.ts` and can be adapted for different endpoints.
+
+---
+
+## 📝 Example Usage
+
+1. Click the upload card to select a PDF resume.
+2. The file is sent to the backend and parsed.
+3. The parsed candidate data is displayed in a structured, readable format.
+
+---
+
+## 🛠️ Additional Setup Details
+
+### Tailwind CSS
+- Configured in `tailwind.config.js` and `postcss.config.cjs`.
+- Styles are imported in `src/index.css`.
+
+### ShadCN UI
+- Components are generated and managed via `components.json`.
+- To add a new UI component, run:
+  ```bash
+  npx shadcn-ui@latest add <component>
+  ```
+
+### TypeScript
+- TypeScript configuration is in `tsconfig.json`, `tsconfig.app.json`, and `tsconfig.node.json`.
+
+### Linting
+- ESLint is configured via `eslint.config.js` for code quality and consistency.
+
+---
+
+## 🤝 Contributing
+
+1. Fork this repo and create a new branch.
+2. Make your changes and commit.
+3. Open a Pull Request with a clear description.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+**Questions?**  
+Open an issue or contact the maintainer.

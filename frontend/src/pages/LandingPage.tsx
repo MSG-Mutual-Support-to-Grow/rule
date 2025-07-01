@@ -46,7 +46,7 @@ export default function LandingPage() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col justify-center items-center px-6 py-20 text-center">
         <BlurText
-          text="Smart Resume Intelligence"
+          text=" Resume Understanding Language Engine"
           delay={150}
           animateBy="words"
           direction="top"
