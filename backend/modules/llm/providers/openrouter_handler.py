@@ -1,0 +1,35 @@
+import requests
+from llm.base_provider import BaseLLMProvider
+from ..utils import parse_llm_response
+
+class OpenRouterProvider(BaseLLMProvider):
+    def send_prompt(self, prompt: str) -> dict | None:
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "http://localhost",
+        }
+
+        data = {
+            "model": self.model,
+            "temperature": 0.0,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+        }
+
+        try:
+            response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
+
+            if response.status_code == 200:
+                return parse_llm_response(response, provider_name="OpenRouter")
+            else:
+                print("[❌ OpenRouter API Error]", response.status_code)
+                print("🔎", response.text)
+                return None
+        except Exception as e:
+            print("[❌ OpenRouter Request Failed]", e)
+            return None
