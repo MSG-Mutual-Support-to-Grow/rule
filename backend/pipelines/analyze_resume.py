@@ -76,45 +76,15 @@ def get_output_dir() -> str:
     return output_dir
 
 
-def save_result_to_json(result: dict, pdf_path: str):
-    if not result:
-        print("❌ No result to save.")
-        return
-
+def save_result_to_json(result: dict, resume_id: str):
     output_dir = get_output_dir()
-    # Use the full_name from the result if available, else fallback to PDF filename
-    full_name = result.get("full_name")
-    if full_name:
-        # Clean the name for filesystem safety
-        safe_name = (
-            full_name.replace(" ", "_")
-            .replace("/", "-")
-            .replace("\\", "-")
-            .replace(".", "")
-            .replace(",", "")
-            .replace("'", "")
-            .replace('"', "")
-            .replace(":", "")
-            .replace("|", "")
-            .replace("?", "")
-            .replace("*", "")
-        )
-        json_name = f"{safe_name}_Resume.json"
-    else:
-        base_name = os.path.basename(pdf_path)
-        base_name = os.path.splitext(base_name)[0].replace(" ", "").replace("_", "").lower()
-        json_name = base_name + ".json"
+    json_name = f"{resume_id}.json"
     json_path = os.path.join(output_dir, json_name)
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(result, f, indent=2, ensure_ascii=False)
+    print(f"✅ Result saved to {json_path}")
 
-    try:
-        with open(json_path, "w", encoding="utf-8") as f:
-            json.dump(result, f, indent=2, ensure_ascii=False)
-        print(f"✅ Result saved to {json_path}")
-    except Exception as e:
-        print(f"[ERROR] Failed to save JSON: {e}")
-
-
-def process_resume(pdf_path: str,job_description: str):
+def process_resume(pdf_path: str, job_description: str, resume_id: str):
     if not os.path.exists(pdf_path):
         print("❌ Resume not found:", pdf_path)
         return None
@@ -143,7 +113,7 @@ def process_resume(pdf_path: str,job_description: str):
                 print("Raw cleaned result:", cleaned_result)
                 return None
         if result:
-            save_result_to_json(result, pdf_path)
+            save_result_to_json(result, resume_id)  
             return result
         else:
             print("❌ AI analysis failed.")
@@ -154,7 +124,7 @@ def process_resume(pdf_path: str,job_description: str):
         return None
 
 
-def process_resume_ocr(pdf_path: str, job_description: str):
+def process_resume_ocr(pdf_path: str, job_description: str, resume_id: str):
     if not os.path.exists(pdf_path):
         print("❌ Resume not found:", pdf_path)
         return None
@@ -183,7 +153,7 @@ def process_resume_ocr(pdf_path: str, job_description: str):
                 print("Raw cleaned result:", cleaned_result)
                 return None
         if result:
-            save_result_to_json(result, pdf_path)
+            save_result_to_json(result, resume_id)
             return result
         else:
             print("❌ AI analysis failed.")

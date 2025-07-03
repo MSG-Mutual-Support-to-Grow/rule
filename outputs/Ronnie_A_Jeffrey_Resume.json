@@ -1,0 +1,128 @@
+{
+  "full_name": "Ronnie A Jeffrey",
+  "email": "ronnieallen2005@gmail.com",
+  "phone_number": "+91 99528 60468",
+  "total_experience_years": 1,
+  "roles": [
+    {
+      "title": "Mobile App Developer Intern",
+      "company": "Nandha Infotech, Coimbatore, India",
+      "years": "June 2024 – July 2024"
+    },
+    {
+      "title": "Full Stack and Mobile App Trainee",
+      "company": "KIDS, Karunya University, Coimbatore, India",
+      "years": "Aug 2024 – Mar 2025"
+    }
+  ],
+  "skills": {
+    "Python": {
+      "source": "Education/Projects",
+      "years": "Estimated 1 year"
+    },
+    "Java": {
+      "source": "Education",
+      "years": "Estimated 1 year"
+    },
+    "C": {
+      "source": "Education",
+      "years": "Estimated 1 year"
+    },
+    "Dart": {
+      "source": "Projects",
+      "years": "Estimated 1 year"
+    },
+    "JavaScript": {
+      "source": "Projects",
+      "years": "Estimated 1 year"
+    },
+    "React.js": {
+      "source": "Projects",
+      "years": "Estimated 1 year"
+    },
+    "Tailwind CSS": {
+      "source": "Projects",
+      "years": "Estimated 1 year"
+    },
+    "ShadCN UI": {
+      "source": "Projects",
+      "years": "Estimated 1 year"
+    },
+    "Flask": {
+      "source": "Projects",
+      "years": "Estimated 1 year"
+    },
+    "FastAPI": {
+      "source": "Projects",
+      "years": "Estimated 1 year"
+    },
+    "TensorFlow": {
+      "source": "Projects",
+      "years": "Estimated 1 year"
+    },
+    "Keras": {
+      "source": "Projects",
+      "years": "Estimated 1 year"
+    },
+    "Scikit-learn": {
+      "source": "Projects",
+      "years": "Estimated 1 year"
+    },
+    "Git": {
+      "source": "Projects",
+      "years": "Estimated 1 year"
+    },
+    "Data Analysis": {
+      "source": "Projects",
+      "years": "Estimated 1 year"
+    },
+    "Machine Learning": {
+      "source": "Projects",
+      "years": "Estimated 1 year"
+    },
+    "Full-Stack Development": {
+      "source": "Projects",
+      "years": "Estimated 1 year"
+    },
+    "Mobile App Development": {
+      "source": "Projects",
+      "years": "Estimated 1 year"
+    },
+    "Generative AI": {
+      "source": "Projects",
+      "years": "Estimated 1 year"
+    }
+  },
+  "projects": [
+    {
+      "name": "Mindkraft’25 - Event Website",
+      "tech_stack": "Django, React.js, Stripe API",
+      "description": "Built a full-featured event site with auth and payments; used by 1000+ students for registration."
+    },
+    {
+      "name": "Water Potability Prediction Analysis",
+      "tech_stack": "Django, React.js, ShadCN UI",
+      "description": "Compared multiple ML models to predict water potability; best model achieved 92% accuracy."
+    },
+    {
+      "name": "CropAI – Crop Recommendation & Yield Prediction API",
+      "tech_stack": "Django, React.js, Scikit-learn",
+      "description": "Built an ML-powered API to recommend best crops and predict yield based on soil, climate, and accurate values."
+    },
+    {
+      "name": "Music Genre Classification with CNN",
+      "tech_stack": "Python, TensorFlow, Keras, Librosa",
+      "description": "Built a CNN model to classify music genres from raw audio files; achieved 87% classification accuracy."
+    },
+    {
+      "name": "Hoodigo - Frontend Website",
+      "tech_stack": "HTML, CSS, JavaScript, Bootstrap",
+      "description": "Created a stylish responsive frontend using modern UI/UX design patterns."
+    }
+  ],
+  "leadership_signals": true,
+  "leadership_justification": "Special Mention – Intel OneAPI India Hackathon 2024 for developing an AI-driven platform for hospitals.",
+  "candidate_fit_summary": "Ronnie A Jeffrey is a skilled software developer with experience in AI, machine learning, and full-stack development. However, their background does not align with the requirements for a General Physician role.",
+  "eligibility_status": "Not Eligible",
+  "eligibility_reason": "The candidate lacks an MBBS or equivalent medical degree, a valid medical license, and clinical experience required for the General Physician role."
+}
