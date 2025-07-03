@@ -31,3 +31,41 @@ frontend/node_modules/
 # Environment files
 .env
 .env.local
+
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# VS Code
+.vscode/
+
+# Mac / Linux / Windows system files
+.DS_Store
+Thumbs.db
+
+# UV lock file
+uv.lock
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Node modules (if running locally)
+frontend/node_modules/
+
+# Environment files
+.env
+.env.local
+
+# JSON directory
+jsons/
