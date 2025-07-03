@@ -6,13 +6,9 @@ from dotenv import load_dotenv
 load_dotenv()
 api_key = os.getenv("MISTRAL_API_KEY")
 
-def call_mistral_resume_analyzer(resume_text, api_key):
+def call_mistral_resume_analyzer(resume_text,job_description,api_key):
     # Example job description for filtering
-    job_description = """
-We are looking for a Junior Software Developer with 1-3 years of experience in Python and web development. 
-The candidate should have experience with Django or Flask frameworks, knowledge of REST APIs, and familiarity with version control systems like Git. 
-Good problem-solving skills and ability to work in a team are essential. Experience with frontend technologies like HTML, CSS, and JavaScript is a plus.
-"""
+    # job_description = job_description
 
     prompt = f"""
 You are a smart recruiter assistant AI helping companies filter resumes for job eligibility.

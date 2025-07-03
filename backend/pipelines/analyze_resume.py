@@ -114,7 +114,7 @@ def save_result_to_json(result: dict, pdf_path: str):
         print(f"[ERROR] Failed to save JSON: {e}")
 
 
-def process_resume(pdf_path: str):
+def process_resume(pdf_path: str,job_description: str):
     if not os.path.exists(pdf_path):
         print("❌ Resume not found:", pdf_path)
         return None
@@ -127,7 +127,7 @@ def process_resume(pdf_path: str):
         return None
 
     print("[DEBUG] Calling Mistral LLM for analysis...")
-    result = call_mistral_resume_analyzer(resume_text, api_key)
+    result = call_mistral_resume_analyzer(resume_text, job_description,api_key)
 
     if result is None:
         print("❌ AI analysis returned None.")
@@ -154,7 +154,7 @@ def process_resume(pdf_path: str):
         return None
 
 
-def process_resume_ocr(pdf_path: str):
+def process_resume_ocr(pdf_path: str, job_description: str):
     if not os.path.exists(pdf_path):
         print("❌ Resume not found:", pdf_path)
         return None
@@ -167,7 +167,7 @@ def process_resume_ocr(pdf_path: str):
         return None
 
     print("[DEBUG] Calling Mistral LLM for OCR analysis...")
-    result = call_mistral_resume_analyzer(resume_text, api_key)
+    result = call_mistral_resume_analyzer(resume_text, job_description,api_key)
 
     if result is None:
         print("❌ AI OCR analysis returned None.")
