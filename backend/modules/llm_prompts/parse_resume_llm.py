@@ -33,8 +33,12 @@ Analyze the following resume text and extract the candidate's details in valid J
 
 Based on the Job Description above, evaluate the candidate's eligibility for the role and add these fields:
 
-- eligibility_status (string): Either "Eligible" or "Not Eligible"
-- eligibility_reason (string): Brief explanation supporting the eligibility decision
++ - fit_score (integer from 1 to 10): 10 means highly suitable, 1 means not suitable at all
+- fit_score_reason (string): A short justification explaining why this score was given
+
+
+Also include:
+- fit_score_reason (string): A short justification explaining why this score was given
 
 Return only valid JSON with the above fields. Do not include any text outside the JSON block.
 
@@ -79,9 +83,10 @@ Resume:
             cleaned = cleaned.strip()
             return json.loads(cleaned)
         except Exception as e:
-            print("[ERROR] Failed to parse JSON:", e)
-            print("Raw response:", raw)
-            return None
+            print("[WARNING] Mistral returned invalid JSON. Falling back.")
+            return {"fit_score": 1, "fit_score_reason": "Could not parse response"}
+            
+        
     else:
         print("[ERROR]", response.status_code, response.text)
         return None

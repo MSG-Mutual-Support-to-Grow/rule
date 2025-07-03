@@ -2,6 +2,8 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import List
+from uuid import uuid4
 import os
 import shutil
 import sys
@@ -34,47 +36,35 @@ app.add_middleware(
 
 @app.post("/upload-resume/")
 async def upload_resume(file: UploadFile = File(...)):
-    # Validate file type (optional)
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted.")
 
-    # Save uploaded file to a temporary location (in-memory or temp dir)
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
         shutil.copyfileobj(file.file, temp_file)
         temp_file_path = temp_file.name
 
     try:
-        # Read job description from saved JSON file
         job_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "jsons/job_description.json")
-        job_description = "No specific job description provided."  # Default value
-        
-        try:
-            if os.path.exists(job_file_path):
-                with open(job_file_path, 'r', encoding='utf-8') as f:
-                    job_data = json.load(f)
-                    job_description = job_data.get("job_description", "No specific job description provided.")
-            else:
-                print("[WARNING] No job description file found. Using default.")
-        except Exception as e:
-            print(f"[WARNING] Could not read job description: {e}. Using default.")
+        job_description = "No specific job description provided."
+        if os.path.exists(job_file_path):
+            with open(job_file_path, 'r', encoding='utf-8') as f:
+                job_data = json.load(f)
+                job_description = job_data.get("job_description", job_description)
 
-        # Detect PDF type and process accordingly with job description
+        resume_id = str(uuid4())  # ✅ Generate resume_id
         if is_pdf_text_based(temp_file_path):
-            result = process_resume(temp_file_path, job_description)
+            result = process_resume(temp_file_path, job_description, resume_id)
         else:
-            result = process_resume_ocr(temp_file_path, job_description)
+            result = process_resume_ocr(temp_file_path, job_description, resume_id)
 
-        # Clean up the temp file
         os.remove(temp_file_path)
 
         if not result:
             return JSONResponse(content={"error": "AI analysis failed"}, status_code=500)
 
-        # The pipeline already saves JSON; just return the result here
         return JSONResponse(content=result, status_code=200)
 
     except Exception as e:
-        # Clean up the temp file if it still exists
         if os.path.exists(temp_file_path):
             os.remove(temp_file_path)
         return JSONResponse(content={"error": str(e)}, status_code=500)
@@ -108,82 +98,59 @@ async def save_job_description(request: JobDescriptionRequest):
             content={"error": f"Failed to save job description: {str(e)}"},
             status_code=500
         )
-
-# @app.get("/get-job-description/")
-# async def get_job_description():
-#     """Get the currently saved job description"""
-#     try:
-#         job_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "jsons/job_description.json")
         
-#         if not os.path.exists(job_file_path):
-#             return JSONResponse(
-#                 content={"job_description": "No job description saved yet"},
-#                 status_code=200
-#             )
-        
-#         with open(job_file_path, 'r', encoding='utf-8') as f:
-#             job_data = json.load(f)
-        
-#         return JSONResponse(content=job_data, status_code=200)
-    
-#     except Exception as e:
-#         return JSONResponse(
-#             content={"error": f"Failed to read job description: {str(e)}"},
-#             status_code=500
-#         )
+@app.post("/upload-resume-batch/")
+async def upload_resume_batch(files: List[UploadFile] = File(...)):
+    job_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "jsons/job_description.json")
+    job_description = "No specific job description provided."
+    if os.path.exists(job_file_path):
+        with open(job_file_path, 'r', encoding='utf-8') as f:
+            job_data = json.load(f)
+            job_description = job_data.get("job_description", job_description)
 
-# @app.post("/analyze-resume-with-job/")
-# async def analyze_resume_with_job(file: UploadFile = File(...), job_description: str = ""):
-#     """Upload resume and analyze with provided job description (saves job description too)"""
-#     # Validate file type
-#     if not file.filename.lower().endswith(".pdf"):
-#         raise HTTPException(status_code=400, detail="Only PDF files are accepted.")
+    results = []
 
-#     # Save uploaded file to a temporary location
-#     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
-#         shutil.copyfileobj(file.file, temp_file)
-#         temp_file_path = temp_file.name
+    for file in files:
+        if not file.filename.lower().endswith(".pdf"):
+            continue
 
-#     try:
-#         # If job description is provided, save it first
-#         if job_description.strip():
-#             job_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "jsons/job_description.json")
-#             os.makedirs(os.path.dirname(job_file_path), exist_ok=True)
-            
-#             job_data = {"job_description": job_description}
-#             with open(job_file_path, 'w', encoding='utf-8') as f:
-#                 json.dump(job_data, f, indent=2, ensure_ascii=False)
-            
-#             print(f"[DEBUG] Job description saved and will be used for analysis")
-#         else:
-#             # Read existing job description
-#             job_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "jsons/job_description.json")
-#             if os.path.exists(job_file_path):
-#                 with open(job_file_path, 'r', encoding='utf-8') as f:
-#                     job_data = json.load(f)
-#                     job_description = job_data.get("job_description", "No specific job description provided.")
-#             else:
-#                 job_description = "No specific job description provided."
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+            shutil.copyfileobj(file.file, temp_file)
+            temp_path = temp_file.name
 
-#         # Detect PDF type and process accordingly
-#         if is_pdf_text_based(temp_file_path):
-#             result = process_resume(temp_file_path, job_description)
-#         else:
-#             result = process_resume_ocr(temp_file_path, job_description)
+        try:
+            resume_id = str(uuid4())
 
-#         # Clean up the temp file
-#         os.remove(temp_file_path)
+            if is_pdf_text_based(temp_path):
+                result = process_resume(temp_path, job_description, resume_id)
+            else:
+                result = process_resume_ocr(temp_path, job_description, resume_id)
 
-#         if not result:
-#             return JSONResponse(content={"error": "AI analysis failed"}, status_code=500)
+            if result:
+                result["resume_id"] = resume_id
+                result["file_name"] = file.filename
+                result["fit_score"] = result.get("fit_score", 0)
+                results.append(result)
 
-#         # Add job description used in the response
-#         result["job_description_used"] = job_description
+        finally:
+            os.remove(temp_path)
 
-#         return JSONResponse(content=result, status_code=200)
+    ranked = sorted(results, key=lambda x: x["fit_score"], reverse=True)
+    response_list = [
+        {"resume_id": r["resume_id"], "file_name": r["file_name"], "fit_score": r["fit_score"]}
+        for r in ranked
+    ]
+    return JSONResponse(content={"ranked_resumes": response_list}, status_code=200)
 
-#     except Exception as e:
-#         # Clean up the temp file if it still exists
-#         if os.path.exists(temp_file_path):
-#             os.remove(temp_file_path)
-#         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/get-analysis/{resume_id}")
+async def get_analysis(resume_id: str):
+    outputs_dir = os.path.join(os.path.dirname(__file__), "..", "..", "outputs")
+    json_file = os.path.join(outputs_dir, f"{resume_id}.json")
+    if os.path.exists(json_file):
+        with open(json_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return JSONResponse(content=data, status_code=200)
+    else:
+        return JSONResponse(content={"error": "Resume analysis not found."}, status_code=404)
+
