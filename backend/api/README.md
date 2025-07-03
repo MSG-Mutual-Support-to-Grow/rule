@@ -1,6 +1,6 @@
 # Resume Parser API Documentation
 
-Complete API documentation for the Resume Parser application backend.
+Complete API documentation for the Resume Parser application backend with **dynamic job description integration**.
 
 ## 🚀 Base URL
 ```
@@ -13,19 +13,19 @@ http://localhost:8000
 
 **POST** `/upload-resume/`
 
-Uploads a PDF resume file and performs AI-powered analysis using the saved job description from `jsons/job_description.json`. The analysis is **dynamic** - it automatically uses the most recently saved job description to evaluate candidate eligibility and fit.
+Uploads a PDF resume file and performs AI-powered analysis using the **saved job description** for dynamic candidate evaluation.
+
+#### How It Works
+1. **Automatically reads** the job description from `jsons/job_description.json`
+2. **Analyzes the resume** against the specific job requirements
+3. **Returns eligibility status** and fit analysis for that particular role
+4. **Saves results** to `outputs/` folder
 
 #### Request
 - **Method**: `POST`
 - **Content-Type**: `multipart/form-data`
 - **Parameters**:
   - `file` (required): PDF file to analyze
-
-#### How It Works
-1. **Reads Job Description**: Automatically loads the saved job description from `jsons/job_description.json`
-2. **Fallback**: If no job description is saved, uses default: "No specific job description provided."
-3. **Dynamic Analysis**: AI analyzes the resume specifically against the saved job requirements
-4. **Saves Results**: Structured output saved to `outputs/` folder
 
 #### Response Format
 
@@ -64,7 +64,7 @@ Uploads a PDF resume file and performs AI-powered analysis using the saved job d
   "leadership_justification": "Led a team of 5 developers",
   "candidate_fit_summary": "Strong technical background with leadership experience",
   "eligibility_status": "Eligible",
-  "eligibility_reason": "Meets all technical requirements for the Python Developer position"
+  "eligibility_reason": "Meets all technical requirements"
 }
 ```
 
@@ -83,7 +83,7 @@ Uploads a PDF resume file and performs AI-powered analysis using the saved job d
 ```
 
 #### Features
-- ✅ **Dynamic Job Matching**: Uses saved job description automatically
+- ✅ **Dynamic Job Matching**: Uses saved job description for targeted analysis
 - ✅ **PDF Processing**: Handles both text-based and image-based PDFs
 - ✅ **OCR Support**: Extracts text from scanned documents
 - ✅ **AI Analysis**: Uses LLM for intelligent data extraction
@@ -91,7 +91,8 @@ Uploads a PDF resume file and performs AI-powered analysis using the saved job d
 - ✅ **Skills Assessment**: Identifies technical and soft skills
 - ✅ **Experience Calculation**: Determines total years of experience
 - ✅ **Leadership Evaluation**: Assesses leadership potential
-- ✅ **Eligibility Analysis**: Evaluates candidate fit for the specific saved job
+- ✅ **Eligibility Analysis**: Evaluates candidate fit for the specific job
+- ✅ **Automatic Fallback**: Uses default if no job description is saved
 
 ---
 
@@ -99,7 +100,7 @@ Uploads a PDF resume file and performs AI-powered analysis using the saved job d
 
 **POST** `/save-job-description/`
 
-Saves job description text to `jsons/job_description.json`. This job description will be automatically used by the `/upload-resume/` endpoint for dynamic analysis.
+Saves job description text to a single JSON file that will be **automatically used** by the resume upload endpoint.
 
 #### Request
 - **Method**: `POST`
@@ -107,7 +108,7 @@ Saves job description text to `jsons/job_description.json`. This job description
 - **Body**:
 ```json
 {
-  "job_description": "We are seeking a Python Developer with 3+ years of experience in FastAPI, React, and database systems. Must have AI/ML knowledge and leadership experience. Remote work available."
+  "job_description": "Your job description text here"
 }
 ```
 
@@ -131,22 +132,30 @@ Saves job description text to `jsons/job_description.json`. This job description
 - **Location**: `jsons/job_description.json`
 - **Format**: JSON with single key `job_description`
 - **Behavior**: Overwrites existing file each time
-- **Auto-Creation**: Creates `jsons/` directory automatically if it doesn't exist
 
 **Example saved file:**
 ```json
 {
-  "job_description": "We are seeking a Python Developer with 3+ years of experience in FastAPI, React, and database systems. Must have AI/ML knowledge and leadership experience. Remote work available."
+  "job_description": "We are looking for a skilled Python developer with 3+ years of experience. Must have knowledge of FastAPI, React, and database systems. Remote work available."
 }
 ```
 
-#### Impact on Resume Analysis
-- **Dynamic Integration**: Any resume uploaded after saving will be analyzed against this job description
-- **Eligibility Matching**: AI will determine if candidates meet the specific requirements
-- **Fit Analysis**: Candidate summaries will be tailored to this role
-- **Update Anytime**: Change job description anytime to update analysis criteria
+## 🚀 Usage Examples & Dynamic Workflow
 
-## 🚀 Usage Examples
+### Complete Dynamic Workflow
+
+#### Step 1: Save Job Description
+```bash
+curl -X POST "http://localhost:8000/save-job-description/" \
+  -H "Content-Type: application/json" \
+  -d '{"job_description": "Python developer with 3+ years experience in FastAPI and React"}'
+```
+
+#### Step 2: Upload Resume (automatically uses saved job description)
+```bash
+curl -X POST "http://localhost:8000/upload-resume/" \
+  -F "file=@/path/to/your/resume.pdf"
+```
 
 ### Upload Resume Analysis
 
@@ -226,16 +235,25 @@ cd backend
 python -m uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Test Resume Upload
+### Test Dynamic Workflow
 ```bash
-# Test with a sample PDF
+# 1. Save job description
+curl -X POST "http://localhost:8000/save-job-description/" \
+  -H "Content-Type: application/json" \
+  -d '{"job_description": "Python developer with FastAPI experience"}'
+
+# 2. Upload resume (uses saved job description automatically)
 curl -X POST "http://localhost:8000/upload-resume/" \
   -F "file=@sample_resume.pdf"
 ```
 
-### Test Job Description Saving
+### Test with Scripts
 ```bash
+# Test the complete workflow
 python test_api.py
+
+# Show dynamic example
+python dynamic_example.py
 ```
 
 ### Check Saved Files
@@ -256,6 +274,9 @@ FastAPI provides automatic interactive documentation:
 
 ### Environment Variables
 ```bash
+# Required: Set your Mistral API key
+export MISTRAL_API_KEY=your_mistral_api_key_here
+
 # Optional: Set custom configurations
 export API_HOST=0.0.0.0
 export API_PORT=8000
@@ -273,6 +294,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 ```
+
+## 🔄 Dynamic Workflow
+
+### How It Works
+1. **Save Job Description** → API saves to `jsons/job_description.json`
+2. **Upload Resume** → API automatically reads saved job description
+3. **AI Analysis** → Resume analyzed against specific job requirements
+4. **Dynamic Results** → Eligibility and fit analysis for that particular role
+
+### Key Benefits
+- ✅ **One-Time Setup**: Save job description once, analyze multiple resumes
+- ✅ **Automatic Integration**: No need to send job description with each resume
+- ✅ **Dynamic Analysis**: Change job description anytime, all analyses adapt
+- ✅ **Consistent Evaluation**: All candidates evaluated against same criteria
 
 ## 📊 Data Models
 
@@ -321,16 +356,19 @@ app.add_middleware(
 ## 🔍 Features & Capabilities
 
 ### Resume Analysis Features
+- ✅ **Dynamic Job Matching**: Automatically uses saved job description
 - ✅ **PDF Processing**: Handles both text-based and image-based PDFs
 - ✅ **OCR Support**: Extracts text from scanned documents
-- ✅ **AI Analysis**: Uses LLM for intelligent data extraction
+- ✅ **AI Analysis**: Uses Mistral LLM for intelligent data extraction
 - ✅ **Structured Output**: Returns organized candidate information
 - ✅ **Skills Assessment**: Identifies technical and soft skills
 - ✅ **Experience Calculation**: Determines total years of experience
 - ✅ **Leadership Evaluation**: Assesses leadership potential
-- ✅ **Fit Analysis**: Evaluates candidate suitability
+- ✅ **Eligibility Analysis**: Evaluates candidate fit for specific job
+- ✅ **Automatic Fallback**: Uses default analysis if no job description saved
 
 ### Job Description Features
+- ✅ **Dynamic Integration**: Automatically used by resume upload endpoint
 - ✅ **Simple Storage**: Single JSON file for easy management
 - ✅ **UTF-8 Encoding**: Supports international characters
 - ✅ **Automatic Overwrite**: Updates existing job descriptions
@@ -354,31 +392,71 @@ app.add_middleware(
 
 ## 📝 Notes & Best Practices
 
+### Dynamic Workflow
+- **Save job description first** before uploading resumes for targeted analysis
+- **Update job description anytime** to change evaluation criteria for all future uploads
+- **Check `jsons/job_description.json`** to see current job description being used
+
 ### File Handling
 - Only PDF files are accepted for resume upload
 - Temporary files are automatically cleaned up after processing
 - The `jsons/` directory is created automatically if it doesn't exist
+- Resume analysis results are saved to `outputs/` folder
 
 ### Performance
 - Resume analysis may take 10-30 seconds depending on file size and complexity
 - Large PDF files (>10MB) may timeout - consider file size limits
+- Job description reading adds minimal overhead (~1ms)
 
 ### Security
 - CORS is currently open for development
 - Consider adding authentication for production use
 - Validate file types and sizes to prevent abuse
+- **Required**: Set `MISTRAL_API_KEY` environment variable
 
 ### Monitoring
 - Check server logs for processing errors
 - Monitor the `outputs/` directory for generated files
 - Review API response times for performance optimization
+- Verify job description is being read correctly from saved file
 
-## 🔄 API Versioning
+## 🎯 Quick Start
 
-Current version: **v1** (implicit)
+1. **Set up environment:**
+   ```bash
+   export MISTRAL_API_KEY=your_api_key_here
+   ```
 
-Future versions may include:
-- `/v2/upload-resume/` with enhanced features
-- `/v2/save-job-description/` with multiple job support
+2. **Start the server:**
+   ```bash
+   cd backend
+   python -m uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+   ```
+
+3. **Save job description:**
+   ```bash
+   curl -X POST "http://localhost:8000/save-job-description/" \
+     -H "Content-Type: application/json" \
+     -d '{"job_description": "Your job requirements here"}'
+   ```
+
+4. **Upload resume:**
+   ```bash
+   curl -X POST "http://localhost:8000/upload-resume/" \
+     -F "file=@your_resume.pdf"
+   ```
+
+5. **Check results:**
+   - View API response for analysis results
+   - Check `outputs/` folder for saved JSON files
+   - Review `jsons/job_description.json` for current job description
+
+## 🔄 Future Enhancements
+
+Planned features for future versions:
+- Multiple job description support
+- Batch resume processing
+- Resume-to-job matching scores
+- Historical analysis tracking
 - Authentication endpoints
 - Batch processing endpoints
