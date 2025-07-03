@@ -2,6 +2,7 @@ import { useState } from "react";
 import UploadCard from "../components/layout/UploadCard";
 import OutputViewer from "../components/layout/OutputViewer";
 import Sidebar from "../components/layout/Sidebar";
+import JobDescriptionBox from "@/components/layout/JobDescriptionEditor";
 import BlurText from "../blocks/BlurText";
 import { uploadResume, ResumeAnalysisResult } from "../lib/api";
 
@@ -14,7 +15,7 @@ export default function LandingPage() {
     if (!files || files.length === 0) return;
 
     const file = files[0];
-    if (!file.name.toLowerCase().endsWith('.pdf')) {
+    if (!file.name.toLowerCase().endsWith(".pdf")) {
       setError("Please upload a PDF file only.");
       return;
     }
@@ -27,8 +28,12 @@ export default function LandingPage() {
       const result = await uploadResume(file);
       setOutputData(result);
     } catch (err) {
-      console.error('Upload error:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred while processing the resume');
+      console.error("Upload error:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "An error occurred while processing the resume"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -46,35 +51,30 @@ export default function LandingPage() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col justify-center items-center px-6 py-20 text-center">
         <BlurText
-  text="Resume Understanding Language Engine"
-  delay={150}
-  animateBy="words"
-  direction="top"
-  onAnimationComplete={handleAnimationComplete}
-  className="text-5xl md:text-6xl mb-6 text-black"
-/>
+          text="Resume Understanding Language Engine"
+          delay={150}
+          animateBy="words"
+          direction="top"
+          onAnimationComplete={handleAnimationComplete}
+          className="text-5xl md:text-6xl mb-6 text-black"
+        />
 
         <p className="text-lg text-gray-700 max-w-xl mb-8">
-          Upload resumes individually or in bulk. Let AI parse and export
-          structured data instantly.
+          Upload resumes individually or in bulk. Let AI parse and export structured data instantly.
         </p>
 
+        {/* Upload UI */}
         <div className="flex flex-wrap justify-center gap-6">
           <UploadCard
             title="Upload File"
             description="Click or drag a single resume"
             onUpload={handleUpload}
           />
+        </div>
 
-          {/* Optional: Enable this if you want folder upload */}
-          {/* 
-          <UploadCard
-            title="Upload Folder"
-            description="Upload a folder of resumes"
-            folder
-            onUpload={handleUpload}
-          /> 
-          */}
+        {/* 📝 Job Description Box */}
+        <div className="w-full max-w-4xl">
+          <JobDescriptionBox />
         </div>
 
         {/* Loading State */}
@@ -93,7 +93,7 @@ export default function LandingPage() {
           </div>
         )}
 
-        {/* Results */}
+        {/* Output */}
         {outputData && !isLoading && (
           <div className="mt-10 w-full max-w-4xl">
             <OutputViewer data={outputData} />
