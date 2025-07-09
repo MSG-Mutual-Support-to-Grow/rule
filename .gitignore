@@ -69,3 +69,4 @@ frontend/node_modules/
 
 # JSON directory
 jsons/
+outputs/
