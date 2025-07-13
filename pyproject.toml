@@ -8,16 +8,21 @@ dependencies = [
     "black==24.4.2",
     "clean-text==0.6.0",
     "easyocr>=1.7.2",
+    "en-core-web-sm",
     "isort==5.13.2",
     "multiprocess==0.70.15",
     "opencv-python==4.9.0.80",
     "pdf2image==1.17.0",
     "pdfplumber==0.10.3",
     "pillow==10.0.0",
+    "pyspellchecker>=0.8.3",
     "pytesseract==0.3.10",
     "python-dotenv==1.0.1",
     "requests==2.31.0",
-    "spacy==3.7.2",
+    "spacy==3.5.0",
     "streamlit==1.34.0",
     "typer<0.10.0",
 ]
+
+[tool.uv.sources]
+en-core-web-sm = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.5.0/en_core_web_sm-3.5.0.tar.gz" }

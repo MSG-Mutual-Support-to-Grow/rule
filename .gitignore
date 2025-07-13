@@ -10,6 +10,8 @@ build/
 .venv/
 env/
 venv/
+ocr
+.env 
 
 # VS Code
 .vscode/
