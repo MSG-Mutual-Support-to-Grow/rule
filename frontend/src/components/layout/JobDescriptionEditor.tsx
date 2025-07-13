@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
+import { saveJobDescription } from "../../lib/api";
 
 export default function JobDescriptionBox() {
   const [description, setDescription] = useState("");
   const [isEditable, setIsEditable] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
 
   // Load saved JD and lock state
   useEffect(() => {
@@ -17,10 +20,34 @@ export default function JobDescriptionBox() {
     setDescription(e.target.value);
   };
 
-  const handleSave = () => {
-    localStorage.setItem("job_description", description);
-    localStorage.setItem("jd_locked", "true");
-    setIsEditable(false);
+  const handleSave = async () => {
+    if (!description.trim()) {
+      setSaveMessage("Please enter a job description before saving.");
+      setTimeout(() => setSaveMessage(""), 3000);
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveMessage("");
+
+    try {
+      // Save to backend API
+      await saveJobDescription(description);
+      
+      // Also save to localStorage for offline access
+      localStorage.setItem("job_description", description);
+      localStorage.setItem("jd_locked", "true");
+      
+      setIsEditable(false);
+      setSaveMessage("Job description saved successfully!");
+      setTimeout(() => setSaveMessage(""), 3000);
+    } catch (error) {
+      console.error("Failed to save job description:", error);
+      setSaveMessage(`Failed to save: ${error instanceof Error ? error.message : "Unknown error"}`);
+      setTimeout(() => setSaveMessage(""), 5000);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleEdit = () => {
@@ -28,11 +55,29 @@ export default function JobDescriptionBox() {
     localStorage.setItem("jd_locked", "false");
   };
 
-  const handleClear = () => {
-    localStorage.removeItem("job_description");
-    localStorage.removeItem("jd_locked");
-    setDescription("");
-    setIsEditable(true);
+  const handleClear = async () => {
+    try {
+      // Clear from backend by saving empty description
+      await saveJobDescription("");
+      
+      // Clear from localStorage
+      localStorage.removeItem("job_description");
+      localStorage.removeItem("jd_locked");
+      
+      setDescription("");
+      setIsEditable(true);
+      setSaveMessage("Job description cleared successfully!");
+      setTimeout(() => setSaveMessage(""), 3000);
+    } catch (error) {
+      console.error("Failed to clear job description:", error);
+      // Still clear locally even if backend fails
+      localStorage.removeItem("job_description");
+      localStorage.removeItem("jd_locked");
+      setDescription("");
+      setIsEditable(true);
+      setSaveMessage("Cleared locally (backend clear failed)");
+      setTimeout(() => setSaveMessage(""), 3000);
+    }
   };
 
   return (
@@ -43,9 +88,14 @@ export default function JobDescriptionBox() {
           {isEditable ? (
             <button
               onClick={handleSave}
-              className="text-sm bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
+              disabled={isSaving || !description.trim()}
+              className={`text-sm px-3 py-1 rounded ${
+                isSaving || !description.trim()
+                  ? "bg-gray-500 cursor-not-allowed text-gray-300"
+                  : "bg-green-500 hover:bg-green-600 text-white"
+              }`}
             >
-              Save
+              {isSaving ? "Saving..." : "Save"}
             </button>
           ) : (
             <button
@@ -63,6 +113,16 @@ export default function JobDescriptionBox() {
           </button>
         </div>
       </div>
+
+      {saveMessage && (
+        <div className={`mb-3 p-2 rounded text-sm ${
+          saveMessage.includes("successfully") 
+            ? "bg-green-500/20 text-green-400 border border-green-500/30" 
+            : "bg-red-500/20 text-red-400 border border-red-500/30"
+        }`}>
+          {saveMessage}
+        </div>
+      )}
 
       <textarea
         value={description}
