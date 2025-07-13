@@ -50,10 +50,6 @@ export const uploadResume = async (file: File): Promise<ResumeAnalysisResult> =>
   return response.json();
 };
 
-export default {
-  uploadResume,
-};
-
 export const uploadResumeBatch = async (files: FileList): Promise<ResumeBatchItem[]> => {
   const formData = new FormData();
 
@@ -73,4 +69,29 @@ export const uploadResumeBatch = async (files: FileList): Promise<ResumeBatchIte
 
   const data = await response.json();
   return data.ranked_resumes;
+};
+
+export const saveJobDescription = async (jobDescription: string): Promise<{ message: string }> => {
+  const response = await fetch(`${API_BASE_URL}/save-job-description/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      job_description: jobDescription,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+    throw new Error(errorData.error || errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json();
+};
+
+export default {
+  uploadResume,
+  uploadResumeBatch,
+  saveJobDescription,
 };
