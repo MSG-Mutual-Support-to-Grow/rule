@@ -1,8 +1,11 @@
 import requests
-from llm.base_provider import BaseLLMProvider
+from ..base_provider import BaseLLMProvider
 from ..utils import parse_llm_response
 
 class OpenRouterProvider(BaseLLMProvider):
+    def __init__(self, model: str, api_key: str | None = None):
+        super().__init__(model, api_key)
+    
     def send_prompt(self, prompt: str) -> dict | None:
         headers = {
             "Authorization": f"Bearer {self.api_key}",

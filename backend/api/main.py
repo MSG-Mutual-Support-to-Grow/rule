@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from uuid import uuid4
 import os
 import shutil
@@ -20,9 +20,27 @@ from backend.pipelines.analyze_resume import (
     process_resume_ocr,
 )
 
+# Import LLM automation
+from backend.modules.llm.llm_automation import llm_automation
+
 # Pydantic model for job description request
 class JobDescriptionRequest(BaseModel):
     job_description: str
+
+# Pydantic models for LLM provider management
+class LLMConfigRequest(BaseModel):
+    provider: str
+    model: str
+    api_key: Optional[str] = None
+    base_url: Optional[str] = None
+
+class LLMTestRequest(BaseModel):
+    provider: str
+    model: str
+    api_key: Optional[str] = None
+
+class LLMPromptRequest(BaseModel):
+    prompt: str
 
 app = FastAPI()
 
@@ -153,4 +171,130 @@ async def get_analysis(resume_id: str):
         return JSONResponse(content=data, status_code=200)
     else:
         return JSONResponse(content={"error": "Resume analysis not found."}, status_code=404)
+
+# ==================== LLM Provider Management Endpoints ====================
+
+@app.get("/api/llm/providers")
+async def get_available_providers():
+    """Get list of all available LLM providers and their models"""
+    try:
+        status = llm_automation.get_provider_status()
+        return JSONResponse(content=status, status_code=200)
+    except Exception as e:
+        return JSONResponse(
+            content={"error": f"Failed to get providers: {str(e)}"}, 
+            status_code=500
+        )
+
+@app.get("/api/llm/config")
+async def get_current_config():
+    """Get current LLM configuration"""
+    try:
+        config = llm_automation.current_config
+        # Don't expose API key in response
+        safe_config = {k: v for k, v in config.items() if k != "api_key"}
+        safe_config["has_api_key"] = bool(config.get("api_key"))
+        
+        return JSONResponse(content=safe_config, status_code=200)
+    except Exception as e:
+        return JSONResponse(
+            content={"error": f"Failed to get config: {str(e)}"}, 
+            status_code=500
+        )
+
+@app.post("/api/llm/config")
+async def update_llm_config(request: LLMConfigRequest):
+    """Update LLM provider configuration"""
+    try:
+        result = llm_automation.update_provider_config(
+            provider=request.provider,
+            model=request.model,
+            api_key=request.api_key,
+            base_url=request.base_url
+        )
+        
+        status_code = 200 if result["success"] else 400
+        return JSONResponse(content=result, status_code=status_code)
+        
+    except Exception as e:
+        return JSONResponse(
+            content={"error": f"Failed to update config: {str(e)}"}, 
+            status_code=500
+        )
+
+@app.post("/api/llm/test")
+async def test_llm_connection(request: LLMTestRequest):
+    """Test connection to LLM provider"""
+    try:
+        result = llm_automation.test_provider_connection(
+            provider=request.provider,
+            model=request.model,
+            api_key=request.api_key
+        )
+        
+        status_code = 200 if result["success"] else 400
+        return JSONResponse(content=result, status_code=status_code)
+        
+    except Exception as e:
+        return JSONResponse(
+            content={"error": f"Failed to test connection: {str(e)}"}, 
+            status_code=500
+        )
+
+@app.post("/api/llm/prompt")
+async def send_llm_prompt(request: LLMPromptRequest):
+    """Send prompt to currently configured LLM provider"""
+    try:
+        result = llm_automation.send_prompt_with_current_provider(request.prompt)
+        
+        status_code = 200 if result["success"] else 400
+        return JSONResponse(content=result, status_code=status_code)
+        
+    except Exception as e:
+        return JSONResponse(
+            content={"error": f"Failed to send prompt: {str(e)}"}, 
+            status_code=500
+        )
+
+@app.get("/api/llm/models/{provider}")
+async def get_provider_models(provider: str):
+    """Get available models for a specific provider"""
+    try:
+        models = llm_automation.get_available_models(provider)
+        
+        if not models:
+            return JSONResponse(
+                content={"error": f"No models found for provider: {provider}"}, 
+                status_code=404
+            )
+        
+        return JSONResponse(
+            content={"provider": provider, "models": models}, 
+            status_code=200
+        )
+        
+    except Exception as e:
+        return JSONResponse(
+            content={"error": f"Failed to get models: {str(e)}"}, 
+            status_code=500
+        )
+
+@app.post("/api/llm/reset")
+async def reset_llm_config():
+    """Reset LLM configuration to default settings"""
+    try:
+        result = llm_automation.reset_to_default()
+        
+        status_code = 200 if result["success"] else 400
+        return JSONResponse(content=result, status_code=status_code)
+        
+    except Exception as e:
+        return JSONResponse(
+            content={"error": f"Failed to reset config: {str(e)}"}, 
+            status_code=500
+        )
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
