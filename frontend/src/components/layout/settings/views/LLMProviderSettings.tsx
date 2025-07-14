@@ -1,51 +1,171 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { 
+  getLLMProviders, 
+  getLLMConfig, 
+  updateLLMConfig, 
+  testLLMConnection, 
+  getProviderModels,
+  resetLLMConfig 
+} from "../../../../lib/api";
 
-type ProviderKey = keyof typeof PROVIDERS;
-
-const PROVIDERS = {
-  OpenAI: ["gpt-4", "gpt-3.5-turbo"],
-  Mistral: ["mistral-7b", "mixtral-8x7b"],
-  Gemini: ["gemini-pro", "gemini-ultra"],
-  Ollama: ["DeepSeek-r1", "Claude-A1"],
-} as const;
-
-const STORAGE_KEY = "llm_settings";
+interface ProviderData {
+  available_providers: string[];
+  provider_models: Record<string, string[]>;
+  current_config: {
+    provider: string;
+    model: string;
+    has_api_key: boolean;
+    base_url?: string;
+  };
+}
 
 export default function LLMProviderSettings() {
   const navigate = useNavigate();
 
-  const [provider, setProvider] = useState<ProviderKey>("OpenAI");
-  const [model, setModel] = useState<string>(PROVIDERS["OpenAI"][0]);
+  const [provider, setProvider] = useState<string>("openrouter");
+  const [model, setModel] = useState<string>("");
   const [apiKey, setApiKey] = useState<string>("");
+  const [baseUrl, setBaseUrl] = useState<string>("http://localhost:11434");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [testing, setTesting] = useState<boolean>(false);
+  const [saving, setSaving] = useState<boolean>(false);
+  const [providerData, setProviderData] = useState<ProviderData | null>(null);
 
-  // Load existing settings from localStorage
+  // Load provider data and current config
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const config = JSON.parse(stored);
-      if (config.provider && PROVIDERS[config.provider as ProviderKey]) {
-        setProvider(config.provider);
-        setModel(config.model || PROVIDERS[config.provider as ProviderKey][0]);
-        setApiKey(config.apiKey || "");
-      }
-    }
+    loadProviderData();
   }, []);
 
-  const handleSave = () => {
-    if (!apiKey.trim()) {
-      toast.error(provider === "Ollama" ? "Base URL is required" : "API key is required");
+  const loadProviderData = async () => {
+    try {
+      setLoading(true);
+      const data = await getLLMProviders();
+      setProviderData(data);
+      
+      // Set current config
+      if (data.current_config) {
+        setProvider(data.current_config.provider);
+        setModel(data.current_config.model);
+        setBaseUrl(data.current_config.base_url || "http://localhost:11434");
+        // Don't load API key from backend for security
+      }
+      
+      // Set default model if none selected
+      if (!data.current_config.model && data.provider_models[data.current_config.provider]) {
+        setModel(data.provider_models[data.current_config.provider][0]);
+      }
+      
+    } catch (error) {
+      console.error("Failed to load provider data:", error);
+      toast.error("Failed to load LLM provider data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleProviderChange = async (newProvider: string) => {
+    setProvider(newProvider);
+    
+    // Load models for new provider
+    if (providerData?.provider_models[newProvider]) {
+      setModel(providerData.provider_models[newProvider][0]);
+    } else {
+      try {
+        const data = await getProviderModels(newProvider);
+        setModel(data.models[0] || "");
+      } catch (error) {
+        console.error("Failed to load models:", error);
+        toast.error(`Failed to load models for ${newProvider}`);
+      }
+    }
+  };
+
+  const handleTest = async () => {
+    if (!apiKey.trim() && provider !== "ollama") {
+      toast.error("API key is required for testing");
       return;
     }
 
-    const config = { provider, model, apiKey };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
-    toast.success("Settings saved successfully");
+    try {
+      setTesting(true);
+      const result = await testLLMConnection({
+        provider,
+        model,
+        api_key: apiKey || undefined
+      });
 
-    setTimeout(() => navigate("#"), 1000); // slight delay to show toast
+      if (result.success) {
+        toast.success("Connection test successful!");
+      } else {
+        toast.error(`Connection test failed: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Test failed:", error);
+      toast.error("Connection test failed");
+    } finally {
+      setTesting(false);
+    }
   };
 
+  const handleSave = async () => {
+    if (!apiKey.trim() && provider !== "ollama") {
+      toast.error(provider === "ollama" ? "Base URL is required" : "API key is required");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const result = await updateLLMConfig({
+        provider,
+        model,
+        api_key: apiKey || undefined,
+        base_url: baseUrl || undefined
+      });
+
+      if (result.success) {
+        toast.success("Settings saved successfully");
+        // Reload data to get updated config
+        await loadProviderData();
+        setTimeout(() => navigate("#"), 1000);
+      } else {
+        toast.error(`Failed to save: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Save failed:", error);
+      toast.error("Failed to save settings");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleReset = async () => {
+    try {
+      const result = await resetLLMConfig();
+      if (result.success) {
+        toast.success("Settings reset to default");
+        await loadProviderData();
+        setApiKey(""); // Clear API key field
+      } else {
+        toast.error(`Failed to reset: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Reset failed:", error);
+      toast.error("Failed to reset settings");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-white/10 border border-white/20 rounded-xl backdrop-blur-md p-8 text-white shadow-lg w-full max-w-3xl justify-center mx-auto">
+        <div className="text-center">Loading LLM provider settings...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white/10 border border-white/20 rounded-xl backdrop-blur-md p-8 text-white shadow-lg w-full max-w-3xl justify-center mx-auto">
   return (
     <div className="bg-white/10 border border-white/20 rounded-xl backdrop-blur-md p-8 text-white shadow-lg w-full max-w-3xl justify-center mx-auto">
       <h2 className="text-2xl font-bold mb-6">LLM Provider Settings</h2>
@@ -56,16 +176,12 @@ export default function LLMProviderSettings() {
           <label className="block text-sm font-medium mb-2">LLM Provider</label>
           <select
             value={provider}
-            onChange={(e) => {
-              const selected = e.target.value as ProviderKey;
-              setProvider(selected);
-              setModel(PROVIDERS[selected][0]);
-            }}
+            onChange={(e) => handleProviderChange(e.target.value)}
             className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
-            {(Object.keys(PROVIDERS) as ProviderKey[]).map((prov) => (
+            {providerData?.available_providers.map((prov) => (
               <option key={prov} value={prov}>
-                {prov}
+                {prov.charAt(0).toUpperCase() + prov.slice(1)}
               </option>
             ))}
           </select>
@@ -79,7 +195,7 @@ export default function LLMProviderSettings() {
             onChange={(e) => setModel(e.target.value)}
             className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
-            {PROVIDERS[provider].map((mod: string) => (
+            {(providerData?.provider_models[provider] || []).map((mod: string) => (
               <option key={mod} value={mod}>
                 {mod}
               </option>
@@ -90,31 +206,62 @@ export default function LLMProviderSettings() {
         {/* API Key / Base URL */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium mb-2">
-            {provider === "Ollama" ? "Base URL" : "API Key"}
+            {provider === "ollama" ? "Base URL" : "API Key"}
           </label>
           <input
-            type={provider === "Ollama" ? "url" : "password"}
+            type={provider === "ollama" ? "url" : "password"}
             placeholder={
-              provider === "Ollama"
+              provider === "ollama"
                 ? "http://localhost:11434"
                 : "Enter your API key"
             }
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
+            value={provider === "ollama" ? baseUrl : apiKey}
+            onChange={(e) => provider === "ollama" ? setBaseUrl(e.target.value) : setApiKey(e.target.value)}
             className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
       </div>
 
-      {/* Save Button */}
-      <div className="mt-8 text-right">
+      {/* Action Buttons */}
+      <div className="mt-8 flex gap-4 justify-end">
+        <button
+          onClick={handleReset}
+          className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition"
+        >
+          Reset to Default
+        </button>
+        
+        <button
+          onClick={handleTest}
+          disabled={testing}
+          className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 disabled:bg-yellow-800 text-white rounded-md transition"
+        >
+          {testing ? "Testing..." : "Test Connection"}
+        </button>
+        
         <button
           onClick={handleSave}
-          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition"
+          disabled={saving}
+          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white rounded-md transition"
         >
-          Save Settings
+          {saving ? "Saving..." : "Save Settings"}
         </button>
       </div>
+
+      {/* Current Config Display */}
+      {providerData?.current_config && (
+        <div className="mt-6 p-4 bg-white/5 rounded-lg">
+          <h3 className="text-sm font-medium mb-2">Current Configuration:</h3>
+          <div className="text-xs text-gray-300">
+            <p>Provider: {providerData.current_config.provider}</p>
+            <p>Model: {providerData.current_config.model}</p>
+            <p>API Key: {providerData.current_config.has_api_key ? "✅ Set" : "❌ Not set"}</p>
+            {provider === "ollama" && (
+              <p>Base URL: {providerData.current_config.base_url || "Not set"}</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

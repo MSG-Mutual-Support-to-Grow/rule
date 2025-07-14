@@ -1,6 +1,6 @@
-from llm.providers.openrouter_handler import OpenRouterProvider
-from llm.providers.ollama_handler import OllamaProvider
-from llm.base_provider import BaseLLMProvider
+from .handlers.openrouter_handler import OpenRouterProvider
+from .handlers.ollama_handler import OllamaProvider
+from .base_provider import BaseLLMProvider
 
 # Registry of supported providers
 PROVIDER_REGISTRY = {

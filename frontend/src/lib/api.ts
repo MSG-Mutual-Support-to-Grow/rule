@@ -33,6 +33,37 @@ export interface ResumeBatchItem {
   fit_score: number;
 }
 
+// LLM Provider interfaces
+export interface LLMConfig {
+  provider: string;
+  model: string;
+  api_key?: string;
+  base_url?: string;
+  has_api_key?: boolean;
+}
+
+export interface LLMProvider {
+  name: string;
+  models: string[];
+}
+
+export interface LLMTestResult {
+  success: boolean;
+  message: string;
+  provider: string;
+  model: string;
+  error?: string;
+}
+
+export interface LLMPromptResult {
+  success: boolean;
+  result?: any;
+  message?: string;
+  provider?: string;
+  model?: string;
+  error?: string;
+}
+
 export const uploadResume = async (file: File): Promise<ResumeAnalysisResult> => {
   const formData = new FormData();
   formData.append('file', file);
@@ -73,4 +104,120 @@ export const uploadResumeBatch = async (files: FileList): Promise<ResumeBatchIte
 
   const data = await response.json();
   return data.ranked_resumes;
+};
+
+// ==================== LLM Provider API Functions ====================
+
+export const getLLMProviders = async (): Promise<{
+  available_providers: string[];
+  provider_models: Record<string, string[]>;
+  current_config: LLMConfig;
+}> => {
+  const response = await fetch(`${API_BASE_URL}/api/llm/providers`);
+  
+  if (!response.ok) {
+    throw new Error(`Failed to get LLM providers: ${response.statusText}`);
+  }
+  
+  return response.json();
+};
+
+export const getLLMConfig = async (): Promise<LLMConfig> => {
+  const response = await fetch(`${API_BASE_URL}/api/llm/config`);
+  
+  if (!response.ok) {
+    throw new Error(`Failed to get LLM config: ${response.statusText}`);
+  }
+  
+  return response.json();
+};
+
+export const updateLLMConfig = async (config: {
+  provider: string;
+  model: string;
+  api_key?: string;
+  base_url?: string;
+}): Promise<{ success: boolean; message: string }> => {
+  const response = await fetch(`${API_BASE_URL}/api/llm/config`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(config),
+  });
+  
+  const result = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(result.error || `Failed to update LLM config: ${response.statusText}`);
+  }
+  
+  return result;
+};
+
+export const testLLMConnection = async (config: {
+  provider: string;
+  model: string;
+  api_key?: string;
+}): Promise<LLMTestResult> => {
+  const response = await fetch(`${API_BASE_URL}/api/llm/test`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(config),
+  });
+  
+  const result = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(result.error || `Failed to test LLM connection: ${response.statusText}`);
+  }
+  
+  return result;
+};
+
+export const sendLLMPrompt = async (prompt: string): Promise<LLMPromptResult> => {
+  const response = await fetch(`${API_BASE_URL}/api/llm/prompt`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ prompt }),
+  });
+  
+  const result = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(result.error || `Failed to send LLM prompt: ${response.statusText}`);
+  }
+  
+  return result;
+};
+
+export const getProviderModels = async (provider: string): Promise<{
+  provider: string;
+  models: string[];
+}> => {
+  const response = await fetch(`${API_BASE_URL}/api/llm/models/${provider}`);
+  
+  if (!response.ok) {
+    throw new Error(`Failed to get models for provider ${provider}: ${response.statusText}`);
+  }
+  
+  return response.json();
+};
+
+export const resetLLMConfig = async (): Promise<{ success: boolean; message: string }> => {
+  const response = await fetch(`${API_BASE_URL}/api/llm/reset`, {
+    method: 'POST',
+  });
+  
+  const result = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(result.error || `Failed to reset LLM config: ${response.statusText}`);
+  }
+  
+  return result;
 };
