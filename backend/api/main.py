@@ -52,7 +52,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/upload-resume/")
+@app.post("/api/upload-resume/")
 async def upload_resume(file: UploadFile = File(...)):
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted.")
@@ -87,7 +87,7 @@ async def upload_resume(file: UploadFile = File(...)):
             os.remove(temp_file_path)
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
-@app.post("/save-job-description/")
+@app.post("/api/save-job-description/")
 async def save_job_description(request: JobDescriptionRequest):
     """Save job description to a single JSON file"""
     try:
@@ -117,7 +117,7 @@ async def save_job_description(request: JobDescriptionRequest):
             status_code=500
         )
         
-@app.post("/upload-resume-batch/")
+@app.post("/api/upload-resume-batch/")
 async def upload_resume_batch(files: List[UploadFile] = File(...)):
     job_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "jsons/job_description.json")
     job_description = "No specific job description provided."
@@ -161,7 +161,7 @@ async def upload_resume_batch(files: List[UploadFile] = File(...)):
     return JSONResponse(content={"ranked_resumes": response_list}, status_code=200)
 
 
-@app.get("/get-analysis/{resume_id}")
+@app.get("/api/get-analysis/{resume_id}")
 async def get_analysis(resume_id: str):
     outputs_dir = os.path.join(os.path.dirname(__file__), "..", "..", "outputs")
     json_file = os.path.join(outputs_dir, f"{resume_id}.json")
