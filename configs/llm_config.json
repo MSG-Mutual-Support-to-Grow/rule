@@ -1,0 +1,6 @@
+{
+  "provider": "openrouter",
+  "model": "anthropic/claude-3.5-sonnet",
+  "api_key": "",
+  "base_url": "http://localhost:11434"
+}
