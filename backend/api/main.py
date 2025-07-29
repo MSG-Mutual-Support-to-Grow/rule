@@ -71,7 +71,8 @@ async def upload_resume(file: UploadFile = File(...)):
         else:
             result = process_resume_ocr(temp_file_path, job_description, resume_id)
 
-        os.remove(temp_file_path)
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
 
         if not result:
             return JSONResponse(content={"error": "AI analysis failed"}, status_code=500)
@@ -79,8 +80,14 @@ async def upload_resume(file: UploadFile = File(...)):
         return JSONResponse(content=result, status_code=200)
 
     except Exception as e:
+        import traceback
+        error_message = str(e)
+        tb = traceback.format_exc()
+        print(f"[ERROR] Exception in upload_resume: {error_message}\n{tb}")
         if os.path.exists(temp_file_path):
             os.remove(temp_file_path)
+        return JSONResponse(content={"error": error_message, "trace": tb}, status_code=500)
+
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 @app.post("/api/save-job-description/")
