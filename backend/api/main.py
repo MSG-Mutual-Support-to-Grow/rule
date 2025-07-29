@@ -22,6 +22,7 @@ from backend.pipelines.analyze_resume import (
 
 # Import LLM automation
 from backend.modules.llm.llm_automation import llm_automation
+from backend.modules.llm.handlers.openrouter_handler import OpenRouterProvider
 
 # Pydantic model for job description request
 class JobDescriptionRequest(BaseModel):
@@ -33,11 +34,6 @@ class LLMConfigRequest(BaseModel):
     model: str
     api_key: Optional[str] = None
     base_url: Optional[str] = None
-
-class LLMTestRequest(BaseModel):
-    provider: str
-    model: str
-    api_key: Optional[str] = None
 
 class LLMPromptRequest(BaseModel):
     prompt: str
@@ -188,14 +184,25 @@ async def get_available_providers():
 
 @app.get("/api/llm/config")
 async def get_current_config():
-    """Get current LLM configuration"""
+    """Get current LLM configuration with available providers and models"""
     try:
+        # Get current config
         config = llm_automation.current_config
         # Don't expose API key in response
         safe_config = {k: v for k, v in config.items() if k != "api_key"}
         safe_config["has_api_key"] = bool(config.get("api_key"))
         
-        return JSONResponse(content=safe_config, status_code=200)
+        # Get provider status (includes available providers and models)
+        provider_status = llm_automation.get_provider_status()
+        
+        # Combine config with provider data
+        response_data = {
+            "current_config": safe_config,
+            "available_providers": provider_status.get("available_providers", []),
+            "provider_models": provider_status.get("provider_models", {})
+        }
+        
+        return JSONResponse(content=response_data, status_code=200)
     except Exception as e:
         return JSONResponse(
             content={"error": f"Failed to get config: {str(e)}"}, 
@@ -219,25 +226,6 @@ async def update_llm_config(request: LLMConfigRequest):
     except Exception as e:
         return JSONResponse(
             content={"error": f"Failed to update config: {str(e)}"}, 
-            status_code=500
-        )
-
-@app.post("/api/llm/test")
-async def test_llm_connection(request: LLMTestRequest):
-    """Test connection to LLM provider"""
-    try:
-        result = llm_automation.test_provider_connection(
-            provider=request.provider,
-            model=request.model,
-            api_key=request.api_key
-        )
-        
-        status_code = 200 if result["success"] else 400
-        return JSONResponse(content=result, status_code=status_code)
-        
-    except Exception as e:
-        return JSONResponse(
-            content={"error": f"Failed to test connection: {str(e)}"}, 
             status_code=500
         )
 
@@ -293,6 +281,11 @@ async def reset_llm_config():
             content={"error": f"Failed to reset config: {str(e)}"}, 
             status_code=500
         )
+
+@app.get("/api/llm/models/openrouter")
+async def get_openrouter_models():
+    """List available models for OpenRouter"""
+    return JSONResponse(content={"models": OpenRouterProvider.list_models()}, status_code=200)
 
 if __name__ == "__main__":
     import uvicorn

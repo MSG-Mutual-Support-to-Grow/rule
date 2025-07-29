@@ -22,7 +22,8 @@ interface ProviderData {
 export default function LLMProviderSettings() {
   const navigate = useNavigate();
 
-  const [provider, setProvider] = useState<string>("openrouter");
+  // Start with empty states to force user selection
+  const [provider, setProvider] = useState<string>("");
   const [model, setModel] = useState<string>("");
   const [apiKey, setApiKey] = useState<string>("");
   const [baseUrl, setBaseUrl] = useState<string>("http://localhost:11434");
@@ -45,64 +46,52 @@ export default function LLMProviderSettings() {
         console.log("Provider data received:", data); // Debug log
         setProviderData(data);
         
-        // Set current config with null checks
-        if (data.current_config) {
+        // Only set current config if it exists, otherwise let user choose
+        if (data.current_config && data.current_config.provider) {
           console.log("Setting current config:", data.current_config); // Debug log
-          setProvider(data.current_config.provider || "openrouter");
+          setProvider(data.current_config.provider);
           setModel(data.current_config.model || "");
           setBaseUrl(data.current_config.base_url || "http://localhost:11434");
         } else {
-          console.log("No current_config found, using defaults"); // Debug log
-          // Don't set defaults immediately, let user choose
-          if (data.available_providers && data.available_providers.length > 0) {
-            setProvider(data.available_providers[0]);
-            // Set first available model for the first provider
-            if (data.provider_models && data.provider_models[data.available_providers[0]]) {
-              setModel(data.provider_models[data.available_providers[0]][0] || "");
-            }
-          }
+          console.log("No current config, user needs to select options");
+          // Don't auto-select anything, let user choose
+          setProvider("");
+          setModel("");
         }
         
-        // Set default model if none selected
-        const selectedProvider = data.current_config?.provider || "openrouter";
-        const selectedModel = data.current_config?.model;
-        
-        if (!selectedModel && data.provider_models && data.provider_models[selectedProvider] && data.provider_models[selectedProvider].length > 0) {
-          setModel(data.provider_models[selectedProvider][0]);
-        }
       } catch (apiError) {
         console.error("API Error, using mock data:", apiError);
-        // Use mock data for testing when backend is not available
+        // Enhanced mock data for testing
         const mockData: ProviderData = {
           available_providers: ["openrouter", "ollama"],
           provider_models: {
             "openrouter": [
               "anthropic/claude-3.5-sonnet",
+              "anthropic/claude-3-haiku",
               "openai/gpt-4o",
+              "openai/gpt-4o-mini",
+              "openai/gpt-3.5-turbo",
               "mistralai/mistral-large",
-              "meta-llama/llama-3.1-70b-instruct"
+              "mistralai/mistral-small",
+              "meta-llama/llama-3.1-70b-instruct",
+              "meta-llama/llama-3.1-8b-instruct",
+              "google/gemini-pro",
+              "google/gemma-7b-it"
             ],
             "ollama": [
+              "llama3",
+              "mistral",
+              "codellama",
               "No models installed - Run 'ollama pull <model_name>' to install models"
             ]
-          },
-          current_config: {
-            provider: "openrouter",
-            model: "anthropic/claude-3.5-sonnet",
-            has_api_key: false,
-            base_url: "http://localhost:11434"
           }
         };
         
         console.log("Using mock data:", mockData);
         setProviderData(mockData);
-        // Don't auto-set values, let user choose
-        if (mockData.available_providers && mockData.available_providers.length > 0) {
-          setProvider(mockData.available_providers[0]);
-          if (mockData.provider_models && mockData.provider_models[mockData.available_providers[0]]) {
-            setModel(mockData.provider_models[mockData.available_providers[0]][0] || "");
-          }
-        }
+        // Don't auto-select, let user choose
+        setProvider("");
+        setModel("");
       }
       
     } catch (error) {
@@ -116,18 +105,18 @@ export default function LLMProviderSettings() {
   const handleProviderChange = async (newProvider: string) => {
     console.log("Provider changed to:", newProvider);
     setProvider(newProvider);
+    setModel(""); // Reset model when provider changes
     
     // Load models for new provider
     if (providerData?.provider_models[newProvider]) {
       const availableModels = providerData.provider_models[newProvider];
       console.log("Available models for", newProvider, ":", availableModels);
-      setModel(availableModels[0] || "");
+      // Don't auto-select first model, let user choose
     } else {
       console.log("No cached models for", newProvider, ", fetching...");
       try {
         const data = await getProviderModels(newProvider);
         console.log("Fetched models:", data.models);
-        setModel(data.models[0] || "");
         
         // Update provider data with new models
         if (providerData) {
@@ -142,7 +131,6 @@ export default function LLMProviderSettings() {
       } catch (error) {
         console.error("Failed to load models:", error);
         toast.error(`Failed to load models for ${newProvider}`);
-        setModel("");
       }
     }
   };
@@ -153,8 +141,24 @@ export default function LLMProviderSettings() {
   };
 
   const handleSave = async () => {
+    // Validation
+    if (!provider) {
+      toast.error("Please select an LLM provider");
+      return;
+    }
+    
+    if (!model) {
+      toast.error("Please select a model");
+      return;
+    }
+    
     if (!apiKey.trim() && provider !== "ollama") {
-      toast.error(provider === "ollama" ? "Base URL is required" : "API key is required");
+      toast.error("API key is required");
+      return;
+    }
+    
+    if (provider === "ollama" && !baseUrl.trim()) {
+      toast.error("Base URL is required for Ollama");
       return;
     }
 
@@ -238,7 +242,8 @@ export default function LLMProviderSettings() {
             onChange={(e) => handleProviderChange(e.target.value)}
             className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
-            {providerData?.available_providers.map((prov) => (
+            <option value="" disabled>Choose a provider...</option>
+            {providerData?.available_providers?.map((prov) => (
               <option key={prov} value={prov}>
                 {prov.charAt(0).toUpperCase() + prov.slice(1)}
               </option>
@@ -253,8 +258,12 @@ export default function LLMProviderSettings() {
             value={model}
             onChange={(e) => setModel(e.target.value)}
             className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            disabled={!provider}
           >
-            {(providerData?.provider_models[provider] || []).map((mod: string) => (
+            <option value="" disabled>
+              {!provider ? "Select provider first..." : "Choose a model..."}
+            </option>
+            {provider && (providerData?.provider_models[provider] || []).map((mod: string) => (
               <option key={mod} value={mod}>
                 {mod}
               </option>
@@ -299,8 +308,8 @@ export default function LLMProviderSettings() {
         
         <button
           onClick={handleSave}
-          disabled={saving}
-          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white rounded-md transition"
+          disabled={saving || !provider || !model}
+          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:opacity-50 text-white rounded-md transition"
         >
           {saving ? "Saving..." : "Save Settings"}
         </button>
@@ -311,8 +320,8 @@ export default function LLMProviderSettings() {
         <div className="mt-6 p-4 bg-white/5 rounded-lg">
           <h3 className="text-sm font-medium mb-2">Current Configuration:</h3>
           <div className="text-xs text-gray-300">
-            <p>Provider: {providerData.current_config.provider}</p>
-            <p>Model: {providerData.current_config.model}</p>
+            <p>Provider: {providerData.current_config.provider || "None"}</p>
+            <p>Model: {providerData.current_config.model || "None"}</p>
             <p>API Key: {providerData.current_config.has_api_key ? "✅ Set" : "❌ Not set"}</p>
             {provider === "ollama" && (
               <p>Base URL: {providerData.current_config.base_url || "Not set"}</p>
@@ -320,6 +329,16 @@ export default function LLMProviderSettings() {
           </div>
         </div>
       )}
+
+      {/* Selection Status */}
+      <div className="mt-4 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+        <h4 className="text-sm font-medium text-blue-300 mb-1">Selection Status:</h4>
+        <div className="text-xs text-gray-300">
+          <p>Provider: {provider || "❌ Not selected"}</p>
+          <p>Model: {model || "❌ Not selected"}</p>
+          <p>Ready to save: {provider && model ? "✅ Yes" : "❌ No"}</p>
+        </div>
+      </div>
     </div>
   );
 }

@@ -57,28 +57,22 @@ class LLMAutomation:
     
     def get_available_models(self, provider: str) -> List[str]:
         """Get available models for a specific provider"""
-        model_map = {
-            "openrouter": [
-                "anthropic/claude-3.5-sonnet",
-                "anthropic/claude-3-haiku",
-                "openai/gpt-4o",
-                "openai/gpt-4o-mini",
-                "google/gemini-pro-1.5",
-                "meta-llama/llama-3.1-405b-instruct",
-                "mistralai/mistral-large-2407"
-            ],
-            "ollama": [
-                "llama3.2",
-                "llama3.1",
-                "mistral",
-                "codellama",
-                "deepseek-coder",
-                "qwen2.5",
-                "phi3"
-            ]
-        }
+        provider_name = provider.lower()
         
-        return model_map.get(provider.lower(), [])
+        if provider_name not in PROVIDER_REGISTRY:
+            return []
+        
+        try:
+            # Get the provider class and call its list_models method
+            provider_class = PROVIDER_REGISTRY[provider_name]
+            if hasattr(provider_class, 'list_models'):
+                return provider_class.list_models()
+            else:
+                print(f"[⚠️ Warning] Provider {provider_name} does not have list_models method")
+                return []
+        except Exception as e:
+            print(f"[❌ Error getting models for {provider}] {e}")
+            return []
     
     def test_provider_connection(self, provider: str, model: str, api_key: str = None) -> Dict[str, Any]:
         """Test connection to a specific LLM provider"""

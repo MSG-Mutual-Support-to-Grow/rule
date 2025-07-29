@@ -37,3 +37,25 @@ class OllamaProvider(BaseLLMProvider):
         except Exception as e:
             print("[❌ Ollama Request Failed]", e)
             return None
+
+    @staticmethod
+    def list_models():
+        """Return available Ollama models from local machine"""
+        try:
+            response = requests.get("http://localhost:11434/api/tags")
+            if response.status_code == 200:
+                data = response.json()
+                # Extract model names from the response
+                models = [model["name"] for model in data.get("models", [])]
+                
+                # If no models found, return a helpful message
+                if not models:
+                    return ["No models installed - Run 'ollama pull <model_name>' to install models"]
+                
+                return models
+            else:
+                print("[❌ Ollama API Error when fetching models]", response.status_code)
+                return ["Ollama server not responding - Make sure Ollama is running"]
+        except Exception as e:
+            print("[❌ Failed to fetch Ollama models]", e)
+            return ["Ollama not available - Install and start Ollama service"]

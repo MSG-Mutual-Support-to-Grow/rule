@@ -34,24 +34,20 @@ export interface ResumeBatchItem {
 }
 
 export interface LLMConfig {
-  provider: string;
-  model: string;
-  api_key?: string;
-  base_url?: string;
-  has_api_key?: boolean;
+  current_config: {
+    provider: string;
+    model: string;
+    api_key?: string;
+    base_url?: string;
+    has_api_key?: boolean;
+  };
+  available_providers: string[];
+  provider_models: Record<string, string[]>;
 }
 
 export interface LLMProvider {
   name: string;
   models: string[];
-}
-
-export interface LLMTestResult {
-  success: boolean;
-  message: string;
-  provider: string;
-  model: string;
-  error?: string;
 }
 
 export interface LLMPromptResult {
@@ -67,7 +63,7 @@ export const uploadResume = async (file: File): Promise<ResumeAnalysisResult> =>
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await fetch(`${API_BASE_URL}/upload-resume/`, {
+  const response = await fetch(`${API_BASE_URL}/api/upload-resume/`, {
     method: 'POST',
     body: formData,
   });
@@ -86,7 +82,7 @@ export const uploadResumeBatch = async (files: FileList): Promise<ResumeBatchIte
     formData.append('files', file);
   });
 
-  const response = await fetch(`${API_BASE_URL}/upload-resume-batch/`, {
+  const response = await fetch(`${API_BASE_URL}/api/upload-resume-batch/`, {
     method: 'POST',
     body: formData,
   });
@@ -101,7 +97,7 @@ export const uploadResumeBatch = async (files: FileList): Promise<ResumeBatchIte
 };
 
 export const saveJobDescription = async (jobDescription: string): Promise<{ message: string }> => {
-  const response = await fetch(`${API_BASE_URL}/save-job-description/`, {
+  const response = await fetch(`${API_BASE_URL}/api/save-job-description/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -118,14 +114,6 @@ export const saveJobDescription = async (jobDescription: string): Promise<{ mess
 };
 
 // ========== LLM Provider API Functions ==========
-
-export const getLLMProviders = async () => {
-  const response = await fetch(`${API_BASE_URL}/api/llm/providers`);
-  if (!response.ok) {
-    throw new Error(`Failed to get LLM providers: ${response.statusText}`);
-  }
-  return response.json();
-};
 
 export const getLLMConfig = async (): Promise<LLMConfig> => {
   const response = await fetch(`${API_BASE_URL}/api/llm/config`);
@@ -152,26 +140,6 @@ export const updateLLMConfig = async (config: {
   const result = await response.json();
   if (!response.ok) {
     throw new Error(result.error || `Failed to update LLM config: ${response.statusText}`);
-  }
-  return result;
-};
-
-export const testLLMConnection = async (config: {
-  provider: string;
-  model: string;
-  api_key?: string;
-}): Promise<LLMTestResult> => {
-  const response = await fetch(`${API_BASE_URL}/api/llm/test`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(config),
-  });
-
-  const result = await response.json();
-  if (!response.ok) {
-    throw new Error(result.error || `Failed to test LLM connection: ${response.statusText}`);
   }
   return result;
 };
@@ -219,10 +187,8 @@ export default {
   uploadResume,
   uploadResumeBatch,
   saveJobDescription,
-  getLLMProviders,
   getLLMConfig,
   updateLLMConfig,
-  testLLMConnection,
   sendLLMPrompt,
   getProviderModels,
   resetLLMConfig,

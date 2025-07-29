@@ -48,45 +48,79 @@ Resume:
 \"\"\"
 """
 
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "HTTP-Referer": "http://localhost",  # Replace with your frontend URL if needed
-        "Content-Type": "application/json"
-    }
+    # Dynamically load API key from llm_config.json
+    import os
+    import json
+    config_path = os.path.join(os.path.dirname(__file__), '../../llm_config.json')
+    config_path = os.path.abspath(config_path)
+    try:
+        with open(config_path, 'r') as f:
+            llm_config = json.load(f)
+            api_key = llm_config.get('api_key')
+            if not api_key:
+                raise ValueError('API key not found in llm_config.json')
+    except Exception as e:
+        raise RuntimeError(f'Error loading llm_config.json: {e}')
 
-    data = {
-        "model": "mistralai/mistral-small-3.2-24b-instruct:free",
-        "temperature": 0.0,
-        "messages": [
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
-    }
+    provider = llm_config.get('provider', 'openrouter')
+    model = llm_config.get('model', 'mistralai/mistral-small-3.2-24b-instruct:free')
+    base_url = llm_config.get('base_url')
 
-    response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
-
-    if response.status_code == 200:
-        try:
-            raw = response.json()['choices'][0]['message']['content']
-            # Clean markdown code block if present
-            cleaned = raw.strip()
-            if cleaned.startswith("```"):
-                first_newline = cleaned.find('\n')
-                if first_newline != -1:
-                    cleaned = cleaned[first_newline + 1:]
-                else:
-                    cleaned = cleaned[3:]
-            if cleaned.endswith("```"):
-                cleaned = cleaned[:-3]
-            cleaned = cleaned.strip()
-            return json.loads(cleaned)
-        except Exception as e:
-            print("[WARNING] Mistral returned invalid JSON. Falling back.")
-            return {"fit_score": 1, "fit_score_reason": "Could not parse response"}
-            
-        
+    if provider == 'ollama':
+        # Default Ollama base URL if not set
+        if not base_url:
+            base_url = 'http://localhost:11434'
+        url = f"{base_url.rstrip('/')}/api/chat"
+        headers = {"Content-Type": "application/json"}
+        data = {
+            "model": model,
+            "messages": [
+                {"role": "user", "content": prompt}
+            ]
+        }
+        response = requests.post(url, headers=headers, json=data)
+        if response.status_code == 200:
+            try:
+                raw = response.json()['message']['content']
+                cleaned = raw.strip()
+                if cleaned.startswith("```"):
+                    cleaned = cleaned.strip('`').strip()
+                return cleaned
+            except Exception as e:
+                raise RuntimeError(f"Ollama response parsing error: {e}")
+        else:
+            raise RuntimeError(f"Ollama API error: {response.status_code} {response.text}")
     else:
-        print("[ERROR]", response.status_code, response.text)
-        return None
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "HTTP-Referer": "http://localhost",  # Replace with your frontend URL if needed
+            "Content-Type": "application/json"
+        }
+        data = {
+            "model": model,
+            "temperature": 0.0,
+            "messages": [
+                {"role": "user", "content": prompt}
+            ]
+        }
+        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
+        if response.status_code == 200:
+            try:
+                raw = response.json()['choices'][0]['message']['content']
+                # Clean markdown code block if present
+                cleaned = raw.strip()
+                if cleaned.startswith("```"):
+                    first_newline = cleaned.find('\n')
+                    if first_newline != -1:
+                        cleaned = cleaned[first_newline + 1:]
+                    else:
+                        cleaned = cleaned[3:]
+                if cleaned.endswith("```"):
+                    cleaned = cleaned[:-3]
+                cleaned = cleaned.strip()
+                return json.loads(cleaned)
+            except Exception as e:
+                print("[WARNING] Mistral returned invalid JSON. Falling back.")
+                return {"fit_score": 1, "fit_score_reason": "Could not parse response"}
+        else:
+            raise RuntimeError(f"OpenRouter API error: {response.status_code} {response.text}")

@@ -11,7 +11,7 @@ import {
 interface ProviderData {
   available_providers: string[];
   provider_models: Record<string, string[]>;
-  current_config?: {
+  current_config: {
     provider: string;
     model: string;
     has_api_key?: boolean;
@@ -39,70 +39,22 @@ export default function LLMProviderSettings() {
     try {
       setLoading(true);
       console.log("Loading provider data..."); // Debug log
+      const data = await getLLMConfig();
+      console.log("Provider data received:", data); // Debug log
+      setProviderData(data);
       
-      try {
-        const data = await getLLMConfig();
-        console.log("Provider data received:", data); // Debug log
-        setProviderData(data);
-        
-        // Set current config with null checks
-        if (data.current_config) {
-          console.log("Setting current config:", data.current_config); // Debug log
-          setProvider(data.current_config.provider || "openrouter");
-          setModel(data.current_config.model || "");
-          setBaseUrl(data.current_config.base_url || "http://localhost:11434");
-        } else {
-          console.log("No current_config found, using defaults"); // Debug log
-          // Don't set defaults immediately, let user choose
-          if (data.available_providers && data.available_providers.length > 0) {
-            setProvider(data.available_providers[0]);
-            // Set first available model for the first provider
-            if (data.provider_models && data.provider_models[data.available_providers[0]]) {
-              setModel(data.provider_models[data.available_providers[0]][0] || "");
-            }
-          }
-        }
-        
-        // Set default model if none selected
-        const selectedProvider = data.current_config?.provider || "openrouter";
-        const selectedModel = data.current_config?.model;
-        
-        if (!selectedModel && data.provider_models && data.provider_models[selectedProvider] && data.provider_models[selectedProvider].length > 0) {
-          setModel(data.provider_models[selectedProvider][0]);
-        }
-      } catch (apiError) {
-        console.error("API Error, using mock data:", apiError);
-        // Use mock data for testing when backend is not available
-        const mockData: ProviderData = {
-          available_providers: ["openrouter", "ollama"],
-          provider_models: {
-            "openrouter": [
-              "anthropic/claude-3.5-sonnet",
-              "openai/gpt-4o",
-              "mistralai/mistral-large",
-              "meta-llama/llama-3.1-70b-instruct"
-            ],
-            "ollama": [
-              "No models installed - Run 'ollama pull <model_name>' to install models"
-            ]
-          },
-          current_config: {
-            provider: "openrouter",
-            model: "anthropic/claude-3.5-sonnet",
-            has_api_key: false,
-            base_url: "http://localhost:11434"
-          }
-        };
-        
-        console.log("Using mock data:", mockData);
-        setProviderData(mockData);
-        // Don't auto-set values, let user choose
-        if (mockData.available_providers && mockData.available_providers.length > 0) {
-          setProvider(mockData.available_providers[0]);
-          if (mockData.provider_models && mockData.provider_models[mockData.available_providers[0]]) {
-            setModel(mockData.provider_models[mockData.available_providers[0]][0] || "");
-          }
-        }
+      // Set current config
+      if (data.current_config) {
+        console.log("Setting current config:", data.current_config); // Debug log
+        setProvider(data.current_config.provider);
+        setModel(data.current_config.model);
+        setBaseUrl(data.current_config.base_url || "http://localhost:11434");
+        // Don't load API key from backend for security
+      }
+      
+      // Set default model if none selected
+      if (!data.current_config?.model && data.provider_models[data.current_config?.provider || 'openrouter']) {
+        setModel(data.provider_models[data.current_config?.provider || 'openrouter'][0]);
       }
       
     } catch (error) {
@@ -114,41 +66,24 @@ export default function LLMProviderSettings() {
   };
 
   const handleProviderChange = async (newProvider: string) => {
-    console.log("Provider changed to:", newProvider);
     setProvider(newProvider);
     
     // Load models for new provider
     if (providerData?.provider_models[newProvider]) {
-      const availableModels = providerData.provider_models[newProvider];
-      console.log("Available models for", newProvider, ":", availableModels);
-      setModel(availableModels[0] || "");
+      setModel(providerData.provider_models[newProvider][0] || "");
     } else {
-      console.log("No cached models for", newProvider, ", fetching...");
       try {
         const data = await getProviderModels(newProvider);
-        console.log("Fetched models:", data.models);
         setModel(data.models[0] || "");
-        
-        // Update provider data with new models
-        if (providerData) {
-          setProviderData({
-            ...providerData,
-            provider_models: {
-              ...providerData.provider_models,
-              [newProvider]: data.models
-            }
-          });
-        }
       } catch (error) {
         console.error("Failed to load models:", error);
         toast.error(`Failed to load models for ${newProvider}`);
-        setModel("");
       }
     }
   };
 
   const handleRefreshModels = async () => {
-    toast.success("Refreshing models from provider handlers...");
+    toast.success("Models are loaded from provider handlers automatically");
     await loadProviderData();
   };
 
@@ -207,13 +142,13 @@ export default function LLMProviderSettings() {
     );
   }
 
-  // Show error state if no provider data or missing required fields
-  if (!providerData || !providerData.available_providers || !providerData.provider_models) {
+  // Show error state if no provider data
+  if (!providerData) {
     return (
       <div className="bg-white/10 border border-white/20 rounded-xl backdrop-blur-md p-8 text-white shadow-lg w-full max-w-3xl justify-center mx-auto">
         <div className="text-center text-red-400">
           <h3 className="text-lg font-semibold mb-2">Unable to load LLM settings</h3>
-          <p className="text-sm">Backend server might not be running or configured properly</p>
+          <p className="text-sm">Make sure the backend server is running on port 8000</p>
           <button 
             onClick={loadProviderData}
             className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition"
@@ -238,7 +173,7 @@ export default function LLMProviderSettings() {
             onChange={(e) => handleProviderChange(e.target.value)}
             className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
-            {providerData?.available_providers.map((prov) => (
+            {providerData?.available_providers?.map((prov) => (
               <option key={prov} value={prov}>
                 {prov.charAt(0).toUpperCase() + prov.slice(1)}
               </option>

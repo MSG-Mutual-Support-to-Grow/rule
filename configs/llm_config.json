@@ -1,0 +1,7 @@
+{
+  "provider": "ollama",
+  "model": "llama2:latest",
+  "api_key": "",
+  "base_url": "http://localhost:11434",
+  "updated_at": "null"
+}
