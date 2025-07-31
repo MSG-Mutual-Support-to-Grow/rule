@@ -289,10 +289,6 @@ async def reset_llm_config():
             status_code=500
         )
 
-@app.get("/api/llm/models/openrouter")
-async def get_openrouter_models():
-    """List available models for OpenRouter"""
-    return JSONResponse(content={"models": OpenRouterProvider.list_models()}, status_code=200)
 
 if __name__ == "__main__":
     import uvicorn
