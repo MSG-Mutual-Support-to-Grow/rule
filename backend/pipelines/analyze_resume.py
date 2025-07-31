@@ -96,7 +96,18 @@ def process_resume(pdf_path: str, job_description: str, resume_id: str):
         print("❌ Extracted text is empty!")
         return None
 
-    print("[DEBUG] Calling Mistral LLM for analysis...")
+    # Log which LLM provider is being called
+    from backend.modules.llm_prompts.parse_resume_llm import call_mistral_resume_analyzer
+    import json
+    # Determine provider for logging
+    config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../configs/llm_config.json'))
+    try:
+        with open(config_path, 'r') as f:
+            llm_config = json.load(f)
+            provider = llm_config.get('provider', 'openrouter')
+    except Exception:
+        provider = 'openrouter'
+    print(f"[DEBUG] Calling {provider.capitalize()} LLM for analysis...")
     result = call_mistral_resume_analyzer(resume_text, job_description,api_key)
 
     if result is None:
@@ -154,6 +165,7 @@ def process_resume_ocr(pdf_path: str, job_description: str, resume_id: str):
                 return None
         if result:
             save_result_to_json(result, resume_id)
+            print(f"✅ Result saved to /home/balu/rule/outputs/{resume_id}.json")
             return result
         else:
             print("❌ AI analysis failed.")

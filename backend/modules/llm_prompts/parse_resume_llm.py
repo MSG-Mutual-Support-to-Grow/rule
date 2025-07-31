@@ -30,6 +30,7 @@ Analyze the following resume text and extract the candidate's details in valid J
 - candidate_fit_summary (1–2 sentence summary of best role for candidate)
 - fit_score (integer from 1 to 10): 10 means highly suitable, 1 means not suitable at all
 - fit_score_reason (string): A short justification explaining why this score was given
+- eligible (bool): true if the candidate is eligible for the job described above, false otherwise
 
 Return ONLY valid JSON in the following format and nothing else (no explanation, no markdown, no extra text):
 
@@ -45,7 +46,8 @@ Return ONLY valid JSON in the following format and nothing else (no explanation,
   "leadership_justification": "...",
   "candidate_fit_summary": "...",
   "fit_score": ...,
-  "fit_score_reason": "..."
+  "fit_score_reason": "...",
+  "eligible": ...
 }}
 
 Resume:
@@ -81,6 +83,7 @@ Resume:
                 {"role": "user", "content": prompt}
             ]
         }
+        print("[DEBUG] Calling Ollama LLM for analysis...")
         response = requests.post(url, headers=headers, json=data)
         if response.status_code == 200:
             try:
@@ -110,20 +113,32 @@ Resume:
                     print(response.text)
                     return {"fit_score": 1, "fit_score_reason": "Ollama returned empty response"}
                 try:
-                    return json.loads(cleaned)
+                    parsed = json.loads(cleaned)
+                    # Ensure 'eligible' field is present
+                    if 'eligible' not in parsed:
+                        # Eligibility depends on fit_score and job description being present
+                        fit_score = parsed.get('fit_score', 0)
+                        eligible = bool(fit_score >= 7 and bool(job_description.strip()))
+                        parsed['eligible'] = eligible
+                        print(f"[INFO] Eligibility computed in backend: fit_score={fit_score}, job_description_present={bool(job_description.strip())} => eligible={eligible}")
+                    print(f"✅ Ollama result parsed for resume analysis.")
+                    return parsed
                 except Exception as e:
                     print(f'[ERROR] Ollama response parsing error: {e}')
                     print('[ERROR] Raw Ollama response:')
                     print(response.text)
                     print('[ERROR] Cleaned Ollama result:')
                     print(cleaned)
+                    print('[ERROR] Ollama result could not be parsed as JSON.')
                     return {"fit_score": 1, "fit_score_reason": "Ollama returned invalid JSON"}
             except Exception as e:
                 print(f'[ERROR] Ollama response parsing error: {e}')
                 print('[ERROR] Raw Ollama response:')
                 print(response.text)
+                print('[ERROR] Ollama analysis failed to return valid JSON.')
                 raise RuntimeError(f"Ollama response parsing error: {e}")
         else:
+            print(f"[ERROR] Ollama API error: {response.status_code} {response.text}")
             raise RuntimeError(f"Ollama API error: {response.status_code} {response.text}")
     else:
         headers = {
@@ -153,7 +168,13 @@ Resume:
                         cleaned = cleaned[3:]
                 if cleaned.endswith("```"):
                     cleaned = cleaned[:-3]
-                return json.loads(cleaned)
+                parsed = json.loads(cleaned)
+                if 'eligible' not in parsed:
+                    fit_score = parsed.get('fit_score', 0)
+                    eligible = bool(fit_score >= 7 and bool(job_description.strip()))
+                    parsed['eligible'] = eligible
+                    print(f"[INFO] Eligibility computed in backend: fit_score={fit_score}, job_description_present={bool(job_description.strip())} => eligible={eligible}")
+                return parsed
             except Exception as e:
                 print("[WARNING] Mistral returned invalid JSON. Falling back.")
                 return {"fit_score": 1, "fit_score_reason": "Could not parse response"}
