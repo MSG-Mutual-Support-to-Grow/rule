@@ -70,6 +70,16 @@ export default function LandingPage() {
             description="Click or drag a single resume"
             onUpload={handleUpload}
           />
+
+          {/* Optional: Enable this if you want folder upload */}
+          
+          <UploadCard
+            title="Upload Folder"
+            description="Upload a folder of resumes"
+            folder
+            onUpload={handleUpload}
+          /> 
+         
         </div>
 
         {/* 📝 Job Description Box */}

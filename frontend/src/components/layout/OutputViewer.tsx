@@ -27,7 +27,7 @@ export default function OutputViewer({ data }: Props) {
       phone_number: data.phone_number,
       total_experience_years: data.total_experience_years,
       leadership_signals: data.leadership_signals,
-      eligibility_status: data.eligibility_status,
+      eligible: typeof data.eligible === "boolean" ? (data.eligible ? "Eligible" : "Not Eligible") : "Unknown",
       candidate_fit_summary: data.candidate_fit_summary,
     };
     const csv =
@@ -58,6 +58,13 @@ export default function OutputViewer({ data }: Props) {
       <Card>
         <CardHeader>
           <CardTitle>Candidate Information</CardTitle>
+          {/* Eligibility Status Badge */}
+          {typeof data.eligible === "boolean" && (
+            <div className={`mt-2 inline-block px-3 py-1 rounded-full text-sm font-semibold ${data.eligible ? "bg-green-100 text-green-700 border border-green-200" : "bg-red-100 text-red-700 border border-red-200"}`}>
+              {data.eligible ? "Eligible" : "Not Eligible"}
+            </div>
+          )}
+
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
