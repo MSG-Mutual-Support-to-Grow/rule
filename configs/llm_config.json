@@ -1,7 +1,7 @@
 {
   "provider": "openrouter",
   "model": "mistralai/mistral-7b-instruct",
-  "api_key": "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",
+  "api_key": "",
   "base_url": "http://localhost:11434",
   "updated_at": "null"
 }
