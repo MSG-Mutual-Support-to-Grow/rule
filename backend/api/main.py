@@ -369,7 +369,7 @@ async def save_job_description(request: JobDescriptionRequest):
     """Save job description to a single JSON file"""
     try:
         # Path to the job description file
-        job_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "jsons/job_description.json")
+        job_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "jd_jsons/job_description.json")
         
         # Create directory if it doesn't exist
         os.makedirs(os.path.dirname(job_file_path), exist_ok=True)
@@ -391,6 +391,53 @@ async def save_job_description(request: JobDescriptionRequest):
     except Exception as e:
         return JSONResponse(
             content={"error": f"Failed to save job description: {str(e)}"},
+            status_code=500
+        )
+
+@app.get("/api/get-job-description/")
+async def get_job_description():
+    """Get the current job description from the JSON file"""
+    try:
+        # Path to the job description file
+        job_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "jd_jsons/job_description.json")
+        
+        # Check if file exists
+        if not os.path.exists(job_file_path):
+            return JSONResponse(
+                content={
+                    "error": "No job description found",
+                    "message": "No job description has been saved yet. Please save a job description first."
+                },
+                status_code=404
+            )
+        
+        # Read the job description from file
+        with open(job_file_path, 'r', encoding='utf-8') as f:
+            job_data = json.load(f)
+        
+        # Return the job description data
+        return JSONResponse(
+            content={
+                "success": True,
+                "job_description": job_data.get("job_description", ""),
+                "file_path": "jd_jsons/job_description.json",
+                "message": "Job description retrieved successfully"
+            },
+            status_code=200
+        )
+    
+    except json.JSONDecodeError:
+        return JSONResponse(
+            content={
+                "error": "Invalid JSON format",
+                "message": "The job description file contains invalid JSON data"
+            },
+            status_code=500
+        )
+    
+    except Exception as e:
+        return JSONResponse(
+            content={"error": f"Failed to retrieve job description: {str(e)}"},
             status_code=500
         )
 
