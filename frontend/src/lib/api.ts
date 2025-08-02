@@ -113,6 +113,35 @@ export const saveJobDescription = async (jobDescription: string): Promise<{ mess
   return response.json();
 };
 
+export const getJobDescription = async (): Promise<{
+  success: boolean;
+  job_description: string;
+  file_path?: string;
+  message: string;
+  error?: string;
+}> => {
+  const response = await fetch(`${API_BASE_URL}/api/get-job-description/`, {
+    method: 'GET',
+  });
+
+  const result = await response.json();
+  
+  if (!response.ok) {
+    // Handle 404 as a valid case (no job description saved yet)
+    if (response.status === 404) {
+      return {
+        success: false,
+        job_description: "",
+        message: result.message || "No job description found",
+        error: result.error
+      };
+    }
+    throw new Error(result.error || result.message || `HTTP ${response.status}: ${response.statusText}`);
+  }
+
+  return result;
+};
+
 // ========== LLM Provider API Functions ==========
 
 export const getLLMConfig = async (): Promise<LLMConfig> => {
@@ -187,6 +216,7 @@ export default {
   uploadResume,
   uploadResumeBatch,
   saveJobDescription,
+  getJobDescription,
   getLLMConfig,
   updateLLMConfig,
   sendLLMPrompt,
