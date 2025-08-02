@@ -370,8 +370,7 @@ npm run preview
 
 ## 🔗 Related Documentation
 
-- [Backend API Documentation](../ENHANCED_BACKEND_API.md)
-- [Frontend Testing Workflow](../FRONTEND_TESTING_WORKFLOW.md)
+- [Backend API Documentation](../backend/ENHANCED_BACKEND_API.md)
 - [Project Main README](../README.md)
 
 ## 📄 License
