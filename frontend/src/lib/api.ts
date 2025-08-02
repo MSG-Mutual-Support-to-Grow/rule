@@ -29,8 +29,23 @@ export interface ResumeAnalysisResult {
 
 export interface ResumeBatchItem {
   resume_id: string;
-  file_name: string;
+  filename: string;
   fit_score: number;
+  fit_score_reason: string;
+  candidate_name: string;
+}
+
+export interface ResumeBatchResponse {
+  success: boolean;
+  total_processed: number;
+  successful_analyses: number;
+  failed_analyses: number;
+  ranked_resumes: ResumeBatchItem[];
+  failed_files: Array<{
+    filename: string;
+    error: string;
+    resume_id: string | null;
+  }>;
 }
 
 export interface LLMConfig {
@@ -70,13 +85,13 @@ export const uploadResume = async (file: File): Promise<ResumeAnalysisResult> =>
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
-    throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
+    throw new Error(errorData.error || errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
   }
 
   return response.json();
 };
 
-export const uploadResumeBatch = async (files: FileList): Promise<ResumeBatchItem[]> => {
+export const uploadResumeBatch = async (files: FileList): Promise<ResumeBatchResponse> => {
   const formData = new FormData();
   Array.from(files).forEach(file => {
     formData.append('files', file);
@@ -89,11 +104,11 @@ export const uploadResumeBatch = async (files: FileList): Promise<ResumeBatchIte
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
-    throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
+    throw new Error(errorData.detail || errorData.error || `HTTP ${response.status}: ${response.statusText}`);
   }
 
   const data = await response.json();
-  return data.ranked_resumes;
+  return data;
 };
 
 export const saveJobDescription = async (jobDescription: string): Promise<{ message: string }> => {
@@ -111,6 +126,35 @@ export const saveJobDescription = async (jobDescription: string): Promise<{ mess
   }
 
   return response.json();
+};
+
+export const getJobDescription = async (): Promise<{
+  success: boolean;
+  job_description: string;
+  file_path?: string;
+  message: string;
+  error?: string;
+}> => {
+  const response = await fetch(`${API_BASE_URL}/api/get-job-description/`, {
+    method: 'GET',
+  });
+
+  const result = await response.json();
+  
+  if (!response.ok) {
+    // Handle 404 as a valid case (no job description saved yet)
+    if (response.status === 404) {
+      return {
+        success: false,
+        job_description: "",
+        message: result.message || "No job description found",
+        error: result.error
+      };
+    }
+    throw new Error(result.error || result.message || `HTTP ${response.status}: ${response.statusText}`);
+  }
+
+  return result;
 };
 
 // ========== LLM Provider API Functions ==========
@@ -187,6 +231,7 @@ export default {
   uploadResume,
   uploadResumeBatch,
   saveJobDescription,
+  getJobDescription,
   getLLMConfig,
   updateLLMConfig,
   sendLLMPrompt,

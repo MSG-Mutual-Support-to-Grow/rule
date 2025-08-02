@@ -1,19 +1,56 @@
 import { useState, useEffect } from "react";
-import { saveJobDescription } from "../../lib/api";
+import { saveJobDescription, getJobDescription } from "../../lib/api";
 
 export default function JobDescriptionBox() {
   const [description, setDescription] = useState("");
   const [isEditable, setIsEditable] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [saveMessage, setSaveMessage] = useState("");
 
   // Load saved JD and lock state
   useEffect(() => {
-    const saved = localStorage.getItem("job_description");
-    const locked = localStorage.getItem("jd_locked");
+    const loadJobDescription = async () => {
+      setIsLoading(true);
+      try {
+        // First try to load from backend API
+        const result = await getJobDescription();
+        
+        if (result.success && result.job_description) {
+          setDescription(result.job_description);
+          // If we have data from backend, mark as saved/locked
+          setIsEditable(false);
+          localStorage.setItem("job_description", result.job_description);
+          localStorage.setItem("jd_locked", "true");
+        } else {
+          // No data in backend, check localStorage as fallback
+          const saved = localStorage.getItem("job_description");
+          const locked = localStorage.getItem("jd_locked");
+          
+          if (saved) {
+            setDescription(saved);
+            if (locked === "true") setIsEditable(false);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load job description from backend:", error);
+        // Fallback to localStorage on error
+        const saved = localStorage.getItem("job_description");
+        const locked = localStorage.getItem("jd_locked");
+        
+        if (saved) {
+          setDescription(saved);
+          if (locked === "true") setIsEditable(false);
+        }
+        
+        setSaveMessage("Failed to load from server, using local data");
+        setTimeout(() => setSaveMessage(""), 3000);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    if (saved) setDescription(saved);
-    if (locked === "true") setIsEditable(false);
+    loadJobDescription();
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -55,6 +92,36 @@ export default function JobDescriptionBox() {
     localStorage.setItem("jd_locked", "false");
   };
 
+  const handleReload = async () => {
+    setIsLoading(true);
+    setSaveMessage("");
+    
+    try {
+      const result = await getJobDescription();
+      
+      if (result.success && result.job_description) {
+        setDescription(result.job_description);
+        setIsEditable(false);
+        localStorage.setItem("job_description", result.job_description);
+        localStorage.setItem("jd_locked", "true");
+        setSaveMessage("Job description reloaded from server!");
+      } else {
+        setSaveMessage("No job description found on server");
+        setDescription("");
+        setIsEditable(true);
+        localStorage.removeItem("job_description");
+        localStorage.removeItem("jd_locked");
+      }
+      setTimeout(() => setSaveMessage(""), 3000);
+    } catch (error) {
+      console.error("Failed to reload job description:", error);
+      setSaveMessage(`Failed to reload: ${error instanceof Error ? error.message : "Unknown error"}`);
+      setTimeout(() => setSaveMessage(""), 5000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleClear = async () => {
     try {
       // Clear from backend by saving empty description
@@ -85,7 +152,9 @@ export default function JobDescriptionBox() {
       <div className="flex justify-between items-center mb-3">
         <h2 className="text-xl font-bold text-white">Job Description</h2>
         <div className="space-x-2">
-          {isEditable ? (
+          {isLoading ? (
+            <div className="text-sm text-gray-400 px-3 py-1">Loading...</div>
+          ) : isEditable ? (
             <button
               onClick={handleSave}
               disabled={isSaving || !description.trim()}
@@ -105,12 +174,22 @@ export default function JobDescriptionBox() {
               Edit
             </button>
           )}
-          <button
-            onClick={handleClear}
-            className="text-sm bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-          >
-            Clear
-          </button>
+          {!isLoading && (
+            <>
+              <button
+                onClick={handleReload}
+                className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+              >
+                Reload
+              </button>
+              <button
+                onClick={handleClear}
+                className="text-sm bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+              >
+                Clear
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -127,11 +206,11 @@ export default function JobDescriptionBox() {
       <textarea
         value={description}
         onChange={handleChange}
-        disabled={!isEditable}
-        placeholder="Paste or type your job description here..."
+        disabled={!isEditable || isLoading}
+        placeholder={isLoading ? "Loading job description..." : "Paste or type your job description here..."}
         rows={8}
         className={`w-full p-4 bg-white/10 border border-white/30 text-white rounded resize-none focus:outline-none ${
-          isEditable ? "focus:ring-2 focus:ring-blue-500" : "opacity-50 cursor-not-allowed"
+          isEditable && !isLoading ? "focus:ring-2 focus:ring-blue-500" : "opacity-50 cursor-not-allowed"
         }`}
       />
     </div>

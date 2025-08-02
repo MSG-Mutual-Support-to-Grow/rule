@@ -12,9 +12,10 @@ interface Props {
   description: string;
   onUpload: (files: FileList | null) => void;
   folder?: boolean;
+  multiple?: boolean;
 }
 
-export default function UploadCard({ title, description, onUpload, folder }: Props) {
+export default function UploadCard({ title, description, onUpload, folder, multiple }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleClick = () => {
@@ -34,7 +35,7 @@ export default function UploadCard({ title, description, onUpload, folder }: Pro
         onChange={handleChange}
         className="hidden"
         accept={!folder ? "application/pdf" : undefined} // only allow PDFs for file upload
-        multiple={folder}
+        multiple={folder || multiple}
         {...(folder ? { webkitdirectory: "", directory: "" } : {})}
       />
 
@@ -55,7 +56,7 @@ export default function UploadCard({ title, description, onUpload, folder }: Pro
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
               </svg>
               <p className="text-sm text-gray-500">
-                Click to upload {folder ? "folder" : "PDF file"}
+                Click to upload {folder ? "folder" : multiple ? "PDF files" : "PDF file"}
               </p>
             </div>
           </div>
