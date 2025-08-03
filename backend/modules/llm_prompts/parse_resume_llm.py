@@ -11,74 +11,83 @@ def call_mistral_resume_analyzer(resume_text,job_description,api_key):
     # job_description = job_description
 
     prompt = f"""
-You are an intelligent recruiter assistant AI. Your job is to logically and practically assess if a candidate's skills and experience are relevant to the job requirements. Use common sense and industry knowledge.
+You are a highly intelligent AI assistant specialized in technical recruitment. Your job is to **analyze whether a candidate's resume is logically and practically relevant** to a given job description. You must use industry knowledge, pattern recognition, and smart matching—not just keyword comparison.
 
-JOB DESCRIPTION:
+---
+
+**JOB DESCRIPTION:**
 {job_description}
 
-INTELLIGENT MATCHING RULES:
-1. LOGICAL RELEVANCE: Consider if the candidate's experience is logically relevant to the job role
-2. TRANSFERABLE SKILLS: Recognize when skills are transferable and applicable
-3. INDUSTRY KNOWLEDGE: Use practical understanding of what qualifications make sense for different roles
-4. COMMON SENSE: A full-stack developer IS relevant for web development, but a sales executive is NOT
-5. PRACTICAL SCORING: Be reasonable - don't expect exact keyword matches, look for logical fit
+---
 
-SMART ANALYSIS APPROACH:
-- Understand the ESSENCE of what the job requires (not just keywords)
-- Recognize relevant experience even if not exactly worded the same way
-- Consider if the candidate's background logically prepares them for this role
-- Be practical about skill overlap and transferability
+**CANDIDATE RESUME**
+Plain Text:
 
-LOGICAL EXAMPLES:
-✓ Job: "Web development with HTML, CSS, JS" + Candidate: "Full-stack developer with React, Node.js" → RELEVANT
-✓ Job: "Web applications" + Candidate: "Frontend developer, responsive design" → RELEVANT  
-✓ Job: "Software development" + Candidate: "Backend engineer, API development" → RELEVANT
-✗ Job: "Web development" + Candidate: "Sales executive, CRM management" → NOT RELEVANT
-✗ Job: "Web development" + Candidate: "Data scientist, machine learning only" → NOT RELEVANT
-✗ Job: "Technical role" + Candidate: "Marketing manager, social media" → NOT RELEVANT
+{resume_text}
 
-BE SMART, NOT RIGID:
-- If someone has relevant technical background, give them credit
-- Don't penalize for using different but equivalent technologies
-- Focus on whether they can realistically do the job
-- Consider experience level and growth potential
+---
 
-Analyze the following resume text and extract the candidate's details in valid JSON format with these fields:
+### INTELLIGENT MATCHING CRITERIA:
 
-- full_name (string)
-- email (string)
-- phone_number (string)
-- total_experience_years (int)
-- roles (list of {{title, company, duration, start_date, end_date}}) - Extract exactly as written in resume
-- work_experience_raw (string): Extract the complete work experience section exactly as written in the PDF
-- skills (dict: key=skill name, value={{source: how skill was acquired, years: if mentioned or estimated}})
-- projects (list of {{name, tech_stack, description}})
-- leadership_signals (bool)
-- leadership_justification (string: sentence or phrase from the resume that indicates leadership, if any)
-- candidate_fit_summary (1–2 sentence summary of how candidate's background relates to job requirements)
-- fit_score (integer from 1 to 10): Use logical reasoning - relevant experience should score 6-10, irrelevant should score 1-4
-- fit_score_reason (string): Logical explanation of why the candidate's experience is or isn't relevant to this job
-- eligibility_status (string): "Eligible" if candidate has logically relevant experience, "Not Eligible" if completely unrelated
-- eligibility_reason (string): Practical explanation of how candidate's background relates to job requirements
+1. **Relevance Check**: Does the candidate's experience logically align with the job duties?
+2. **Skill Transferability**: Are there transferable skills or technologies?
+3. **Industry Awareness**: Is the background common in the target industry?
+4. **Common Sense Fit**: A full-stack dev is relevant for web roles, a sales rep is not.
+5. **Practical Reasoning**: Don't expect exact wording—evaluate if the candidate could reasonably succeed in the role.
 
-REASONING LOGIC:
-- Ask yourself: "Could this person realistically do this job based on their background?"
-- Consider: Technical skills, relevant experience, similar roles, transferable knowledge
-- Be practical: Someone with related technical experience should be eligible
-- Be sensible: Someone from completely different field (sales, marketing, unrelated domains) should not be eligible
+---
 
-Return ONLY valid JSON in the following format and nothing else (no explanation, no markdown, no extra text):
+### EVALUATION PRINCIPLES:
+
+* Understand the **intent** behind the job, not just the keywords.
+* Detect **equivalent tools or frameworks** (e.g., React ~ Angular, Django ~ Express).
+* Consider **overall experience level**, role history, and growth signals.
+* Recognize leadership or initiative when stated or implied.
+
+---
+
+### MATCHING EXAMPLES:
+
+✓ Job: "Frontend web app" + Resume: "React, UI/UX work, SPAs" → RELEVANT
+✓ Job: "Backend APIs" + Resume: "Node.js, DB design, RESTful services" → RELEVANT
+✗ Job: "DevOps role" + Resume: "Marketing, SEO, social media" → NOT RELEVANT
+✗ Job: "Data Engineer" + Resume: "Retail sales, no technical background" → NOT RELEVANT
+
+---
+
+### OUTPUT REQUIREMENTS:
+
+Return **ONLY a valid JSON** response in the structure below (no extra text, no markdown, no headings):
 
 {{
-  "full_name": ...,
-  "email": ...,
-  "phone_number": ...,
+  "full_name": "...",
+  "email": "...",
+  "phone_number": "...",
   "total_experience_years": ...,
-  "roles": [...],
+  "roles": [
+    {{
+      "title": "...",
+      "company": "...",
+      "duration": "...",
+      "start_date": "...",
+      "end_date": "..."
+    }}
+  ],
   "work_experience_raw": "...",
-  "skills": {{ ... }},
-  "projects": [...],
-  "leadership_signals": ...,
+  "skills": {{
+    "skill_name": {{
+      "source": "...",
+      "years": "..."
+    }}
+  }},
+  "projects": [
+    {{
+      "name": "...",
+      "tech_stack": "...",
+      "description": "..."
+    }}
+  ],
+  "leadership_signals": true,
   "leadership_justification": "...",
   "candidate_fit_summary": "...",
   "fit_score": ...,
@@ -87,8 +96,26 @@ Return ONLY valid JSON in the following format and nothing else (no explanation,
   "eligibility_reason": "..."
 }}
 
-Resume:
-{resume_text}
+---
+
+### OUTPUT RULES:
+
+* **fit_score**: Integer 1–10
+  8–10 = Strong fit
+  5–7 = Moderate/reasonable fit
+  1–4 = Poor fit or irrelevant
+
+* **eligibility_status**:
+  * "Eligible" if skills/experience logically align or are transferable
+  * "Not Eligible" if experience is unrelated or irrelevant
+
+* **eligibility_reason**: Use clear, practical explanation why they qualify or don't.
+
+---
+
+### FINAL TASK:
+
+Analyze the resume and job description using smart reasoning. Then return the structured JSON output as described—**no commentary or markdown, only valid JSON.**
 """
 
     # Dynamically load API key from llm_config.json
@@ -147,7 +174,7 @@ Resume:
                 if not cleaned:
                     print('[ERROR] Ollama returned empty response after cleaning. Raw response:')
                     print(response.text)
-                    return {"fit_score": 2, "fit_score_reason": "Could not analyze resume properly - unable to assess relevance to job", "eligibility_status": "Not Eligible", "eligibility_reason": "Resume processing failed - cannot determine if background is relevant", "work_experience_raw": "Could not extract work experience"}
+                    return {"fit_score": 1, "fit_score_reason": "Could not analyze resume properly - unable to assess relevance to job", "eligibility_status": "Not Eligible", "eligibility_reason": "Resume processing failed - cannot determine if background is relevant", "work_experience_raw": "Could not extract work experience"}
                 try:
                     return json.loads(cleaned)
                 except Exception as e:
@@ -156,7 +183,7 @@ Resume:
                     print(response.text)
                     print('[ERROR] Cleaned Ollama result:')
                     print(cleaned)
-                    return {"fit_score": 2, "fit_score_reason": "Resume analysis failed - unable to determine relevance to job requirements", "eligibility_status": "Not Eligible", "eligibility_reason": "Could not parse resume to assess if background is relevant to this role", "work_experience_raw": "Could not extract work experience"}
+                    return {"fit_score": 1, "fit_score_reason": "Resume analysis failed - unable to determine relevance to job requirements", "eligibility_status": "Not Eligible", "eligibility_reason": "Could not parse resume to assess if background is relevant to this role", "work_experience_raw": "Could not extract work experience"}
             except Exception as e:
                 print(f'[ERROR] Ollama response parsing error: {e}')
                 print('[ERROR] Raw Ollama response:')
@@ -195,6 +222,6 @@ Resume:
                 return json.loads(cleaned)
             except Exception as e:
                 print("[WARNING] Mistral returned invalid JSON. Falling back.")
-                return {"fit_score": 2, "fit_score_reason": "AI response parsing failed - unable to assess job relevance properly", "eligibility_status": "Not Eligible", "eligibility_reason": "Resume analysis incomplete - cannot determine if candidate's background is relevant", "work_experience_raw": "Could not extract work experience"}
+                return {"fit_score": 1, "fit_score_reason": "AI response parsing failed - unable to assess job relevance properly", "eligibility_status": "Not Eligible", "eligibility_reason": "Resume analysis incomplete - cannot determine if candidate's background is relevant", "work_experience_raw": "Could not extract work experience"}
         else:
             raise RuntimeError(f"OpenRouter API error: {response.status_code} {response.text}")
