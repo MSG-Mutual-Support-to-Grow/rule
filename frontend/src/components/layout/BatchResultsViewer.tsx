@@ -1,11 +1,53 @@
-import { ResumeBatchResponse } from "../../lib/api";
+import { useState } from "react";
+import { ResumeBatchResponse, getAnalysis, ResumeAnalysisResult } from "../../lib/api";
+import OutputViewer from "./OutputViewer";
 
 interface Props {
   data: ResumeBatchResponse;
-  onViewDetails?: (resumeId: string) => void;
 }
 
-export default function BatchResultsViewer({ data, onViewDetails }: Props) {
+export default function BatchResultsViewer({ data }: Props) {
+  const [selectedResume, setSelectedResume] = useState<ResumeAnalysisResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleResumeClick = async (resumeId: string) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const analysis = await getAnalysis(resumeId);
+      setSelectedResume(analysis);
+    } catch (err) {
+      console.error("Failed to fetch analysis:", err);
+      setError(err instanceof Error ? err.message : "Failed to fetch analysis");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBackToList = () => {
+    setSelectedResume(null);
+    setError(null);
+  };
+
+  // If a resume is selected, show its detailed analysis
+  if (selectedResume) {
+    return (
+      <div className="w-full space-y-4">
+        <div className="flex items-center gap-4 mb-4">
+          <button
+            onClick={handleBackToList}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            ← Back to Batch Results
+          </button>
+          <h2 className="text-xl font-semibold text-gray-800">Detailed Analysis</h2>
+        </div>
+        <OutputViewer data={selectedResume} />
+      </div>
+    );
+  }
   return (
     <div className="w-full space-y-6">
       {/* Summary Section */}
@@ -32,61 +74,67 @@ export default function BatchResultsViewer({ data, onViewDetails }: Props) {
       {data.ranked_resumes.length > 0 && (
         <div className="bg-white/90 backdrop-blur-sm rounded-lg p-6 shadow-lg">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">
-            Ranked Resumes (by Fit Score)
+            Ranked Resumes (by Fit Score) - Click to View Details
           </h3>
           
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3">Rank</th>
-                  <th className="px-6 py-3">Candidate Name</th>
-                  <th className="px-6 py-3">File Name</th>
-                  <th className="px-6 py-3">Fit Score</th>
-                  <th className="px-6 py-3">Fit Reason</th>
-                  <th className="px-6 py-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.ranked_resumes.map((resume, index) => (
-                  <tr key={resume.resume_id} className="bg-white border-b hover:bg-gray-50">
-                    <td className="px-6 py-4 font-medium text-gray-900">
-                      #{index + 1}
-                    </td>
-                    <td className="px-6 py-4 font-medium text-gray-900">
-                      {resume.candidate_name}
-                    </td>
-                    <td className="px-6 py-4 text-gray-700">
-                      {resume.filename}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        resume.fit_score >= 80 
+          {isLoading && (
+            <div className="text-center py-4">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <p className="mt-2 text-gray-600">Loading analysis...</p>
+            </div>
+          )}
+          
+          {error && (
+            <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+              <p className="font-semibold">Error:</p>
+              <p>{error}</p>
+            </div>
+          )}
+          
+          <div className="space-y-4">
+            {data.ranked_resumes.map((resume, index) => (
+              <div
+                key={resume.resume_id}
+                onClick={() => handleResumeClick(resume.resume_id)}
+                className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-200 hover:shadow-md"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-4 mb-3">
+                      <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-500 text-white rounded-full text-sm font-medium">
+                        #{index + 1}
+                      </span>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">{resume.candidate_name}</h4>
+                        <p className="text-sm text-gray-600">{resume.filename}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-3">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                        resume.fit_score >= 8 
                           ? 'bg-green-100 text-green-800'
-                          : resume.fit_score >= 60
+                          : resume.fit_score >= 6
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-red-100 text-red-800'
                       }`}>
-                        {resume.fit_score}%
+                        Fit Score: {resume.fit_score}/10
                       </span>
-                    </td>
-                    <td className="px-6 py-4 text-gray-700 max-w-xs truncate" title={resume.fit_score_reason}>
-                      {resume.fit_score_reason}
-                    </td>
-                    <td className="px-6 py-4">
-                      {onViewDetails && (
-                        <button
-                          onClick={() => onViewDetails(resume.resume_id)}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                        >
-                          View Details
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm text-gray-700 leading-relaxed">{resume.fit_score_reason}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="ml-4 text-blue-500">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

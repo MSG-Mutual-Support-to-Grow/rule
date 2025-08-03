@@ -157,6 +157,19 @@ export const getJobDescription = async (): Promise<{
   return result;
 };
 
+export const getAnalysis = async (resumeId: string): Promise<ResumeAnalysisResult> => {
+  const response = await fetch(`${API_BASE_URL}/api/get-analysis/${resumeId}`, {
+    method: 'GET',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json();
+};
+
 // ========== LLM Provider API Functions ==========
 
 export const getLLMConfig = async (): Promise<LLMConfig> => {
@@ -232,6 +245,7 @@ export default {
   uploadResumeBatch,
   saveJobDescription,
   getJobDescription,
+  getAnalysis,
   getLLMConfig,
   updateLLMConfig,
   sendLLMPrompt,
