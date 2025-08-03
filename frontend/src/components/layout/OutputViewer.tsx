@@ -25,7 +25,8 @@ export default function OutputViewer({ data }: Props) {
       full_name: data.full_name,
       email: data.email,
       phone_number: data.phone_number,
-      total_experience_years: data.total_experience_years,
+      fit_score: data.fit_score,
+      fit_score_reason: data.fit_score_reason,
       leadership_signals: data.leadership_signals,
       eligibility_status: data.eligibility_status,
       candidate_fit_summary: data.candidate_fit_summary,
@@ -65,6 +66,14 @@ export default function OutputViewer({ data }: Props) {
             <p><strong>Email:</strong> {data.email}</p>
             <p><strong>Phone:</strong> {data.phone_number}</p>
           </div>
+          {data.filename && (
+            <div className="mt-4 pt-3 border-t border-gray-200">
+              <p className="text-xs text-gray-500">
+                <strong>Source File:</strong> {data.filename}
+                {data.resume_id && <span className="ml-4"><strong>ID:</strong> {data.resume_id}</span>}
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -84,10 +93,9 @@ export default function OutputViewer({ data }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
-            <CardTitle>Experience & Leadership</CardTitle>
+            <CardTitle>Leadership Assessment</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <p><strong>Total Experience:</strong> {data.total_experience_years} years</p>
             <p><strong>Leadership Signals:</strong> 
               <span className={`ml-2 px-2 py-1 rounded text-sm ${data.leadership_signals ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
                 {data.leadership_signals ? "Yes" : "No"}
@@ -104,8 +112,27 @@ export default function OutputViewer({ data }: Props) {
           <CardHeader>
             <CardTitle>Role Fit Analysis</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-gray-700 text-sm">{data.candidate_fit_summary}</p>
+          <CardContent className="space-y-3">
+            <div className="flex items-center gap-2">
+              <strong>Fit Score:</strong>
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                data.fit_score >= 8 
+                  ? 'bg-green-100 text-green-800'
+                  : data.fit_score >= 6
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : 'bg-red-100 text-red-800'
+              }`}>
+                {data.fit_score}/10
+              </span>
+            </div>
+            <div>
+              <strong>Fit Analysis:</strong>
+              <p className="text-gray-700 mt-1 text-sm">{data.candidate_fit_summary}</p>
+            </div>
+            <div>
+              <strong>Score Reasoning:</strong>
+              <p className="text-gray-700 mt-1 text-sm">{data.fit_score_reason}</p>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -118,9 +145,9 @@ export default function OutputViewer({ data }: Props) {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {Object.entries(data.skills).map(([skill, details]: [string, any]) => (
+              {Object.keys(data.skills).map((skill) => (
                 <span key={skill} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                  {skill} {details.years && `(${details.years})`}
+                  {skill}
                 </span>
               ))}
             </div>
@@ -135,15 +162,27 @@ export default function OutputViewer({ data }: Props) {
             <CardTitle>Work Experience</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {data.roles.map((role: any, index: number) => (
-                <div key={index} className="border-l-4 border-blue-500 pl-4">
-                  <h4 className="font-semibold">{role.title}</h4>
-                  <p className="text-gray-600">{role.company}</p>
-                  <p className="text-sm text-gray-500">{role.years} years</p>
+                <div key={index} className="border-l-4 border-blue-500 pl-4 pb-4">
+                  <h4 className="font-semibold text-lg">{role.title}</h4>
+                  <p className="text-gray-600 font-medium">{role.company}</p>
+                  <p className="text-sm text-blue-600 mb-2">{role.duration}</p>
                 </div>
               ))}
             </div>
+            
+            {/* Detailed Work Experience Description */}
+            {data.work_experience_raw && (
+              <div className="mt-6 pt-4 border-t border-gray-200">
+                <h4 className="font-semibold mb-3 text-gray-800">Detailed Experience</h4>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">
+                    {data.work_experience_raw}
+                  </pre>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
