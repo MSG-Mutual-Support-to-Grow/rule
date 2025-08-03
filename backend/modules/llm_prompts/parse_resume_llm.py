@@ -30,6 +30,8 @@ Analyze the following resume text and extract the candidate's details in valid J
 - candidate_fit_summary (1–2 sentence summary of best role for candidate)
 - fit_score (integer from 1 to 10): 10 means highly suitable, 1 means not suitable at all
 - fit_score_reason (string): A short justification explaining why this score was given
+- eligibility_status (string): Either "Eligible" or "Not Eligible" based on job requirements
+- eligibility_reason (string): Clear explanation of why the candidate is eligible or not eligible
 
 Return ONLY valid JSON in the following format and nothing else (no explanation, no markdown, no extra text):
 
@@ -45,7 +47,9 @@ Return ONLY valid JSON in the following format and nothing else (no explanation,
   "leadership_justification": "...",
   "candidate_fit_summary": "...",
   "fit_score": ...,
-  "fit_score_reason": "..."
+  "fit_score_reason": "...",
+  "eligibility_status": "...",
+  "eligibility_reason": "..."
 }}
 
 Resume:
@@ -108,7 +112,7 @@ Resume:
                 if not cleaned:
                     print('[ERROR] Ollama returned empty response after cleaning. Raw response:')
                     print(response.text)
-                    return {"fit_score": 1, "fit_score_reason": "Ollama returned empty response"}
+                    return {"fit_score": 1, "fit_score_reason": "Ollama returned empty response", "eligibility_status": "Not Eligible", "eligibility_reason": "Could not process resume"}
                 try:
                     return json.loads(cleaned)
                 except Exception as e:
@@ -117,7 +121,7 @@ Resume:
                     print(response.text)
                     print('[ERROR] Cleaned Ollama result:')
                     print(cleaned)
-                    return {"fit_score": 1, "fit_score_reason": "Ollama returned invalid JSON"}
+                    return {"fit_score": 1, "fit_score_reason": "Ollama returned invalid JSON", "eligibility_status": "Not Eligible", "eligibility_reason": "Could not parse resume analysis"}
             except Exception as e:
                 print(f'[ERROR] Ollama response parsing error: {e}')
                 print('[ERROR] Raw Ollama response:')
@@ -156,6 +160,6 @@ Resume:
                 return json.loads(cleaned)
             except Exception as e:
                 print("[WARNING] Mistral returned invalid JSON. Falling back.")
-                return {"fit_score": 1, "fit_score_reason": "Could not parse response"}
+                return {"fit_score": 1, "fit_score_reason": "Could not parse response", "eligibility_status": "Not Eligible", "eligibility_reason": "Resume analysis failed"}
         else:
             raise RuntimeError(f"OpenRouter API error: {response.status_code} {response.text}")

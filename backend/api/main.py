@@ -60,7 +60,7 @@ def get_job_description(custom_job_description: Optional[str] = None) -> str:
     if custom_job_description:
         return custom_job_description
     
-    job_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "jsons/job_description.json")
+    job_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "jd_jsons/job_description.json")
     job_description = "No specific job description provided."
     
     if os.path.exists(job_file_path):
@@ -87,7 +87,11 @@ def process_single_resume(file_path: str, job_description: str, resume_id: str, 
                 "success": False,
                 "error": "AI analysis failed",
                 "resume_id": resume_id,
-                "filename": filename
+                "filename": filename,
+                "fit_score": 0,
+                "fit_score_reason": "AI analysis failed",
+                "eligibility_status": "Not Eligible",
+                "eligibility_reason": "Resume analysis could not be completed"
             }
 
         # Ensure all results have required fields for consistency
@@ -99,6 +103,12 @@ def process_single_resume(file_path: str, job_description: str, resume_id: str, 
             result["fit_score"] = 0
         if "fit_score_reason" not in result:
             result["fit_score_reason"] = "No fit score analysis available"
+        if "eligibility_status" not in result:
+            # Determine eligibility based on fit_score
+            fit_score = result.get("fit_score", 0)
+            result["eligibility_status"] = "Eligible" if fit_score >= 6 else "Not Eligible"
+        if "eligibility_reason" not in result:
+            result["eligibility_reason"] = result.get("fit_score_reason", "No eligibility analysis available")
 
         result["success"] = True
         return result
@@ -114,7 +124,11 @@ def process_single_resume(file_path: str, job_description: str, resume_id: str, 
             "error": error_message,
             "trace": tb,
             "resume_id": resume_id,
-            "filename": filename
+            "filename": filename,
+            "fit_score": 0,
+            "fit_score_reason": "Processing failed",
+            "eligibility_status": "Not Eligible",
+            "eligibility_reason": "Resume could not be processed due to technical error"
         }
 
 @app.post("/api/upload-resume/")
