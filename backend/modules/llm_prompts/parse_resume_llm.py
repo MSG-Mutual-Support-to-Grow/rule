@@ -150,40 +150,58 @@ Analyze the resume and job description using smart reasoning. Then return the st
         response = requests.post(url, headers=headers, json=data)
         if response.status_code == 200:
             try:
-                # Ollama may return multiple JSON objects separated by newlines
+                # Ollama returns streaming JSON objects - we need to concatenate all content
                 lines = response.text.strip().splitlines()
-                message_content = None
-                for line in reversed(lines):
-                    try:
-                        obj = json.loads(line)
-                        if 'message' in obj and 'content' in obj['message']:
-                            message_content = obj['message']['content']
-                            break
-                    except Exception:
-                        continue
-                if message_content is None:
-                    print('[WARNING] Ollama returned no valid message content. Raw response:')
+                full_content = ""
+                
+                for line in lines:
+                    if line.strip():
+                        try:
+                            obj = json.loads(line)
+                            if 'message' in obj and 'content' in obj['message']:
+                                full_content += obj['message']['content']
+                        except Exception:
+                            continue
+                
+                if not full_content:
+                    print('[WARNING] Ollama returned no content. Raw response:')
                     print(response.text)
-                    raise ValueError('No valid message content found in Ollama response')
-                cleaned = message_content.strip()
-                if cleaned.startswith("```"):
-                    cleaned = cleaned.strip('`').strip()
-                # Print raw cleaned result for debugging
-                print('[DEBUG] Raw cleaned Ollama result:')
+                    return {"fit_score": 1, "fit_score_reason": "Could not analyze resume properly - empty response from AI", "eligibility_status": "Not Eligible", "eligibility_reason": "AI returned empty response - cannot determine if background is relevant", "work_experience_raw": "Could not extract work experience"}
+                
+                # Clean the concatenated content
+                cleaned = full_content.strip()
+                
+                # Remove markdown code blocks if present
+                if cleaned.startswith("```json"):
+                    cleaned = cleaned[7:].strip()
+                elif cleaned.startswith("```"):
+                    first_newline = cleaned.find('\n')
+                    if first_newline != -1:
+                        cleaned = cleaned[first_newline + 1:].strip()
+                    else:
+                        cleaned = cleaned[3:].strip()
+                        
+                if cleaned.endswith("```"):
+                    cleaned = cleaned[:-3].strip()
+                
+                # Print for debugging
+                print('[DEBUG] Full concatenated Ollama content:')
                 print(cleaned)
+                
                 if not cleaned:
-                    print('[ERROR] Ollama returned empty response after cleaning. Raw response:')
+                    print('[ERROR] Ollama content is empty after cleaning. Raw response:')
                     print(response.text)
                     return {"fit_score": 1, "fit_score_reason": "Could not analyze resume properly - unable to assess relevance to job", "eligibility_status": "Not Eligible", "eligibility_reason": "Resume processing failed - cannot determine if background is relevant", "work_experience_raw": "Could not extract work experience"}
+                
                 try:
                     return json.loads(cleaned)
                 except Exception as e:
-                    print(f'[ERROR] Ollama response parsing error: {e}')
+                    print(f'[ERROR] Ollama JSON parsing error: {e}')
                     print('[ERROR] Raw Ollama response:')
                     print(response.text)
-                    print('[ERROR] Cleaned Ollama result:')
+                    print('[ERROR] Cleaned content:')
                     print(cleaned)
-                    return {"fit_score": 1, "fit_score_reason": "Resume analysis failed - unable to determine relevance to job requirements", "eligibility_status": "Not Eligible", "eligibility_reason": "Could not parse resume to assess if background is relevant to this role", "work_experience_raw": "Could not extract work experience"}
+                    return {"fit_score": 1, "fit_score_reason": "Resume analysis failed - unable to parse AI response", "eligibility_status": "Not Eligible", "eligibility_reason": "Could not parse AI response to assess if background is relevant to this role", "work_experience_raw": "Could not extract work experience"}
             except Exception as e:
                 print(f'[ERROR] Ollama response parsing error: {e}')
                 print('[ERROR] Raw Ollama response:')
@@ -204,7 +222,15 @@ Analyze the resume and job description using smart reasoning. Then return the st
                 {"role": "user", "content": prompt}
             ]
         }
-        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
+        try:
+            response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=120)
+        except requests.exceptions.Timeout:
+            print("[ERROR] OpenRouter API request timed out after 120 seconds")
+            return {"fit_score": 1, "fit_score_reason": "OpenRouter API timeout - unable to analyze resume", "eligibility_status": "Not Eligible", "eligibility_reason": "System timeout prevented resume analysis", "work_experience_raw": "Could not extract work experience due to timeout"}
+        except requests.exceptions.RequestException as e:
+            print(f"[ERROR] OpenRouter API request failed: {e}")
+            return {"fit_score": 1, "fit_score_reason": "OpenRouter API connection failed", "eligibility_status": "Not Eligible", "eligibility_reason": "System error prevented resume analysis", "work_experience_raw": "Could not extract work experience due to connection error"}
+        
         if response.status_code == 200:
             try:
                 raw = response.json()['choices'][0]['message']['content']
