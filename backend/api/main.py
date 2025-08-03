@@ -55,7 +55,7 @@ app.add_middleware(
 )
 
 # Helper function to get job description
-def get_job_description(custom_job_description: Optional[str] = None) -> str:
+def get_job_description_from_file(custom_job_description: Optional[str] = None) -> str:
     """Get job description from parameter or file"""
     if custom_job_description:
         return custom_job_description
@@ -88,10 +88,11 @@ def process_single_resume(file_path: str, job_description: str, resume_id: str, 
                 "error": "AI analysis failed",
                 "resume_id": resume_id,
                 "filename": filename,
-                "fit_score": 0,
-                "fit_score_reason": "AI analysis failed",
+                "job_description": job_description,
+                "fit_score": 1,
+                "fit_score_reason": "AI analysis failed - cannot assess job requirements match using enhanced reasoning",
                 "eligibility_status": "Not Eligible",
-                "eligibility_reason": "Resume analysis could not be completed",
+                "eligibility_reason": "Resume analysis could not be completed - unable to verify job relevance using intelligent matching",
                 "work_experience_raw": "Could not extract work experience"
             }
 
@@ -100,16 +101,24 @@ def process_single_resume(file_path: str, job_description: str, resume_id: str, 
             result["resume_id"] = resume_id
         if "filename" not in result and filename:
             result["filename"] = filename
+        if "job_description" not in result:
+            result["job_description"] = job_description
         if "fit_score" not in result:
-            result["fit_score"] = 0
+            result["fit_score"] = 1  # Default to lowest score if not provided
         if "fit_score_reason" not in result:
-            result["fit_score_reason"] = "No fit score analysis available"
+            result["fit_score_reason"] = "Resume analysis incomplete - cannot assess job requirements match"
         if "eligibility_status" not in result:
-            # Determine eligibility based on fit_score
-            fit_score = result.get("fit_score", 0)
-            result["eligibility_status"] = "Eligible" if fit_score >= 6 else "Not Eligible"
+            # Determine eligibility based on fit_score using enhanced scoring system
+            fit_score = result.get("fit_score", 1)
+            result["eligibility_status"] = "Eligible" if fit_score >= 5 else "Not Eligible"
         if "eligibility_reason" not in result:
-            result["eligibility_reason"] = result.get("fit_score_reason", "No eligibility analysis available")
+            fit_score = result.get("fit_score", 1)
+            if fit_score >= 8:
+                result["eligibility_reason"] = "Strong fit - candidate has highly relevant technical background and experience that aligns well with job requirements"
+            elif fit_score >= 5:
+                result["eligibility_reason"] = "Moderate fit - candidate has relevant experience with transferable skills for this role"
+            else:
+                result["eligibility_reason"] = f"Poor fit - candidate's background is not logically relevant to this job role (fit score: {fit_score}/10). Experience appears to be in a different field."
         if "work_experience_raw" not in result:
             result["work_experience_raw"] = "Work experience information not available"
 
@@ -128,10 +137,11 @@ def process_single_resume(file_path: str, job_description: str, resume_id: str, 
             "trace": tb,
             "resume_id": resume_id,
             "filename": filename,
-            "fit_score": 0,
-            "fit_score_reason": "Processing failed",
+            "job_description": job_description,
+            "fit_score": 1,
+            "fit_score_reason": "Processing failed - cannot assess job relevance using intelligent matching criteria",
             "eligibility_status": "Not Eligible",
-            "eligibility_reason": "Resume could not be processed due to technical error",
+            "eligibility_reason": "Resume could not be processed - unable to verify job relevance using smart reasoning",
             "work_experience_raw": "Could not extract work experience"
         }
 
@@ -146,7 +156,7 @@ async def upload_resume(file: UploadFile = File(...)):
         temp_file_path = temp_file.name
 
     try:
-        job_description = get_job_description()
+        job_description = get_job_description_from_file()
         resume_id = str(uuid4())
         
         result = process_single_resume(temp_file_path, job_description, resume_id, file.filename)
@@ -266,7 +276,7 @@ async def get_job_description():
 @app.post("/api/upload-resume-batch/")
 async def upload_resume_batch(files: List[UploadFile] = File(...)):
     """Upload and process multiple resumes in batch mode"""
-    job_description = get_job_description()
+    job_description = get_job_description_from_file()
     results = []
     failed_files = []
 
