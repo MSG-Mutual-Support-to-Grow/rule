@@ -91,7 +91,8 @@ def process_single_resume(file_path: str, job_description: str, resume_id: str, 
                 "fit_score": 0,
                 "fit_score_reason": "AI analysis failed",
                 "eligibility_status": "Not Eligible",
-                "eligibility_reason": "Resume analysis could not be completed"
+                "eligibility_reason": "Resume analysis could not be completed",
+                "work_experience_raw": "Could not extract work experience"
             }
 
         # Ensure all results have required fields for consistency
@@ -109,6 +110,8 @@ def process_single_resume(file_path: str, job_description: str, resume_id: str, 
             result["eligibility_status"] = "Eligible" if fit_score >= 6 else "Not Eligible"
         if "eligibility_reason" not in result:
             result["eligibility_reason"] = result.get("fit_score_reason", "No eligibility analysis available")
+        if "work_experience_raw" not in result:
+            result["work_experience_raw"] = "Work experience information not available"
 
         result["success"] = True
         return result
@@ -128,7 +131,8 @@ def process_single_resume(file_path: str, job_description: str, resume_id: str, 
             "fit_score": 0,
             "fit_score_reason": "Processing failed",
             "eligibility_status": "Not Eligible",
-            "eligibility_reason": "Resume could not be processed due to technical error"
+            "eligibility_reason": "Resume could not be processed due to technical error",
+            "work_experience_raw": "Could not extract work experience"
         }
 
 @app.post("/api/upload-resume/")
