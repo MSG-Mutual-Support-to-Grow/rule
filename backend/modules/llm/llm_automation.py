@@ -31,7 +31,7 @@ class LLMAutomation:
             "provider": "openrouter",
             "model": "anthropic/claude-3.5-sonnet",
             "api_key": "",
-            "base_url": "http://localhost:11434"  # For Ollama
+            "base_url": "https://openrouter.ai/api/v1/chat/completions"  # For Ollama
         }
     
     def save_config(self, config: Dict[str, Any]) -> bool:
