@@ -410,11 +410,13 @@ async def get_current_config():
 async def update_llm_config(request: LLMConfigRequest):
     """Update LLM provider configuration"""
     try:
+        # Only pass base_url if it's explicitly provided and different from default
+        # This allows auto-detection of default URLs for each provider
         result = llm_automation.update_provider_config(
             provider=request.provider,
             model=request.model,
             api_key=request.api_key,
-            base_url=request.base_url
+            base_url=request.base_url  # Let the automation handle None values
         )
         
         status_code = 200 if result["success"] else 400
@@ -463,6 +465,122 @@ async def get_provider_models(provider: str):
             content={"error": f"Failed to get models: {str(e)}"}, 
             status_code=500
         )
+
+# @app.get("/api/llm/url-mapping")
+async def get_url_mapping():
+    """Get the expected URL mapping for each provider"""
+    try:
+        url_mapping = {
+            "ollama": "http://127.0.0.1:11434",
+            "openrouter": "https://openrouter.ai/api/v1/chat/completions",
+            "openai": "https://api.openai.com/v1/chat/completions",
+            "anthropic": "https://api.anthropic.com/v1/messages"
+        }
+        
+        current_config = llm_automation.current_config
+        current_provider = current_config.get("provider", "unknown")
+        current_url = current_config.get("base_url", "unknown")
+        expected_url = url_mapping.get(current_provider, "unknown")
+        
+        return JSONResponse(
+            content={
+                "url_mapping": url_mapping,
+                "current_provider": current_provider,
+                "current_url": current_url,
+                "expected_url": expected_url,
+                "is_correct": current_url == expected_url
+            },
+            status_code=200
+        )
+        
+    except Exception as e:
+        return JSONResponse(
+            content={"error": f"Failed to get URL mapping: {str(e)}"}, 
+            status_code=500
+        )
+
+@app.post("/api/llm/fix-config")
+async def fix_llm_config():
+    """Manually fix the LLM configuration base_url based on current provider"""
+    try:
+        # Get current config
+        current_config = llm_automation.current_config.copy()
+        provider = current_config.get("provider", "openrouter")
+        current_url = current_config.get("base_url", "")
+        
+        # Get expected URL for the provider
+        expected_urls = {
+            "ollama": "http://127.0.0.1:11434",
+            "openrouter": "https://openrouter.ai/api/v1/chat/completions",
+            "openai": "https://api.openai.com/v1/chat/completions",
+            "anthropic": "https://api.anthropic.com/v1/messages"
+        }
+        
+        expected_url = expected_urls.get(provider, "http://127.0.0.1:11434")
+        
+        if current_url != expected_url:
+            # Update the URL
+            current_config["base_url"] = expected_url
+            
+            # Save the config
+            if llm_automation.save_config(current_config):
+                return JSONResponse(
+                    content={
+                        "success": True,
+                        "message": f"Fixed base_url for {provider}",
+                        "old_url": current_url,
+                        "new_url": expected_url,
+                        "config": {k: v for k, v in current_config.items() if k != "api_key"}
+                    },
+                    status_code=200
+                )
+            else:
+                return JSONResponse(
+                    content={"error": "Failed to save fixed configuration"},
+                    status_code=500
+                )
+        else:
+            return JSONResponse(
+                content={
+                    "success": True,
+                    "message": f"Configuration already correct for {provider}",
+                    "current_url": current_url,
+                    "config": {k: v for k, v in current_config.items() if k != "api_key"}
+                },
+                status_code=200
+            )
+            
+    except Exception as e:
+        return JSONResponse(
+            content={"error": f"Failed to fix config: {str(e)}"}, 
+            status_code=500
+        )
+
+@app.post("/api/llm/validate-config")
+# async def validate_and_fix_config():
+#     """Validate and auto-fix current LLM configuration"""
+#     try:
+#         # Reload and validate config
+#         llm_automation.current_config = llm_automation.load_config()
+        
+#         current_config = llm_automation.current_config
+#         safe_config = {k: v for k, v in current_config.items() if k != "api_key"}
+#         safe_config["has_api_key"] = bool(current_config.get("api_key"))
+        
+#         return JSONResponse(
+#             content={
+#                 "success": True,
+#                 "message": "Configuration validated and fixed if needed",
+#                 "config": safe_config
+#             }, 
+#             status_code=200
+#         )
+        
+#     except Exception as e:
+#         return JSONResponse(
+#             content={"error": f"Failed to validate config: {str(e)}"}, 
+#             status_code=500
+#         )
 
 @app.post("/api/llm/reset")
 async def reset_llm_config():
