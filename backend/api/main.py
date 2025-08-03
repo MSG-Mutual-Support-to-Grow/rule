@@ -88,10 +88,10 @@ def process_single_resume(file_path: str, job_description: str, resume_id: str, 
                 "error": "AI analysis failed",
                 "resume_id": resume_id,
                 "filename": filename,
-                "fit_score": 0,
-                "fit_score_reason": "AI analysis failed",
+                "fit_score": 1,
+                "fit_score_reason": "AI analysis failed - cannot assess job requirements match",
                 "eligibility_status": "Not Eligible",
-                "eligibility_reason": "Resume analysis could not be completed",
+                "eligibility_reason": "Resume analysis could not be completed - unable to verify job requirements",
                 "work_experience_raw": "Could not extract work experience"
             }
 
@@ -101,15 +101,19 @@ def process_single_resume(file_path: str, job_description: str, resume_id: str, 
         if "filename" not in result and filename:
             result["filename"] = filename
         if "fit_score" not in result:
-            result["fit_score"] = 0
+            result["fit_score"] = 1  # Default to lowest score if not provided
         if "fit_score_reason" not in result:
-            result["fit_score_reason"] = "No fit score analysis available"
+            result["fit_score_reason"] = "Resume analysis incomplete - cannot assess job requirements match"
         if "eligibility_status" not in result:
-            # Determine eligibility based on fit_score
-            fit_score = result.get("fit_score", 0)
+            # Determine eligibility based on fit_score - be logical and practical
+            fit_score = result.get("fit_score", 1)
             result["eligibility_status"] = "Eligible" if fit_score >= 6 else "Not Eligible"
         if "eligibility_reason" not in result:
-            result["eligibility_reason"] = result.get("fit_score_reason", "No eligibility analysis available")
+            fit_score = result.get("fit_score", 1)
+            if fit_score >= 6:
+                result["eligibility_reason"] = "Candidate has relevant technical background and experience that aligns with job requirements"
+            else:
+                result["eligibility_reason"] = f"Candidate's background is not logically relevant to this job role (fit score: {fit_score}/10). Experience appears to be in a different field."
         if "work_experience_raw" not in result:
             result["work_experience_raw"] = "Work experience information not available"
 
@@ -128,10 +132,10 @@ def process_single_resume(file_path: str, job_description: str, resume_id: str, 
             "trace": tb,
             "resume_id": resume_id,
             "filename": filename,
-            "fit_score": 0,
-            "fit_score_reason": "Processing failed",
+            "fit_score": 1,
+            "fit_score_reason": "Processing failed - cannot assess job requirements",
             "eligibility_status": "Not Eligible",
-            "eligibility_reason": "Resume could not be processed due to technical error",
+            "eligibility_reason": "Resume could not be processed - unable to verify job requirements match",
             "work_experience_raw": "Could not extract work experience"
         }
 
