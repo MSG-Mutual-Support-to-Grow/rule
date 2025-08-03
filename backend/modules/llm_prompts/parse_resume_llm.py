@@ -22,7 +22,8 @@ Analyze the following resume text and extract the candidate's details in valid J
 - email (string)
 - phone_number (string)
 - total_experience_years (int)
-- roles (list of {{title, company, years}})
+- roles (list of {{title, company, duration, start_date, end_date}}) - Extract exactly as written in resume
+- work_experience_raw (string): Extract the complete work experience section exactly as written in the PDF
 - skills (dict: key=skill name, value={{source: how skill was acquired, years: if mentioned or estimated}})
 - projects (list of {{name, tech_stack, description}})
 - leadership_signals (bool)
@@ -33,6 +34,8 @@ Analyze the following resume text and extract the candidate's details in valid J
 - eligibility_status (string): Either "Eligible" or "Not Eligible" based on job requirements
 - eligibility_reason (string): Clear explanation of why the candidate is eligible or not eligible
 
+IMPORTANT: For work experience, extract dates, durations, and job details exactly as they appear in the resume without any calculations or modifications.
+
 Return ONLY valid JSON in the following format and nothing else (no explanation, no markdown, no extra text):
 
 {{
@@ -41,6 +44,7 @@ Return ONLY valid JSON in the following format and nothing else (no explanation,
   "phone_number": ...,
   "total_experience_years": ...,
   "roles": [...],
+  "work_experience_raw": "...",
   "skills": {{ ... }},
   "projects": [...],
   "leadership_signals": ...,
@@ -112,7 +116,7 @@ Resume:
                 if not cleaned:
                     print('[ERROR] Ollama returned empty response after cleaning. Raw response:')
                     print(response.text)
-                    return {"fit_score": 1, "fit_score_reason": "Ollama returned empty response", "eligibility_status": "Not Eligible", "eligibility_reason": "Could not process resume"}
+                    return {"fit_score": 1, "fit_score_reason": "Ollama returned empty response", "eligibility_status": "Not Eligible", "eligibility_reason": "Could not process resume", "work_experience_raw": "Could not extract work experience"}
                 try:
                     return json.loads(cleaned)
                 except Exception as e:
@@ -121,7 +125,7 @@ Resume:
                     print(response.text)
                     print('[ERROR] Cleaned Ollama result:')
                     print(cleaned)
-                    return {"fit_score": 1, "fit_score_reason": "Ollama returned invalid JSON", "eligibility_status": "Not Eligible", "eligibility_reason": "Could not parse resume analysis"}
+                    return {"fit_score": 1, "fit_score_reason": "Ollama returned invalid JSON", "eligibility_status": "Not Eligible", "eligibility_reason": "Could not parse resume analysis", "work_experience_raw": "Could not extract work experience"}
             except Exception as e:
                 print(f'[ERROR] Ollama response parsing error: {e}')
                 print('[ERROR] Raw Ollama response:')
@@ -160,6 +164,6 @@ Resume:
                 return json.loads(cleaned)
             except Exception as e:
                 print("[WARNING] Mistral returned invalid JSON. Falling back.")
-                return {"fit_score": 1, "fit_score_reason": "Could not parse response", "eligibility_status": "Not Eligible", "eligibility_reason": "Resume analysis failed"}
+                return {"fit_score": 1, "fit_score_reason": "Could not parse response", "eligibility_status": "Not Eligible", "eligibility_reason": "Resume analysis failed", "work_experience_raw": "Could not extract work experience"}
         else:
             raise RuntimeError(f"OpenRouter API error: {response.status_code} {response.text}")
