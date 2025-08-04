@@ -17,12 +17,31 @@ class LLMAutomation:
         )
         self.current_config = self.load_config()
     
+    def _get_default_base_url(self, provider: str) -> str:
+        """Get default base URL for each provider"""
+        default_urls = {
+            "ollama": "http://127.0.0.1:11434",  # Default Ollama localhost
+            "openrouter": "https://openrouter.ai/api/v1/chat/completions",
+            "openai": "https://api.openai.com/v1/chat/completions",
+            "anthropic": "https://api.anthropic.com/v1/messages"
+        }
+        
+        return default_urls.get(provider, "http://127.0.0.1:11434")
+    
     def load_config(self) -> Dict[str, Any]:
         """Load LLM configuration from file"""
         try:
             if os.path.exists(self.config_path):
                 with open(self.config_path, 'r', encoding='utf-8') as f:
-                    return json.load(f)
+                    config = json.load(f)
+                    # Auto-fix base_url if it doesn't match the provider
+                    original_base_url = config.get("base_url", "")
+                    config = self._validate_and_fix_config(config)
+                    # Save if config was modified
+                    if config.get("base_url") != original_base_url:
+                        self.current_config = config  # Set temporarily for save_config
+                        self.save_config(config)
+                    return config
         except Exception as e:
             print(f"[⚠️ Config Load Error] {e}")
         
@@ -31,8 +50,22 @@ class LLMAutomation:
             "provider": "openrouter",
             "model": "anthropic/claude-3.5-sonnet",
             "api_key": "",
-            "base_url": "http://localhost:11434"  # For Ollama
+            "base_url": "https://openrouter.ai/api/v1/chat/completions"
         }
+    
+    def _validate_and_fix_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate and auto-fix configuration base_url based on provider"""
+        provider = config.get("provider", "openrouter")
+        current_base_url = config.get("base_url", "")
+        expected_base_url = self._get_default_base_url(provider)
+        
+        # Fix base_url if it doesn't match the provider
+        if current_base_url != expected_base_url:
+            print(f"[🔧 Config Fix] Updating base_url for {provider}: {current_base_url} -> {expected_base_url}")
+            config["base_url"] = expected_base_url
+            # We'll save after returning to avoid circular references
+        
+        return config
     
     def save_config(self, config: Dict[str, Any]) -> bool:
         """Save LLM configuration to file"""
@@ -139,12 +172,16 @@ class LLMAutomation:
                     "available_models": available_models
                 }
             
+            # Auto-determine base_url if not provided
+            if not base_url:
+                base_url = self._get_default_base_url(provider.lower())
+            
             # Create new config
             new_config = {
                 "provider": provider.lower(),
                 "model": model,
                 "api_key": api_key or "",
-                "base_url": base_url or "http://localhost:11434",
+                "base_url": base_url,
                 "updated_at": json.dumps(None, default=str)  # Current timestamp as string
             }
             

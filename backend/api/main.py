@@ -55,12 +55,12 @@ app.add_middleware(
 )
 
 # Helper function to get job description
-def get_job_description(custom_job_description: Optional[str] = None) -> str:
+def get_job_description_from_file(custom_job_description: Optional[str] = None) -> str:
     """Get job description from parameter or file"""
     if custom_job_description:
         return custom_job_description
     
-    job_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "jsons/job_description.json")
+    job_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "jd_jsons/job_description.json")
     job_description = "No specific job description provided."
     
     if os.path.exists(job_file_path):
@@ -87,7 +87,13 @@ def process_single_resume(file_path: str, job_description: str, resume_id: str, 
                 "success": False,
                 "error": "AI analysis failed",
                 "resume_id": resume_id,
-                "filename": filename
+                "filename": filename,
+                "job_description": job_description,
+                "fit_score": 1,
+                "fit_score_reason": "AI analysis failed - cannot assess job requirements match using enhanced reasoning",
+                "eligibility_status": "Not Eligible",
+                "eligibility_reason": "Resume analysis could not be completed - unable to verify job relevance using intelligent matching",
+                "work_experience_raw": "Could not extract work experience"
             }
 
         # Ensure all results have required fields for consistency
@@ -95,10 +101,26 @@ def process_single_resume(file_path: str, job_description: str, resume_id: str, 
             result["resume_id"] = resume_id
         if "filename" not in result and filename:
             result["filename"] = filename
+        if "job_description" not in result:
+            result["job_description"] = job_description
         if "fit_score" not in result:
-            result["fit_score"] = 0
+            result["fit_score"] = 1  # Default to lowest score if not provided
         if "fit_score_reason" not in result:
-            result["fit_score_reason"] = "No fit score analysis available"
+            result["fit_score_reason"] = "Resume analysis incomplete - cannot assess job requirements match"
+        if "eligibility_status" not in result:
+            # Determine eligibility based on fit_score using enhanced scoring system
+            fit_score = result.get("fit_score", 1)
+            result["eligibility_status"] = "Eligible" if fit_score >= 5 else "Not Eligible"
+        if "eligibility_reason" not in result:
+            fit_score = result.get("fit_score", 1)
+            if fit_score >= 8:
+                result["eligibility_reason"] = "Strong fit - candidate has highly relevant technical background and experience that aligns well with job requirements"
+            elif fit_score >= 5:
+                result["eligibility_reason"] = "Moderate fit - candidate has relevant experience with transferable skills for this role"
+            else:
+                result["eligibility_reason"] = f"Poor fit - candidate's background is not logically relevant to this job role (fit score: {fit_score}/10). Experience appears to be in a different field."
+        if "work_experience_raw" not in result:
+            result["work_experience_raw"] = "Work experience information not available"
 
         result["success"] = True
         return result
@@ -114,7 +136,13 @@ def process_single_resume(file_path: str, job_description: str, resume_id: str, 
             "error": error_message,
             "trace": tb,
             "resume_id": resume_id,
-            "filename": filename
+            "filename": filename,
+            "job_description": job_description,
+            "fit_score": 1,
+            "fit_score_reason": "Processing failed - cannot assess job relevance using intelligent matching criteria",
+            "eligibility_status": "Not Eligible",
+            "eligibility_reason": "Resume could not be processed - unable to verify job relevance using smart reasoning",
+            "work_experience_raw": "Could not extract work experience"
         }
 
 @app.post("/api/upload-resume/")
@@ -128,7 +156,7 @@ async def upload_resume(file: UploadFile = File(...)):
         temp_file_path = temp_file.name
 
     try:
-        job_description = get_job_description()
+        job_description = get_job_description_from_file()
         resume_id = str(uuid4())
         
         result = process_single_resume(temp_file_path, job_description, resume_id, file.filename)
@@ -166,210 +194,13 @@ async def upload_resume(file: UploadFile = File(...)):
             status_code=500
         )
 
-@app.post("/api/process-resumes/")
-async def process_resumes(
-    files: List[UploadFile] = File(...),
-    processing_mode: str = "individual",
-    job_description: Optional[str] = None,
-    return_full_analysis: bool = True
-):
-    """
-    Flexible endpoint for processing resumes with configurable options
-    
-    Args:
-        files: List of PDF files to process
-        processing_mode: "individual" or "batch" (default: "individual")
-        job_description: Custom job description (optional, uses saved one if not provided)
-        return_full_analysis: Whether to return full analysis or just summary (default: True)
-    """
-    if not files:
-        raise HTTPException(status_code=400, detail="No files provided")
-    
-    # Get job description
-    final_job_description = get_job_description(job_description)
-    
-    # Validate processing mode
-    if processing_mode not in ["individual", "batch"]:
-        raise HTTPException(status_code=400, detail="Processing mode must be 'individual' or 'batch'")
-    
-    results = []
-    failed_files = []
-    
-    for file in files:
-        if not file.filename.lower().endswith(".pdf"):
-            failed_files.append({
-                "filename": file.filename,
-                "error": "Only PDF files are accepted",
-                "resume_id": None
-            })
-            continue
-
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
-            shutil.copyfileobj(file.file, temp_file)
-            temp_path = temp_file.name
-
-        try:
-            resume_id = str(uuid4())
-            result = process_single_resume(temp_path, final_job_description, resume_id, file.filename)
-
-            if result.get("success", False):
-                # For individual mode, return full analysis for each file
-                # For batch mode, we might want just summary unless full analysis is requested
-                if processing_mode == "batch" and not return_full_analysis:
-                    # Return just summary data for batch processing
-                    summary_result = {
-                        "resume_id": result["resume_id"],
-                        "filename": result.get("filename", "Unknown"),
-                        "candidate_name": result.get("full_name", "Unknown"),
-                        "fit_score": result.get("fit_score", 0),
-                        "fit_score_reason": result.get("fit_score_reason", "No reason provided"),
-                        "candidate_fit_summary": result.get("candidate_fit_summary", "No summary available"),
-                        "success": True
-                    }
-                    results.append(summary_result)
-                else:
-                    results.append(result)
-            else:
-                failed_files.append({
-                    "filename": file.filename,
-                    "error": result.get("error", "Processing failed"),
-                    "resume_id": resume_id
-                })
-
-        except Exception as e:
-            failed_files.append({
-                "filename": file.filename,
-                "error": str(e),
-                "resume_id": str(uuid4())
-            })
-        finally:
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
-    
-    # Format response based on processing mode
-    if processing_mode == "individual":
-        response_data = {
-            "success": True,
-            "processing_mode": "individual",
-            "total_files": len(files),
-            "successful_analyses": len(results),
-            "failed_analyses": len(failed_files),
-            "results": results,
-            "failed_files": failed_files if failed_files else None
-        }
-    else:  # batch mode
-        # Sort by fit_score for batch processing
-        ranked_results = sorted(results, key=lambda x: x.get("fit_score", 0), reverse=True)
-        
-        response_data = {
-            "success": True,
-            "processing_mode": "batch",
-            "total_files": len(files),
-            "successful_analyses": len(results),
-            "failed_analyses": len(failed_files),
-            "ranked_resumes": ranked_results,
-            "failed_files": failed_files if failed_files else None
-        }
-    
-    return JSONResponse(content=response_data, status_code=200)
-
-@app.post("/api/analyze-with-job-description/")
-async def analyze_with_job_description(
-    files: List[UploadFile] = File(...),
-    job_description: str = "",
-    processing_mode: str = "individual"
-):
-    """
-    Analyze resumes with a custom job description provided in the request
-    
-    Args:
-        files: List of PDF files to process
-        job_description: The job description to use for analysis
-        processing_mode: "individual" or "batch" (default: "individual")
-    """
-    if not job_description.strip():
-        raise HTTPException(status_code=400, detail="Job description is required")
-    
-    if not files:
-        raise HTTPException(status_code=400, detail="No files provided")
-    
-    if processing_mode not in ["individual", "batch"]:
-        raise HTTPException(status_code=400, detail="Processing mode must be 'individual' or 'batch'")
-    
-    results = []
-    failed_files = []
-    
-    for file in files:
-        if not file.filename.lower().endswith(".pdf"):
-            failed_files.append({
-                "filename": file.filename,
-                "error": "Only PDF files are accepted",
-                "resume_id": None
-            })
-            continue
-
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
-            shutil.copyfileobj(file.file, temp_file)
-            temp_path = temp_file.name
-
-        try:
-            resume_id = str(uuid4())
-            result = process_single_resume(temp_path, job_description, resume_id, file.filename)
-
-            if result.get("success", False):
-                results.append(result)
-            else:
-                failed_files.append({
-                    "filename": file.filename,
-                    "error": result.get("error", "Processing failed"),
-                    "resume_id": resume_id
-                })
-
-        except Exception as e:
-            failed_files.append({
-                "filename": file.filename,
-                "error": str(e),
-                "resume_id": str(uuid4())
-            })
-        finally:
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
-    
-    # Format response based on processing mode
-    if processing_mode == "individual":
-        response_data = {
-            "success": True,
-            "processing_mode": "individual",
-            "job_description_used": job_description,
-            "total_files": len(files),
-            "successful_analyses": len(results),
-            "failed_analyses": len(failed_files),
-            "results": results,
-            "failed_files": failed_files if failed_files else None
-        }
-    else:  # batch mode
-        # Sort by fit_score for batch processing
-        ranked_results = sorted(results, key=lambda x: x.get("fit_score", 0), reverse=True)
-        
-        response_data = {
-            "success": True,
-            "processing_mode": "batch",
-            "job_description_used": job_description,
-            "total_files": len(files),
-            "successful_analyses": len(results),
-            "failed_analyses": len(failed_files),
-            "ranked_resumes": ranked_results,
-            "failed_files": failed_files if failed_files else None
-        }
-    
-    return JSONResponse(content=response_data, status_code=200)
 
 @app.post("/api/save-job-description/")
 async def save_job_description(request: JobDescriptionRequest):
     """Save job description to a single JSON file"""
     try:
         # Path to the job description file
-        job_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "jsons/job_description.json")
+        job_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "jd_jsons/job_description.json")
         
         # Create directory if it doesn't exist
         os.makedirs(os.path.dirname(job_file_path), exist_ok=True)
@@ -394,67 +225,58 @@ async def save_job_description(request: JobDescriptionRequest):
             status_code=500
         )
 
-@app.get("/api/processing-info/")
-async def get_processing_info():
-    """Get information about available processing modes and current configuration"""
+@app.get("/api/get-job-description/")
+async def get_job_description():
+    """Get the current job description from the JSON file"""
     try:
-        # Get current job description
-        job_description = get_job_description()
-        job_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "jsons/job_description.json")
-        has_saved_job_description = os.path.exists(job_file_path)
+        # Path to the job description file
+        job_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "jd_jsons/job_description.json")
         
-        # Get output directory info
-        outputs_dir = os.path.join(os.path.dirname(__file__), "..", "..", "outputs")
-        os.makedirs(outputs_dir, exist_ok=True)
-        
-        # Count existing analyses
-        existing_analyses = []
-        if os.path.exists(outputs_dir):
-            for filename in os.listdir(outputs_dir):
-                if filename.endswith('.json'):
-                    existing_analyses.append(filename.replace('.json', ''))
-        
-        response_data = {
-            "available_modes": {
-                "individual": {
-                    "description": "Process one resume at a time with full detailed analysis",
-                    "endpoint": "/api/upload-resume/"
+        # Check if file exists
+        if not os.path.exists(job_file_path):
+            return JSONResponse(
+                content={
+                    "error": "No job description found",
+                    "message": "No job description has been saved yet. Please save a job description first."
                 },
-                "batch": {
-                    "description": "Process multiple resumes and rank them by fit score",
-                    "endpoint": "/api/upload-resume-batch/"
-                },
-                "flexible": {
-                    "description": "Process with configurable options (individual or batch mode)",
-                    "endpoint": "/api/process-resumes/"
-                },
-                "custom_job": {
-                    "description": "Process with custom job description provided in request",
-                    "endpoint": "/api/analyze-with-job-description/"
-                }
-            },
-            "current_config": {
-                "has_saved_job_description": has_saved_job_description,
-                "job_description_preview": job_description[:200] + "..." if len(job_description) > 200 else job_description,
-                "existing_analyses_count": len(existing_analyses),
-                "recent_analyses": existing_analyses[-5:] if existing_analyses else []
-            },
-            "supported_file_types": ["pdf"],
-            "max_files_per_batch": "unlimited"
-        }
+                status_code=404
+            )
         
-        return JSONResponse(content=response_data, status_code=200)
+        # Read the job description from file
+        with open(job_file_path, 'r', encoding='utf-8') as f:
+            job_data = json.load(f)
         
-    except Exception as e:
+        # Return the job description data
         return JSONResponse(
-            content={"error": f"Failed to get processing info: {str(e)}"},
+            content={
+                "success": True,
+                "job_description": job_data.get("job_description", ""),
+                "file_path": "jd_jsons/job_description.json",
+                "message": "Job description retrieved successfully"
+            },
+            status_code=200
+        )
+    
+    except json.JSONDecodeError:
+        return JSONResponse(
+            content={
+                "error": "Invalid JSON format",
+                "message": "The job description file contains invalid JSON data"
+            },
             status_code=500
         )
+    
+    except Exception as e:
+        return JSONResponse(
+            content={"error": f"Failed to retrieve job description: {str(e)}"},
+            status_code=500
+        )
+
         
 @app.post("/api/upload-resume-batch/")
 async def upload_resume_batch(files: List[UploadFile] = File(...)):
     """Upload and process multiple resumes in batch mode"""
-    job_description = get_job_description()
+    job_description = get_job_description_from_file()
     results = []
     failed_files = []
 
@@ -543,110 +365,6 @@ async def get_analysis(resume_id: str):
             status_code=404
         )
 
-@app.get("/api/get-analyses/")
-async def get_multiple_analyses(resume_ids: str = ""):
-    """Get analyses for multiple resumes at once"""
-    if not resume_ids:
-        raise HTTPException(status_code=400, detail="No resume IDs provided")
-    
-    id_list = [id.strip() for id in resume_ids.split(",") if id.strip()]
-    if not id_list:
-        raise HTTPException(status_code=400, detail="Invalid resume IDs format")
-    
-    outputs_dir = os.path.join(os.path.dirname(__file__), "..", "..", "outputs")
-    results = []
-    not_found = []
-    
-    for resume_id in id_list:
-        json_file = os.path.join(outputs_dir, f"{resume_id}.json")
-        
-        if os.path.exists(json_file):
-            try:
-                with open(json_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    # Add resume_id to the data if not present
-                    if "resume_id" not in data:
-                        data["resume_id"] = resume_id
-                    results.append(data)
-            except Exception as e:
-                not_found.append({
-                    "resume_id": resume_id,
-                    "error": f"Failed to read analysis: {str(e)}"
-                })
-        else:
-            not_found.append({
-                "resume_id": resume_id,
-                "error": "Analysis not found"
-            })
-    
-    response_data = {
-        "success": True,
-        "requested_count": len(id_list),
-        "found_count": len(results),
-        "not_found_count": len(not_found),
-        "analyses": results,
-        "not_found": not_found if not_found else None
-    }
-    
-    return JSONResponse(content=response_data, status_code=200)
-
-@app.get("/api/get-all-analyses/")
-async def get_all_analyses(limit: int = 50, sort_by: str = "fit_score"):
-    """Get all available analyses with optional sorting and limiting"""
-    outputs_dir = os.path.join(os.path.dirname(__file__), "..", "..", "outputs")
-    
-    if not os.path.exists(outputs_dir):
-        return JSONResponse(
-            content={
-                "success": True,
-                "total_count": 0,
-                "analyses": [],
-                "message": "No analyses found"
-            }, 
-            status_code=200
-        )
-    
-    analyses = []
-    errors = []
-    
-    for filename in os.listdir(outputs_dir):
-        if filename.endswith('.json'):
-            json_file = os.path.join(outputs_dir, filename)
-            try:
-                with open(json_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    # Ensure resume_id is present
-                    if "resume_id" not in data:
-                        data["resume_id"] = filename.replace('.json', '')
-                    analyses.append(data)
-            except Exception as e:
-                errors.append({
-                    "filename": filename,
-                    "error": str(e)
-                })
-    
-    # Sort analyses
-    if sort_by == "fit_score":
-        analyses.sort(key=lambda x: x.get("fit_score", 0), reverse=True)
-    elif sort_by == "name":
-        analyses.sort(key=lambda x: x.get("full_name", "").lower())
-    # Add more sorting options as needed
-    
-    # Limit results
-    if limit > 0:
-        analyses = analyses[:limit]
-    
-    response_data = {
-        "success": True,
-        "total_count": len(analyses),
-        "analyses": analyses,
-        "errors": errors if errors else None,
-        "sort_by": sort_by,
-        "limit_applied": limit if limit > 0 else None
-    }
-    
-    return JSONResponse(content=response_data, status_code=200)
-
 # ==================== LLM Provider Management Endpoints ====================
 
 @app.get("/api/llm/providers")
@@ -692,11 +410,13 @@ async def get_current_config():
 async def update_llm_config(request: LLMConfigRequest):
     """Update LLM provider configuration"""
     try:
+        # Only pass base_url if it's explicitly provided and different from default
+        # This allows auto-detection of default URLs for each provider
         result = llm_automation.update_provider_config(
             provider=request.provider,
             model=request.model,
             api_key=request.api_key,
-            base_url=request.base_url
+            base_url=request.base_url  # Let the automation handle None values
         )
         
         status_code = 200 if result["success"] else 400
@@ -745,6 +465,122 @@ async def get_provider_models(provider: str):
             content={"error": f"Failed to get models: {str(e)}"}, 
             status_code=500
         )
+
+# @app.get("/api/llm/url-mapping")
+async def get_url_mapping():
+    """Get the expected URL mapping for each provider"""
+    try:
+        url_mapping = {
+            "ollama": "http://127.0.0.1:11434",
+            "openrouter": "https://openrouter.ai/api/v1/chat/completions",
+            "openai": "https://api.openai.com/v1/chat/completions",
+            "anthropic": "https://api.anthropic.com/v1/messages"
+        }
+        
+        current_config = llm_automation.current_config
+        current_provider = current_config.get("provider", "unknown")
+        current_url = current_config.get("base_url", "unknown")
+        expected_url = url_mapping.get(current_provider, "unknown")
+        
+        return JSONResponse(
+            content={
+                "url_mapping": url_mapping,
+                "current_provider": current_provider,
+                "current_url": current_url,
+                "expected_url": expected_url,
+                "is_correct": current_url == expected_url
+            },
+            status_code=200
+        )
+        
+    except Exception as e:
+        return JSONResponse(
+            content={"error": f"Failed to get URL mapping: {str(e)}"}, 
+            status_code=500
+        )
+
+@app.post("/api/llm/fix-config")
+async def fix_llm_config():
+    """Manually fix the LLM configuration base_url based on current provider"""
+    try:
+        # Get current config
+        current_config = llm_automation.current_config.copy()
+        provider = current_config.get("provider", "openrouter")
+        current_url = current_config.get("base_url", "")
+        
+        # Get expected URL for the provider
+        expected_urls = {
+            "ollama": "http://127.0.0.1:11434",
+            "openrouter": "https://openrouter.ai/api/v1/chat/completions",
+            "openai": "https://api.openai.com/v1/chat/completions",
+            "anthropic": "https://api.anthropic.com/v1/messages"
+        }
+        
+        expected_url = expected_urls.get(provider, "http://127.0.0.1:11434")
+        
+        if current_url != expected_url:
+            # Update the URL
+            current_config["base_url"] = expected_url
+            
+            # Save the config
+            if llm_automation.save_config(current_config):
+                return JSONResponse(
+                    content={
+                        "success": True,
+                        "message": f"Fixed base_url for {provider}",
+                        "old_url": current_url,
+                        "new_url": expected_url,
+                        "config": {k: v for k, v in current_config.items() if k != "api_key"}
+                    },
+                    status_code=200
+                )
+            else:
+                return JSONResponse(
+                    content={"error": "Failed to save fixed configuration"},
+                    status_code=500
+                )
+        else:
+            return JSONResponse(
+                content={
+                    "success": True,
+                    "message": f"Configuration already correct for {provider}",
+                    "current_url": current_url,
+                    "config": {k: v for k, v in current_config.items() if k != "api_key"}
+                },
+                status_code=200
+            )
+            
+    except Exception as e:
+        return JSONResponse(
+            content={"error": f"Failed to fix config: {str(e)}"}, 
+            status_code=500
+        )
+
+@app.post("/api/llm/validate-config")
+# async def validate_and_fix_config():
+#     """Validate and auto-fix current LLM configuration"""
+#     try:
+#         # Reload and validate config
+#         llm_automation.current_config = llm_automation.load_config()
+        
+#         current_config = llm_automation.current_config
+#         safe_config = {k: v for k, v in current_config.items() if k != "api_key"}
+#         safe_config["has_api_key"] = bool(current_config.get("api_key"))
+        
+#         return JSONResponse(
+#             content={
+#                 "success": True,
+#                 "message": "Configuration validated and fixed if needed",
+#                 "config": safe_config
+#             }, 
+#             status_code=200
+#         )
+        
+#     except Exception as e:
+#         return JSONResponse(
+#             content={"error": f"Failed to validate config: {str(e)}"}, 
+#             status_code=500
+#         )
 
 @app.post("/api/llm/reset")
 async def reset_llm_config():

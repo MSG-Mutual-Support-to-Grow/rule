@@ -68,6 +68,6 @@ frontend/node_modules/
 .env.local
 
 # JSON directory
-jsons/
+jd_jsons/
 outputs/
 configs/

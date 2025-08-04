@@ -8,14 +8,17 @@ dependencies = [
     "black==24.4.2",
     "clean-text==0.6.0",
     "easyocr==1.7.0",
+    "en-core-web-sm",
     "fastapi==0.104.1",
     "isort==5.13.2",
     "multiprocess==0.70.15",
+    "numpy>=1.26.4",
     "opencv-python==4.9.0.80",
     "pdf2image==1.17.0",
     "pdfplumber==0.10.3",
     "pillow==10.3.0",
     "pypdf==3.14.0",
+    "pyspellchecker>=0.8.3",
     "pytesseract==0.3.10",
     "python-dotenv==1.0.1",
     "python-multipart==0.0.6",
@@ -25,3 +28,6 @@ dependencies = [
     "typer<0.10.0",
     "uvicorn==0.24.0",
 ]
+
+[tool.uv.sources]
+en-core-web-sm = { path = "backend/api/en_core_web_sm-3.7.1-py3-none-any.whl" }
