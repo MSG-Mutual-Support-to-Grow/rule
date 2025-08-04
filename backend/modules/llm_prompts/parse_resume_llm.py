@@ -29,11 +29,11 @@ Plain Text:
 
 ### INTELLIGENT MATCHING CRITERIA:
 
-1. **Relevance Check**: Does the candidate's experience logically align with the job duties?
-2. **Skill Transferability**: Are there transferable skills or technologies?
-3. **Industry Awareness**: Is the background common in the target industry?
-4. **Common Sense Fit**: A full-stack dev is relevant for web roles, a sales rep is not.
-5. **Practical Reasoning**: Don't expect exact wording—evaluate if the candidate could reasonably succeed in the role.
+1. **Direct Relevance Check**: Does the candidate's primary experience directly align with the core job duties?
+2. **Skill Transferability**: Are the technical skills genuinely transferable and applicable to the role? (Be strict - data science Python ≠ web development Python)
+3. **Industry Alignment**: Is the background common and valued in the target industry?
+4. **Role-Specific Fit**: Web dev needs HTML/CSS/JS/frameworks, not just programming in general
+5. **Practical Success Probability**: Could the candidate realistically succeed without extensive retraining?
 
 ---
 
@@ -50,6 +50,9 @@ Plain Text:
 
 ✓ Job: "Frontend web app" + Resume: "React, UI/UX work, SPAs" → RELEVANT
 ✓ Job: "Backend APIs" + Resume: "Node.js, DB design, RESTful services" → RELEVANT
+✓ Job: "Full-stack dev" + Resume: "MERN stack, REST APIs, responsive design" → RELEVANT
+✗ Job: "Web Developer" + Resume: "Data science, ML models, research papers" → NOT RELEVANT  
+✗ Job: "Frontend dev" + Resume: "Data analytics, Python for ML, computer vision" → NOT RELEVANT
 ✗ Job: "DevOps role" + Resume: "Marketing, SEO, social media" → NOT RELEVANT
 ✗ Job: "Data Engineer" + Resume: "Retail sales, no technical background" → NOT RELEVANT
 
@@ -57,43 +60,43 @@ Plain Text:
 
 ### OUTPUT REQUIREMENTS:
 
-Return **ONLY a valid JSON** response in the structure below (no extra text, no markdown, no headings):
+Return **ONLY a valid JSON** response in the structure below. Do not include any explanatory text, markdown formatting, or code blocks - just the raw JSON:
 
 {{
-  "full_name": "...",
-  "email": "...",
-  "phone_number": "...",
-  "total_experience_years": ...,
+  "full_name": "Extract candidate's full name or 'Unknown' if not found",
+  "email": "Extract email or empty string if not found",
+  "phone_number": "Extract phone or empty string if not found",
+  "total_experience_years": 0,
   "roles": [
     {{
-      "title": "...",
-      "company": "...",
-      "duration": "...",
-      "start_date": "...",
-      "end_date": "..."
+      "title": "Job title",
+      "company": "Company name",
+      "duration": "Duration like '2 years'",
+      "start_date": "Start date or 'Unknown'",
+      "end_date": "End date or 'Present'"
     }}
   ],
-  "work_experience_raw": "...",
+  "work_experience_raw": "Brief summary of work experience",
   "skills": {{
     "skill_name": {{
-      "source": "...",
-      "years": "..."
+      "source": "Where skill was mentioned",
+      "years": "Years of experience or 'Unknown'"
     }}
   }},
   "projects": [
     {{
-      "name": "...",
-      "tech_stack": "...",
-      "description": "..."
+      "name": "Project name",
+      "tech_stack": "Technologies used",
+      "description": "Brief description"
     }}
   ],
   "leadership_signals": true,
-  "leadership_justification": "...",
-  "candidate_fit_summary": "...",
-  "fit_score": ...,
-  "fit_score_reason": "...",
-  "eligibility_status": "...",
-  "eligibility_reason": "..."
+  "leadership_justification": "Why leadership signals were detected or not",
+  "candidate_fit_summary": "Brief summary of how candidate fits the role",
+  "fit_score": 1,
+  "fit_score_reason": "Clear explanation of the score",
+  "eligibility_status": "Eligible or Not Eligible",
+  "eligibility_reason": "Clear explanation of eligibility decision"
 }}
 
 ---
@@ -101,13 +104,13 @@ Return **ONLY a valid JSON** response in the structure below (no extra text, no 
 ### OUTPUT RULES:
 
 * **fit_score**: Integer 1–10
-  8–10 = Strong fit
-  5–7 = Moderate/reasonable fit
-  1–4 = Poor fit or irrelevant
+  8–10 = Strong fit (direct relevant experience)
+  5–7 = Moderate fit (some relevant skills but gaps exist)
+  1–4 = Poor fit or irrelevant (different field/industry)
 
 * **eligibility_status**:
-  * "Eligible" if skills/experience logically align or are transferable
-  * "Not Eligible" if experience is unrelated or irrelevant
+  * "Eligible" ONLY if skills/experience directly align with job requirements
+  * "Not Eligible" if experience is in a different field (e.g., data science vs web dev)
 
 * **eligibility_reason**: Use clear, practical explanation why they qualify or don't.
 
@@ -115,7 +118,7 @@ Return **ONLY a valid JSON** response in the structure below (no extra text, no 
 
 ### FINAL TASK:
 
-Analyze the resume and job description using smart reasoning. Then return the structured JSON output as described—**no commentary or markdown, only valid JSON.**
+Analyze the resume and job description using smart reasoning. Then return ONLY the structured JSON output as described above. Do not wrap the JSON in code blocks or add any explanatory text - just return the raw JSON object.
 """
 
     # Dynamically load API key from llm_config.json
@@ -201,12 +204,48 @@ Analyze the resume and job description using smart reasoning. Then return the st
                     print(response.text)
                     print('[ERROR] Cleaned content:')
                     print(cleaned)
-                    return {"fit_score": 1, "fit_score_reason": "Resume analysis failed - unable to parse AI response", "eligibility_status": "Not Eligible", "eligibility_reason": "Could not parse AI response to assess if background is relevant to this role", "work_experience_raw": "Could not extract work experience"}
+                    
+                    # Try to extract basic info manually if JSON parsing fails
+                    return {
+                        "full_name": "Unknown", 
+                        "email": "", 
+                        "phone_number": "", 
+                        "total_experience_years": 0,
+                        "roles": [],
+                        "work_experience_raw": "Could not extract work experience due to parsing error",
+                        "skills": {},
+                        "projects": [],
+                        "leadership_signals": False,
+                        "leadership_justification": "",
+                        "candidate_fit_summary": "Unable to analyze due to AI response parsing error",
+                        "fit_score": 1, 
+                        "fit_score_reason": "Resume analysis failed - unable to parse AI response", 
+                        "eligibility_status": "Not Eligible", 
+                        "eligibility_reason": "Could not parse AI response to assess if background is relevant to this role"
+                    }
             except Exception as e:
                 print(f'[ERROR] Ollama response parsing error: {e}')
                 print('[ERROR] Raw Ollama response:')
                 print(response.text)
-                raise RuntimeError(f"Ollama response parsing error: {e}")
+                
+                # Return complete fallback structure
+                return {
+                    "full_name": "Unknown", 
+                    "email": "", 
+                    "phone_number": "", 
+                    "total_experience_years": 0,
+                    "roles": [],
+                    "work_experience_raw": "Could not extract work experience due to parsing error",
+                    "skills": {},
+                    "projects": [],
+                    "leadership_signals": False,
+                    "leadership_justification": "",
+                    "candidate_fit_summary": "Unable to analyze due to AI response parsing error",
+                    "fit_score": 1, 
+                    "fit_score_reason": f"Ollama response parsing error: {e}", 
+                    "eligibility_status": "Not Eligible", 
+                    "eligibility_reason": "System error prevented resume analysis"
+                }
         else:
             raise RuntimeError(f"Ollama API error: {response.status_code} {response.text}")
     else:
@@ -239,15 +278,56 @@ Analyze the resume and job description using smart reasoning. Then return the st
                 if cleaned.startswith("```"):
                     first_newline = cleaned.find('\n')
                     if first_newline != -1:
-
                         cleaned = cleaned[first_newline + 1:]
                     else:
                         cleaned = cleaned[3:]
                 if cleaned.endswith("```"):
                     cleaned = cleaned[:-3]
-                return json.loads(cleaned)
+                
+                # Try to parse JSON
+                try:
+                    return json.loads(cleaned.strip())
+                except json.JSONDecodeError as je:
+                    print(f"[ERROR] JSON parsing failed: {je}")
+                    print(f"[ERROR] Raw content: {raw}")
+                    print(f"[ERROR] Cleaned content: {cleaned}")
+                    
+                    # Return complete fallback structure
+                    return {
+                        "full_name": "Unknown", 
+                        "email": "", 
+                        "phone_number": "", 
+                        "total_experience_years": 0,
+                        "roles": [],
+                        "work_experience_raw": "Could not extract work experience due to JSON parsing error",
+                        "skills": {},
+                        "projects": [],
+                        "leadership_signals": False,
+                        "leadership_justification": "",
+                        "candidate_fit_summary": "Unable to analyze due to AI response JSON parsing error",
+                        "fit_score": 1, 
+                        "fit_score_reason": f"AI response parsing failed - JSON error: {je}", 
+                        "eligibility_status": "Not Eligible", 
+                        "eligibility_reason": "Resume analysis incomplete - cannot determine if candidate's background is relevant"
+                    }
             except Exception as e:
-                print("[WARNING] Mistral returned invalid JSON. Falling back.")
-                return {"fit_score": 1, "fit_score_reason": "AI response parsing failed - unable to assess job relevance properly", "eligibility_status": "Not Eligible", "eligibility_reason": "Resume analysis incomplete - cannot determine if candidate's background is relevant", "work_experience_raw": "Could not extract work experience"}
+                print(f"[ERROR] OpenRouter response processing failed: {e}")
+                return {
+                    "full_name": "Unknown", 
+                    "email": "", 
+                    "phone_number": "", 
+                    "total_experience_years": 0,
+                    "roles": [],
+                    "work_experience_raw": "Could not extract work experience due to processing error",
+                    "skills": {},
+                    "projects": [],
+                    "leadership_signals": False,
+                    "leadership_justification": "",
+                    "candidate_fit_summary": "Unable to analyze due to system error",
+                    "fit_score": 1, 
+                    "fit_score_reason": f"OpenRouter response processing failed: {e}", 
+                    "eligibility_status": "Not Eligible", 
+                    "eligibility_reason": "System error prevented resume analysis"
+                }
         else:
             raise RuntimeError(f"OpenRouter API error: {response.status_code} {response.text}")
