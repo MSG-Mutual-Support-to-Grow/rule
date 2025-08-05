@@ -23,12 +23,12 @@ export default function Sidebar() {
       >
         <div className="flex flex-col justify-between h-full p-6 text-white">
           <div className="space-y-10">
-            <h1 className="text-2xl font-bold">ResumeAI</h1>
+            <h1 className="text-2xl font-bold">RULE</h1>
 
-            <button className="flex items-center space-x-2 hover:text-blue-200">
+            {/* <button className="flex items-center space-x-2 hover:text-blue-200">
               <Folder size={20} />
               <span>Sessions</span>
-            </button>
+            </button> */}
           </div>
 
           <button

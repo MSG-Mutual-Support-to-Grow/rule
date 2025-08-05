@@ -236,10 +236,10 @@ export default function LLMProviderSettings() {
           <select
             value={provider}
             onChange={(e) => handleProviderChange(e.target.value)}
-            className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400 text-white"
           >
             {providerData?.available_providers.map((prov) => (
-              <option key={prov} value={prov}>
+              <option key={prov} value={prov} className="bg-gray-800 text-white">
                 {prov.charAt(0).toUpperCase() + prov.slice(1)}
               </option>
             ))}
@@ -252,10 +252,10 @@ export default function LLMProviderSettings() {
           <select
             value={model}
             onChange={(e) => setModel(e.target.value)}
-            className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-4 py-2 rounded bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400 text-white"
           >
             {(providerData?.provider_models[provider] || []).map((mod: string) => (
-              <option key={mod} value={mod}>
+              <option key={mod} value={mod} className="bg-gray-800 text-white">
                 {mod}
               </option>
             ))}

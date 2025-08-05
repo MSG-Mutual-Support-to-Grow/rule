@@ -1,18 +1,12 @@
-import { X } from "lucide-react";
+import { X, FileBox } from "lucide-react";
 import { useState } from "react";
-import ThemeSettings from "./views/ThemeSettings";
 import LLMProviderSettings from "./views/LLMProviderSettings";
 // import LanguageSettings from "./LanguageSettings";
 // import PrivacySettings from "./PrivacySettings";
 // import NotificationSettings from "./NotificationSettings";
 import SettingCard from "./SettingCard";
-import { Moon, Languages, Lock, Bell,FileBox } from "lucide-react";
 
 const settingOptions = [
-  { key: "theme", title: "Theme", description: "Toggle dark/light mode.", icon: <Moon /> },
-  { key: "language", title: "Language", description: "Set your preferred language.", icon: <Languages /> },
-  { key: "privacy", title: "Privacy", description: "Manage privacy settings.", icon: <Lock /> },
-  { key: "notifications", title: "Notifications", description: "Control alerts.", icon: <Bell /> },
   { key: "llmProvider", title: "LLM Provider", description: "Configure LLM provider settings.", icon: <FileBox /> },
 ];
 
@@ -23,11 +17,7 @@ export default function SettingsModal({ open, onClose }: { open: boolean; onClos
 
   const renderContent = () => {
     switch (activeSetting) {
-      case "theme": return <ThemeSettings />;
       case "llmProvider": return <LLMProviderSettings />;
-      // case "language": return <LanguageSettings />;
-      // case "privacy": return <PrivacySettings />;
-      // case "notifications": return <NotificationSettings />;
       default: return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {settingOptions.map((opt) => (
