@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Folder, Cog } from "lucide-react";
+import { Folder, Cog, FileText } from "lucide-react";
+import { Link } from "react-router-dom";
 import SettingsModal from "./settings/SettingsModal"; // make sure path is correct
 
 export default function Sidebar() {
@@ -25,10 +26,13 @@ export default function Sidebar() {
           <div className="space-y-10">
             <h1 className="text-2xl font-bold">RULE</h1>
 
-            {/* <button className="flex items-center space-x-2 hover:text-blue-200">
-              <Folder size={20} />
-              <span>Sessions</span>
-            </button> */}
+            <Link
+              to="/docs"
+              className="flex items-center space-x-2 hover:text-blue-200"
+            >
+              <FileText size={20} />
+              <span>Docs</span>
+            </Link>
           </div>
 
           <button

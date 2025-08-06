@@ -13,21 +13,12 @@ Upload resumes individually. Let AI parse and export structured data instantly.
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org)
 
-[📖 Documentation](https://rule-docs.onrender.com/) • [❓ FAQ](https://rule-docs.onrender.com/#faq) • [🚀 Quick Start](#quick-start)
-
-</div>
-
-
-Welcome to Resume Understanding Language Engine, a cutting-edge full-stack application that leverages AI to parse, analyze, and extract structured data from resumes instantly. Upload resumes individually or in bulk, and let our intelligent system provide comprehensive candidate analysis with eligibility assessments and detailed insights.
-
-📖 **Documentation**: [Visit our comprehensive docs](https://rule-docs.onrender.com/)
-
-🤔 **FAQ**: [Find answers to common questions](https://rule-docs.onrender.com/#faq)
-
-<!-- 🎯 *Live Demo*: Experience the power of AI-driven resume analysis in action! -->
+[📖 Documentation](https://rule-docs.onrender.com/) • [❓ FAQ](https://rule-docs.onrender.com/#faq) • [🚀 Quick Start](#quick-start) • [🗎 In-App Docs](/docs)
 
 ## Table of Contents
-- [Features](#features)
+
+- [Introduction](#introduction)
+- [Architecture & Workflow](#architecture--workflow)
 - [Tech Stack](#tech-stack)
 - [Quick Start](#quick-start)
 - [Setup Options](#setup-options)
@@ -66,6 +57,7 @@ Welcome to Resume Understanding Language Engine, a cutting-edge full-stack appli
 ## Tech Stack
 
 ### Frontend
+
 - **React 19** with TypeScript
 - **Vite** for lightning-fast development
 - **Tailwind CSS** for modern styling
@@ -74,12 +66,14 @@ Welcome to Resume Understanding Language Engine, a cutting-edge full-stack appli
 - **Lucide Icons** for beautiful iconography
 
 ### Backend
+
 - **FastAPI** for high-performance API
 - **Python 3.10+** with modern async/await patterns
 - **PDFPlumber** and **PyPDF** for text extraction
 - **EasyOCR** for scanned document processing
 
 ### Infrastructure
+
 - **Docker** & **Docker Compose** for containerization
 - **UV** for fast Python package management
 - **CORS** enabled for cross-origin requests
@@ -89,6 +83,7 @@ Welcome to Resume Understanding Language Engine, a cutting-edge full-stack appli
 Get Resume Understanding Language Engine running on your machine in under 5 minutes!
 
 ### Prerequisites
+
 - **Docker** and **Docker Compose** (Recommended)
 - **Node.js 18+** (for manual setup)
 - **Python 3.10+** (for manual setup)
@@ -96,12 +91,14 @@ Get Resume Understanding Language Engine running on your machine in under 5 minu
 ### Option 1: Docker Setup (Recommended)
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/dharshan-kumarj/rule
    cd rule
    ```
 
 2. **Start the application**
+
    ```bash
    docker-compose up --build
    ```
@@ -118,6 +115,7 @@ That's it! 🎉 Your Resume Understanding Language Engine platform is now runnin
 ### Docker Installation
 
 #### Quick Commands
+
 ```bash
 # Start services
 docker-compose up
@@ -140,6 +138,7 @@ docker-compose logs -f frontend
 ```
 
 #### Development Features
+
 - **Hot Reload**: Changes to frontend/backend automatically reload
 - **Volume Mounts**: Local development with instant updates
 - **Isolated Environment**: No dependency conflicts
@@ -147,36 +146,43 @@ docker-compose logs -f frontend
 ### Manual Installation
 
 #### Backend Setup
+
 1. **Navigate to project root**
+
    ```bash
    cd rule
    ```
 
 2. **Install Python dependencies**
+
    ```bash
    # Using UV (recommended)
    uv add -r requirements.txt
-   
+
    # Or using pip
    pip install -r requirements.txt
    ```
 
 3. **Start the backend server**
+
    ```bash
    # Using UV
    uv run uvicorn backend.api.main:app --reload --host 0.0.0.0 --port 8000
-   
+
    # Or direct uvicorn
    uvicorn backend.api.main:app --reload --host 0.0.0.0 --port 8000
    ```
 
 #### Frontend Setup
+
 1. **Navigate to frontend directory**
+
    ```bash
    cd frontend
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
@@ -189,6 +195,7 @@ docker-compose logs -f frontend
 ## Configuration
 
 ### Environment Variables
+
 Create a .env file in the project root:
 
 ```env
@@ -197,7 +204,9 @@ MISTRAL_API_KEY="sk-or-v1-your-openrouter-mistral-api-key-here"
 ```
 
 ### Customizing Analysis Criteria
+
 Modify the analysis prompts in `backend/modules/llm_prompts/parse_resume_llm.py` to customize:
+
 - Job requirements
 - Skill assessment criteria
 - Experience evaluation parameters
@@ -208,6 +217,7 @@ Modify the analysis prompts in `backend/modules/llm_prompts/parse_resume_llm.py`
 ### Main Endpoints
 
 #### Upload Resume
+
 ```http
 POST /upload-resume/
 Content-Type: multipart/form-data
@@ -228,7 +238,6 @@ Response:
   "key_skills": [...]
 }
 ```
-
 
 ## Project Structure
 
@@ -269,10 +278,10 @@ rule/
 └── 📄 README.md                   # This file
 ```
 
-
 ## Available Scripts
 
 ### Frontend Scripts
+
 ```bash
 npm run dev          # Start development server
 npm run build        # Build for production
@@ -281,12 +290,14 @@ npm run lint         # Run ESLint
 ```
 
 ### Backend Scripts
+
 ```bash
 uv run uvicorn backend.api.main:app --reload    # Development server
 uv run python -m backend.api.main               # Alternative start
 ```
 
 ### Docker Scripts
+
 ```bash
 docker-compose up --build         # Build and start all services
 docker-compose down               # Stop all services
@@ -294,12 +305,12 @@ docker-compose logs -f backend    # View backend logs
 docker-compose logs -f frontend   # View frontend logs
 ```
 
-
 ## Contributing
 
 We welcome contributions to Resume Understanding Language Engine! Here's how to get started:
 
 ### Development Workflow
+
 1. **Fork the repository**
 2. **Create a feature branch**
    ```bash
@@ -318,11 +329,13 @@ We welcome contributions to Resume Understanding Language Engine! Here's how to 
 7. **Open a Pull Request**
 
 ### Code Standards
+
 - **Frontend**: ESLint configuration with React/TypeScript best practices
 - **Backend**: Black formatting with isort import sorting
 - **Commits**: Conventional commit messages preferred
 
 ### Development Guidelines
+
 - Follow existing code structure and patterns
 - Add comments for complex logic
 - Update documentation for new features
@@ -333,8 +346,10 @@ We welcome contributions to Resume Understanding Language Engine! Here's how to 
 ### Common Issues
 
 #### Port Conflicts
+
 **Problem**: Port 5173 or 8000 already in use
-**Solution**: 
+**Solution**:
+
 ```bash
 # Kill processes using the ports
 lsof -ti:5173 | xargs kill -9
@@ -344,8 +359,10 @@ lsof -ti:8000 | xargs kill -9
 ```
 
 #### Docker Build Failures
+
 **Problem**: Docker build fails
 **Solution**:
+
 ```bash
 # Clear Docker cache
 docker system prune -a
@@ -355,15 +372,19 @@ docker-compose build --no-cache
 ```
 
 #### PDF Processing Errors
+
 **Problem**: Error processing PDF files
 **Solutions**:
+
 - Ensure PDF is not password protected
 - Check if PDF contains extractable text
 - For scanned PDFs, OCR processing may take longer
 
 #### Python Dependencies
+
 **Problem**: Module not found errors
 **Solution**:
+
 ```bash
 # Reinstall dependencies
 uv add -r requirements.txt
@@ -373,8 +394,8 @@ pip cache purge
 pip install -r requirements.txt --force-reinstall
 ```
 
-
 ### Getting Help
+
 - 📚 **Documentation**: [https://rule-docs.onrender.com/](https://rule-docs.onrender.com/)
 - ❓ **FAQ**: [https://rule-docs.onrender.com/#faq](https://rule-docs.onrender.com/#faq)
 - 🐛 **Issues**: Open a GitHub issue with detailed description
@@ -414,6 +435,7 @@ A: The application includes CORS configuration and input validation. For product
 ## Roadmap
 
 ### Current Features ✅
+
 - PDF resume upload and processing
 - Text extraction from native and scanned PDFs
 - AI-powered candidate analysis
@@ -426,6 +448,7 @@ A: The application includes CORS configuration and input validation. For product
 - Export functionality (CSV/JSON)
 
 ### Planned Features 🚧
+
 - **Bulk Processing**: Enhanced bulk upload with progress tracking
 - **Advanced Analytics**: Candidate comparison, ranking, and filtering
 - **Custom Job Profiles**: Configurable evaluation criteria per role
@@ -433,18 +456,18 @@ A: The application includes CORS configuration and input validation. For product
 
 ### 🙌 Contributors
 
-- [@dharshan-kumarj](https://github.com/dharshan-kumarj)  
-- [@ronnie-allen](https://github.com/ronnie-allen)  
-- [@Aparna0224](https://github.com/Aparna0224)  
-- [@Franz-kingstein](https://github.com/Franz-kingstein)  
+- [@dharshan-kumarj](https://github.com/dharshan-kumarj)
+- [@ronnie-allen](https://github.com/ronnie-allen)
+- [@Aparna0224](https://github.com/Aparna0224)
+- [@Franz-kingstein](https://github.com/Franz-kingstein)
 - [@Danishprabhu04](https://github.com/Danishprabhu04)
-
 
 ## License
 
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
 
 ### MIT License Summary
+
 - ✅ Commercial use
 - ✅ Modification
 - ✅ Distribution
@@ -457,6 +480,7 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 ## Support
 
 ### Get Help
+
 - 📖 **Documentation**: [https://rule-docs.onrender.com/](https://rule-docs.onrender.com/)
 - ❓ **FAQ**: [https://rule-docs.onrender.com/#faq](https://rule-docs.onrender.com/#faq)
 - 🐛 **Bug Reports**: [Open an issue](https://github.com/dharshan-kumarj/rule/issues)
