@@ -196,13 +196,6 @@ Create a .env file in the project root:
 MISTRAL_API_KEY="sk-or-v1-your-openrouter-mistral-api-key-here"
 ```
 
-### Customizing Analysis Criteria
-Modify the analysis prompts in `backend/modules/llm_prompts/parse_resume_llm.py` to customize:
-- Job requirements
-- Skill assessment criteria
-- Experience evaluation parameters
-- Eligibility thresholds
-
 ## API Documentation
 
 ### Main Endpoints
@@ -236,37 +229,71 @@ Response:
 rule/
 ├── 📁 backend/
 │   ├── 📁 api/
-│   │   └── main.py                 # FastAPI application
+│   │   ├── en_core_web_sm-3.7.1-py3-none-any.whl   # SpaCy model wheel
+│   │   └── main.py                                 # FastAPI entrypoint
 │   ├── 📁 modules/
+│   │   ├── 📁 llm/
+│   │   │   ├── 📁 handlers/
+│   │   │   │   ├── ollama_handler.py               # Local model handler
+│   │   │   │   ├── openrouter_handler.py           # Cloud model handler
+│   │   │   │   └── __init__.py
+│   │   │   ├── base_provider.py                    # Abstract class for LLMs
+│   │   │   ├── llm_automation.py                   # Main logic pipeline
+│   │   │   ├── provider_router.py                  # Dynamic model switcher
+│   │   │   └── utils.py                            # Shared utilities
 │   │   ├── 📁 llm_prompts/
-│   │   │   └── parse_resume_llm.py # AI prompts and analysis
+│   │   │   └── parse_resume_llm.py                 # Prompt engineering for resumes
 │   │   └── 📁 text_extract/
-│   │       ├── extract_native_pdf.py  # Native PDF processing
-│   │       └── extract_ocr_pdf.py     # OCR-based processing
-│   └── 📁 pipelines/
-│       └── analyze_resume.py       # Main processing pipeline
+│   │       ├── extract_native_pdf.py               # Native PDF extractor
+│   │       └── extract_ocr_pdf.py                  # OCR-based PDF extractor
+│   ├── 📁 pipelines/
+│   │   └── analyze_resume.py                       # Combined processing pipeline
+│   ├── ENHANCED_BACKEND_API.md                     # API usage guide
+│   ├── QUICK_REFERENCE.md                          # Developer quick start
+│   ├── README.md                                   # Backend README
+│   └── requirements-dev.txt                        # Backend dependencies
+│
+├── 📁 docs/images/
+│   └── Landing_Page.png                            # Screenshot of landing page
+│
 ├── 📁 frontend/
-│   ├── 📁 src/
-│   │   ├── 📁 components/
-│   │   │   ├── 📁 layout/
-│   │   │   │   ├── UploadCard.tsx      # File upload interface
-│   │   │   │   ├── OutputViewer.tsx    # Results display
-│   │   │   │   └── Sidebar.tsx         # Navigation sidebar
-│   │   │   └── 📁 ui/                  # Reusable UI components
-│   │   ├── 📁 lib/
-│   │   │   ├── api.ts              # API integration
-│   │   │   └── utils.ts            # Utility functions
-│   │   ├── 📁 pages/
-│   │   │   └── LandingPage.tsx     # Main application page
-│   │   └── App.tsx                 # Root component
-│   ├── package.json                # Frontend dependencies
-│   └── vite.config.ts             # Vite configuration
-├── 📄 docker-compose.yml          # Docker orchestration
-├── 📄 Dockerfile.backend          # Backend container
-├── 📄 Dockerfile.frontend         # Frontend container
-├── 📄 pyproject.toml              # Python project config
-├── 📄 requirements.txt            # Python dependencies
-└── 📄 README.md                   # This file
+│   ├── 📁 public/
+│   └── 📁 src/
+│       ├── 📁 assets/
+│       │   └── react.svg
+│       ├── 📁 blocks/
+│       │   └── BlurText.tsx                        # Obfuscated output preview
+│       ├── 📁 components/
+│       │   ├── 📁 layout/
+│       │   │   ├── Sidebar.tsx                     # Sidebar nav
+│       │   │   ├── UploadCard.tsx                  # Upload UI
+│       │   │   └── OutputViewer.tsx                # JSON/text output UI
+│       │   └── 📁 ui/                               # Reusable UI elements
+│       ├── 📁 const/
+│       │   └── mockdata.ts                         # Demo/mock data
+│       ├── 📁 lib/
+│       │   ├── api.ts                              # Axios API hooks
+│       │   └── utils.ts                            # Frontend helpers
+│       ├── 📁 pages/
+│       │   └── LandingPage.tsx                     # Main landing page
+│       ├── App.css
+│       ├── App.tsx                                 # Root App component
+│       ├── index.css
+│       ├── main.tsx                                # Entry point
+│       └── vite-env.d.ts
+│
+├── .env                                            # Environment variables
+├── .gitignore
+├── components.json
+├── docker-compose.yml                              # Combined Docker setup
+├── Dockerfile.backend
+├── Dockerfile.frontend
+├── eslint.config.js
+├── LICENSE
+├── pyproject.toml                                  # Python backend config
+├── README.md                                       # Root README
+├── requirements.txt                                # Default requirements
+
 ```
 
 
@@ -381,35 +408,54 @@ pip install -r requirements.txt --force-reinstall
 
 ## FAQ
 
-### General Questions
+### 📁 General Questions
 
-**Q: What file formats are supported?**
+**Q: What file formats are supported?**  
 A: Currently, only PDF files are supported. The system handles both text-based PDFs and scanned documents using OCR.
 
-**Q: Is there a file size limit?**
+**Q: Is there a file size limit?**  
 A: The default limit is 10MB per file. This can be configured in the FastAPI settings.
 
-**Q: Can I process multiple resumes at once?**
-A: Not currently, but we are implementing bulk upload functionality for future releases. Currently, each resume is processed individually.
+**Q: Can I process multiple resumes at once?**  
+A: Yes. Bulk upload and processing has now been implemented with progress tracking.
 
-### Technical Questions
+**Q: Can I export the results?**  
+A: Yes, exports are available in CSV and JSON formats.
 
-**Q: Which AI models are used for analysis?**
-A: Currently, we use OpenRouter's Mistral API for intelligent resume analysis. The system uses configurable LLM prompts that can be customized in the backend configuration.
+---
 
-**Q: How accurate is the OCR for scanned documents?**
-A: The system uses EasyOCR which provides good accuracy for most documents. Quality depends on scan resolution and document clarity.
+### ⚙️ Technical Questions
 
-**Q: Can I customize the analysis criteria?**
-A: Yes! Modify the prompts in `backend/modules/llm_prompts/parse_resume_llm.py` to adjust evaluation criteria.
+**Q: Which AI models are used for analysis?**  
+A: Currently, the app uses OpenRouter's Mistral API. You can also configure OpenAI, Anthropic, Groq, and others for local or cloud-based inference.
 
-### Deployment Questions
+**Q: How accurate is the OCR for scanned documents?**  
+A: The system uses EasyOCR, which provides good accuracy depending on the quality of the scanned document.
 
-**Q: How do I deploy to production?**
-A: Use the provided Docker configuration. For cloud deployment, consider platforms like AWS, Google Cloud, or Azure with container support.
+**Q: Can I customize the analysis criteria?**  
+A: Yes. Modify the LLM prompts in `backend/modules/llm_prompts/parse_resume_llm.py` to change evaluation logic for different job roles.
 
-**Q: Is the application secure?**
-A: The application includes CORS configuration and input validation. For production, implement additional security measures like authentication, rate limiting, and HTTPS.
+**Q: How is job eligibility determined?**  
+A: Based on matching extracted skills, leadership experience, and years of experience against job profile templates.
+
+**Q: Is multi-language resume support available?**  
+A: Currently, the system primarily supports English. Multi-language support may depend on OCR and LLM capabilities configured.
+
+---
+
+### 🚀 Deployment Questions
+
+**Q: How do I deploy this to production?**  
+A: Use the included `Dockerfile` and `docker-compose.yml`. You can host it on AWS EC2, Azure, or GCP with proper environment variables and volume configurations.
+
+**Q: Is the application secure?**  
+A: Basic protections like CORS and validation are included. For production, enable HTTPS, add authentication, and limit API rate usage.
+
+**Q: Can I run this without Docker?**  
+A: Yes. Install dependencies using `pip` and `npm`, then run the backend and frontend servers separately.
+
+**Q: Does it work offline?**  
+A: Mostly yes — if you’re using local LLMs and have OCR libraries installed. However, online inference APIs (e.g., OpenRouter) require internet access.
 
 ## Roadmap
 
@@ -422,14 +468,13 @@ A: The application includes CORS configuration and input validation. For product
 - Skills extraction and categorization
 - Modern React frontend with responsive design
 - RESTful API with documentation
-- Docker containerization
+- Docker containerization (backend + frontend)
 - Export functionality (CSV/JSON)
+- **Bulk Processing**: Upload and process multiple resumes with progress tracking
+- **Advanced Analytics**: Compare, rank, and filter candidates based on extracted data
+- **Custom Job Profiles**: Define and apply evaluation criteria tailored to different job roles
+- **Multi-LLM Support**: Use multiple LLM providers (OpenAI, Anthropic, Groq, etc.) with configurable API keys for local or cloud processing
 
-### Planned Features 🚧
-- **Bulk Processing**: Enhanced bulk upload with progress tracking
-- **Advanced Analytics**: Candidate comparison, ranking, and filtering
-- **Custom Job Profiles**: Configurable evaluation criteria per role
-- **Multi-LLM Support**: Integration with multiple AI providers (OpenAI, Anthropic, Groq, etc.) with custom API key configuration for local usage
 
 ### 🙌 Contributors
 
@@ -437,7 +482,10 @@ A: The application includes CORS configuration and input validation. For product
 - [@ronnie-allen](https://github.com/ronnie-allen)  
 - [@Aparna0224](https://github.com/Aparna0224)  
 - [@Franz-kingstein](https://github.com/Franz-kingstein)  
-- [@Danishprabhu04](https://github.com/Danishprabhu04)
+- [@Danishprabhu04](https://github.com/Danishprabhu04)  
+- [@BaluK345](https://github.com/BaluK345)  
+- [@ThirupathiS-45](https://github.com/ThirupathiS-45)
+
 
 
 ## License
