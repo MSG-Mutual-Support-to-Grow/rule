@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    container_name: resume_parser_backend
+    container_name: rule_backend
     ports:
       - "8000:8000"
     volumes:
@@ -14,15 +14,13 @@ services:
     environment:
       - PYTHONPATH=/app
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}
-    env_file:
-      - .env
     restart: unless-stopped
 
   frontend:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    container_name: resume_parser_frontend
+    container_name: rule_frontend
     ports:
       - "5173:5173"
     volumes:

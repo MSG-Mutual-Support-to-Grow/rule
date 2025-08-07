@@ -15,7 +15,6 @@ Pillow==10.3.0
 # OCR and Computer Vision
 pytesseract==0.3.10
 opencv-python==4.9.0.80
-easyocr==1.7.0
 
 # NLP and Text Processing
 spacy==3.7.2
