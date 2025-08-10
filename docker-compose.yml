@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile.backend
+>>>>>>> 686e149d156889e4f77fcc7eb84ec693b775b1cf
     container_name: rule_backend
     ports:
       - "8000:8000"
@@ -20,6 +21,7 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile.frontend
+>>>>>>> 686e149d156889e4f77fcc7eb84ec693b775b1cf
     container_name: rule_frontend
     ports:
       - "5173:5173"
