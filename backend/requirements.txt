@@ -1,0 +1,33 @@
+# Core FastAPI and API dependencies
+fastapi==0.104.1
+uvicorn==0.24.0
+python-multipart==0.0.6
+python-dotenv==1.0.1
+requests==2.31.0
+pydantic==2.7.0
+
+# PDF Processing and Text Extraction
+pdf2image==1.17.0
+pypdf==3.14.0
+pdfplumber==0.10.3
+Pillow==10.3.0
+
+# OCR and Computer Vision
+pytesseract==0.3.10
+opencv-python==4.9.0.80
+
+# NLP and Text Processing
+spacy==3.7.2
+pyspellchecker==0.8.1
+clean-text==0.6.0
+
+# Mathematical and Scientific Computing
+numpy>=1.26.4
+
+# Development and Code Quality
+black==24.4.2
+isort==5.13.2
+typer<0.10.0
+
+# Optional: Additional utilities
+multiprocess==0.70.15
