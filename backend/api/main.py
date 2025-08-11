@@ -470,8 +470,11 @@ async def get_provider_models(provider: str):
 async def get_url_mapping():
     """Get the expected URL mapping for each provider"""
     try:
+        # Get Ollama base URL from environment variable
+        ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
+        
         url_mapping = {
-            "ollama": "http://127.0.0.1:11434",
+            "ollama": ollama_base_url,
             "openrouter": "https://openrouter.ai/api/v1/chat/completions",
             "openai": "https://api.openai.com/v1/chat/completions",
             "anthropic": "https://api.anthropic.com/v1/messages"
@@ -509,14 +512,16 @@ async def fix_llm_config():
         current_url = current_config.get("base_url", "")
         
         # Get expected URL for the provider
+        ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
+        
         expected_urls = {
-            "ollama": "http://127.0.0.1:11434",
+            "ollama": ollama_base_url,
             "openrouter": "https://openrouter.ai/api/v1/chat/completions",
             "openai": "https://api.openai.com/v1/chat/completions",
             "anthropic": "https://api.anthropic.com/v1/messages"
         }
         
-        expected_url = expected_urls.get(provider, "http://127.0.0.1:11434")
+        expected_url = expected_urls.get(provider, ollama_base_url)
         
         if current_url != expected_url:
             # Update the URL

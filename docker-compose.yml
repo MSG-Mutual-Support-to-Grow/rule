@@ -5,7 +5,6 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile.backend
->>>>>>> 686e149d156889e4f77fcc7eb84ec693b775b1cf
     container_name: rule_backend
     ports:
       - "8000:8000"
@@ -15,13 +14,15 @@ services:
     environment:
       - PYTHONPATH=/app
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - OLLAMA_BASE_URL=http://ollama:11434
+    depends_on:
+      - ollama
     restart: unless-stopped
 
   frontend:
     build:
       context: .
       dockerfile: frontend/Dockerfile.frontend
->>>>>>> 686e149d156889e4f77fcc7eb84ec693b775b1cf
     container_name: rule_frontend
     ports:
       - "5173:5173"
@@ -33,6 +34,29 @@ services:
     restart: unless-stopped
     environment:
       - VITE_API_URL=http://localhost:8000
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: rule_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      # Mount local Ollama models directory from host machine
+      # Windows path (adjust the path according to your Ollama installation)
+      - ~/.ollama:/root/.ollama
+      # Alternative for Windows: C:\Users\{username}\.ollama:/root/.ollama
+      # For WSL: /home/{username}/.ollama:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    restart: unless-stopped
+    # Uncomment the following lines if you have an NVIDIA GPU
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
 
 volumes:
   node_modules:
