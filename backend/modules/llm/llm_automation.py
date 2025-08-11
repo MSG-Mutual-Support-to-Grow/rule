@@ -19,14 +19,17 @@ class LLMAutomation:
     
     def _get_default_base_url(self, provider: str) -> str:
         """Get default base URL for each provider"""
+        # Get Ollama base URL from environment variable, fallback to localhost
+        ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        
         default_urls = {
-            "ollama": "http://127.0.0.1:11434",  # Default Ollama localhost
+            "ollama": ollama_base_url,  # Use environment variable or default
             "openrouter": "https://openrouter.ai/api/v1/chat/completions",
             "openai": "https://api.openai.com/v1/chat/completions",
             "anthropic": "https://api.anthropic.com/v1/messages"
         }
         
-        return default_urls.get(provider, "http://127.0.0.1:11434")
+        return default_urls.get(provider, ollama_base_url)
     
     def load_config(self) -> Dict[str, Any]:
         """Load LLM configuration from file"""
@@ -270,7 +273,7 @@ class LLMAutomation:
             "provider": "openrouter",
             "model": "anthropic/claude-3.5-sonnet",
             "api_key": "",
-            "base_url": "http://localhost:11434"
+            "base_url": "https://openrouter.ai/api/v1/chat/completions"
         }
         
         if self.save_config(default_config):

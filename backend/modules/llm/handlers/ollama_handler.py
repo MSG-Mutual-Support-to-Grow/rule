@@ -1,13 +1,16 @@
 import requests
+import os
 from ..base_provider import BaseLLMProvider
 from ..utils import parse_llm_response
 
 class OllamaProvider(BaseLLMProvider):
     def __init__(self, model: str, api_key: str | None = None):
         super().__init__(model, api_key)
+        # Get Ollama base URL from environment variable, fallback to localhost
+        self.base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
     
     def send_prompt(self, prompt: str) -> dict | None:
-        url = "http://localhost:11434/api/chat"
+        url = f"{self.base_url}/api/chat"
 
         headers = {
             "Content-Type": "application/json"
@@ -42,7 +45,9 @@ class OllamaProvider(BaseLLMProvider):
     def list_models():
         """Return available Ollama models from local machine"""
         try:
-            response = requests.get("http://localhost:11434/api/tags")
+            # Get Ollama base URL from environment variable, fallback to localhost
+            base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+            response = requests.get(f"{base_url}/api/tags")
             if response.status_code == 200:
                 data = response.json()
                 # Extract model names from the response
