@@ -141,7 +141,7 @@ Analyze the resume and job description using smart reasoning. Then return ONLY t
     if provider == 'ollama':
         # Default Ollama base URL if not set
         if not base_url:
-            base_url = 'http://localhost:11434'
+            base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
         url = f"{base_url.rstrip('/')}/api/chat"
         headers = {"Content-Type": "application/json"}
         data = {
