@@ -630,7 +630,7 @@ export default function DocsPage() {
                   </div>
 
                   {/* LLM Provider Management */}
-                  <h3 className="text-xl font-semibold text-gray-900 mt-10 mb-4">🤖 LLM Provider Management</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 mt-10 mb-4">LLM Provider Management</h3>
 
                   {/* Get Available Providers */}
                   <div className="mb-8">
