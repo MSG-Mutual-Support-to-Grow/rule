@@ -107,7 +107,7 @@ Get Resume Understanding Language Engine running on your machine in under 5 minu
    # Copy the example config file
    cp configs/llm_config_example.json configs/llm_config.json
    
-   # Edit configs/llm_config.json with your preferred LLM provider settings
+   # Edit configs/llm_config.json with your preferred LLM provider settings in the frontend
    ```
 
 3. **Start the application**
@@ -192,15 +192,6 @@ If you prefer manual setup over Docker:
    ```
 
 ## Configuration
-
-### Environment Variables
-Create a .env file in the project root:
-
-```env
-# AI/LLM Configuration
-MISTRAL_API_KEY="sk-or-v1-your-openrouter-mistral-api-key-here"
-OPENROUTER_API_KEY="your-openrouter-api-key-here"
-```
 
 ### LLM Configuration
 📖 **Detailed LLM Setup**: For comprehensive LLM configuration including Ollama setup, model selection, and provider switching, see [Backend README](backend/README.md#-configuration).
