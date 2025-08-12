@@ -1,18 +1,45 @@
-import React from "react";
+import React, { useState } from "react";
 import RuleLogo from "../public/images/rule-logo.png";
 import Navbar from "./components/Navbar";
 import arch from "../public/images/RULE.svg";
 
 export default function DocsPage() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Toggle sidebar for mobile
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
+          {/* Hamburger Button for Mobile */}
+          <button
+            onClick={toggleSidebar}
+            className="lg:hidden block mb-4 px-4 py-2 text-gray-700 bg-gray-100 rounded-md font-medium"
+          >
+            {isSidebarOpen ? 'Close Menu' : '☰ List of Sections'}
+          </button>
+
           {/* Sidebar Navigation */}
-          <aside className="lg:w-64 flex-shrink-0">
-            <div className="sticky top-24">
+          <aside
+            className={`lg:w-64 flex-shrink-0 ${
+              isSidebarOpen ? "block" : "hidden"
+            } lg:block fixed inset-0 z-50 bg-white w-full lg:static lg:z-auto lg:bg-transparent p-6 lg:p-0 overflow-y-auto`}
+          >
+            {/* Close Button for Mobile */}
+            {isSidebarOpen && (
+              <button
+                onClick={toggleSidebar}
+                className="absolute top-4 right-4 lg:hidden text-gray-600"
+              >
+                ✕
+              </button>
+            )}
+
+            <div className="lg:sticky lg:top-24">
               <nav className="space-y-1">
                 {[
                   "Introduction",
@@ -44,6 +71,7 @@ export default function DocsPage() {
                         if (element) {
                           element.scrollIntoView({ behavior: 'smooth' });
                         }
+                        setIsSidebarOpen(false); // Close sidebar after clicking
                       }}
                     >
                       {item}
@@ -54,13 +82,20 @@ export default function DocsPage() {
             </div>
           </aside>
 
+          {/* Overlay when sidebar is open on mobile */}
+          {isSidebarOpen && (
+            <div
+              className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+              onClick={toggleSidebar}
+            ></div>
+          )}
+
           {/* Main Content */}
           <main className="flex-1 min-w-0">
             <div className="prose prose-indigo max-w-none">
               {/* Introduction */}
               <section id="introduction" className="mb-12 scroll-mt-20">
                 <h1 className="text-3xl font-bold text-gray-900 mb-6">Introduction</h1>
-
                 <div className="border border-gray-200 rounded-lg p-6 text-justify">
                   <div className="flex justify-center my-8">
                     <img
@@ -75,22 +110,15 @@ export default function DocsPage() {
                     integrates with modern LLMs to deliver structured outputs tailored for candidate-job
                     matching.
                   </p>
-
-                  {/* Centered Image */}
-
-
                   <p className="text-gray-700 leading-relaxed mb-6">
                     Our project is a dynamic Large Language Model (LLM) integration framework designed to make AI model selection and usage simple, flexible, and developer-friendly. Instead of locking developers into a single provider, we built a system where multiple AI model providers — such as OpenAI, OpenRouter, and Ollama can be accessed through a single, unified interface. This makes it easy for applications to switch between models or try out new ones without having to rewrite large portions of code.
                   </p>
-
                   <p className="text-gray-700 leading-relaxed mb-6">
                     The core idea is to handle all model routing and API interactions in a modular way. Each provider has its own handler that knows how to communicate with the specific API, while a central provider_router automatically selects and initializes the right provider based on the model and API key given by the user. This means that from the frontend, a user can simply choose their preferred model, enter their API key, and start using it — without needing to understand the technical differences between providers.
                   </p>
-
                   <p className="text-gray-700 leading-relaxed">
                     Ultimately, this project aims to simplify AI adoption by hiding the complexities of different APIs and enabling dynamic, on-the-fly provider switching.
                   </p>
-
                   {/* GitHub Icon Link */}
                   <div className="mt-8 flex justify-center">
                     <a
@@ -193,7 +221,6 @@ export default function DocsPage() {
               <section id="architecture" className="mb-12 scroll-mt-20">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Architecture & Workflow</h2>
                 <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  {/* Centered Architecture Image */}
                   <div className="flex flex-col items-center mb-8">
                     <img
                       src={arch}
@@ -201,15 +228,11 @@ export default function DocsPage() {
                       className="w-128 h-auto rounded-lg shadow-md"
                     />
                   </div>
-
-                  {/* Description Paragraph */}
                   <p className="text-gray-700 mb-6 text-center max-w-3xl mx-auto">
                     RULE follows a modular architecture that processes resumes through multiple stages,
                     from initial parsing to final structured output. The system is designed for scalability
                     and flexibility, supporting various input formats and AI models.
                   </p>
-
-                  {/* Step-by-Step Workflow (Single Column) */}
                   <ol className="space-y-6 mb-8">
                     <li className="flex items-start">
                       <div className="flex-shrink-0 h-6 w-6 bg-indigo-100 text-indigo-800 rounded-full flex items-center justify-center font-bold text-sm mt-0.5">1</div>
@@ -257,8 +280,6 @@ export default function DocsPage() {
                       </div>
                     </li>
                   </ol>
-
-                  {/* System Benefits */}
                   <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <h3 className="font-semibold text-blue-900 mb-2 text-center">System Benefits</h3>
                     <ul className="grid grid-cols-1 md:grid-cols-3 gap-4 text-blue-800 text-sm">
@@ -388,22 +409,18 @@ export default function DocsPage() {
                   <p className="text-gray-700 mb-6">
                     RULE introduces a powerful concept called <strong>BYOL (Bring Your Own LLM)</strong>, allowing users to integrate and switch between different Large Language Models (LLMs) seamlessly — all from the UI.
                   </p>
-
                   <p className="text-gray-700 mb-6">
                     Instead of managing API keys via <code>.env</code> files, RULE enables dynamic configuration through the application settings:
                   </p>
-
                   <ul className="list-disc list-inside space-y-3 text-gray-700 mb-6">
                     <li>Navigate to <strong>Settings → LLM Providers</strong> in the UI.</li>
                     <li>Select your preferred LLM provider (e.g., OpenAI, OpenRouter, Ollama).</li>
                     <li>Enter your API key and model name.</li>
                     <li>Save your configuration — it will be stored as a JSON file in your local directory.</li>
                   </ul>
-
                   <p className="text-gray-700 mb-6">
                     Every time you update your settings, the configuration is <strong>dynamically saved</strong> and instantly applied across the system. This eliminates the need for restarts or manual file edits.
                   </p>
-
                   <p className="text-gray-700 mb-6">
                     This approach enables:
                   </p>
@@ -413,7 +430,6 @@ export default function DocsPage() {
                     <li>Secure, user-specific credentials</li>
                     <li>Easy sharing and versioning of configurations</li>
                   </ul>
-
                   {/* GIF Placeholder */}
                   <div className="flex justify-center my-8">
                     <img
@@ -422,7 +438,6 @@ export default function DocsPage() {
                       className="rounded-lg shadow-lg border max-w-full h-auto"
                     />
                   </div>
-
                   <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                     <h3 className="font-semibold text-green-900 mb-2">Tip</h3>
                     <p className="text-green-800">
@@ -439,10 +454,8 @@ export default function DocsPage() {
                   <p className="text-gray-700 mb-6">
                     All endpoints are prefixed with <code className="bg-gray-100 px-1 rounded font-mono">/api</code> and return JSON responses.
                   </p>
-
                   {/* Resume Processing Endpoints */}
                   <h3 className="text-xl font-semibold text-gray-900 mt-8 mb-4">Resume Processing Endpoints</h3>
-
                   {/* Upload and Analyze Single Resume */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">1. Upload and Analyze Single Resume</h4>
@@ -502,7 +515,6 @@ export default function DocsPage() {
 }`}
                     </pre>
                   </div>
-
                   {/* Batch Resume Processing */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">2. Batch Resume Processing</h4>
@@ -558,12 +570,11 @@ export default function DocsPage() {
 }`}
                     </pre>
                   </div>
-
                   {/* Get Analysis Results */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">3. Get Analysis Results</h4>
                     <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm mb-4">
-                      GET /api/get-analysis/'(resume_id)'
+                      GET /api/get-analysis/(resume_id)
                     </div>
                     <p className="text-gray-700 mb-2"><strong>Description:</strong> Retrieve detailed analysis results for a specific resume by its ID.</p>
                     <p className="text-gray-700 mb-3"><strong>Parameters:</strong></p>
@@ -584,10 +595,8 @@ export default function DocsPage() {
 }`}
                     </pre>
                   </div>
-
                   {/* Job Description Management */}
-                  <h3 className="text-xl font-semibold text-gray-900 mt-10 mb-4"> Job Description Management</h3>
-
+                  <h3 className="text-xl font-semibold text-gray-900 mt-10 mb-4">Job Description Management</h3>
                   {/* Save Job Description */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">4. Save Job Description</h4>
@@ -611,7 +620,6 @@ export default function DocsPage() {
 }`}
                     </pre>
                   </div>
-
                   {/* Get Current Job Description */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">5. Get Current Job Description</h4>
@@ -628,10 +636,8 @@ export default function DocsPage() {
 }`}
                     </pre>
                   </div>
-
                   {/* LLM Provider Management */}
                   <h3 className="text-xl font-semibold text-gray-900 mt-10 mb-4">LLM Provider Management</h3>
-
                   {/* Get Available Providers */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">6. Get Available Providers</h4>
@@ -662,7 +668,6 @@ export default function DocsPage() {
 }`}
                     </pre>
                   </div>
-
                   {/* Get Current LLM Configuration */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">7. Get Current LLM Configuration</h4>
@@ -682,7 +687,6 @@ export default function DocsPage() {
 }`}
                     </pre>
                   </div>
-
                   {/* Configure LLM Provider */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">8. Configure LLM Provider</h4>
@@ -714,7 +718,6 @@ export default function DocsPage() {
 }`}
                     </pre>
                   </div>
-
                   {/* Test LLM Connection */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">9. Test LLM Connection</h4>
@@ -739,7 +742,6 @@ export default function DocsPage() {
 }`}
                     </pre>
                   </div>
-
                   {/* Get Available Models for Provider */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">10. Get Available Models for Provider</h4>
@@ -770,7 +772,6 @@ export default function DocsPage() {
 }`}
                     </pre>
                   </div>
-
                   {/* Fix Configuration Issues */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">11. Fix Configuration Issues</h4>
@@ -794,7 +795,6 @@ export default function DocsPage() {
 }`}
                     </pre>
                   </div>
-
                   {/* Validate Configuration */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">12. Validate Configuration</h4>
@@ -814,7 +814,6 @@ export default function DocsPage() {
 }`}
                     </pre>
                   </div>
-
                   {/* Reset LLM Configuration */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">13. Reset LLM Configuration</h4>
