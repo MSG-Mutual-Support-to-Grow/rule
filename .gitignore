@@ -70,4 +70,4 @@ frontend/node_modules/
 # JSON directory
 jd_jsons/
 outputs/
-configs/
+configs/llm_config.json

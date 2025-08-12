@@ -1,1051 +1,692 @@
-# Resume Analysis Backend API
+# Rule Backend API
 
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-009639.svg?style=flat&logo=FastAPI&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Python](https://img.shields.io/badge/Python-3.8+-3776AB.svg?style=flat&logo=python&logoColor=white)](https://python.org)
-[![Tesseract](https://img.shields.io/badge/OCR-Tesseract-blue.svg)](https://tesseract-ocr.github.io/)
-[![OpenCV](https://img.shields.io/badge/CV-OpenCV-green.svg)](https://opencv.org/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](../LICENSE)
+A powerful FastAPI-based backend service for parsing, analyzing, and matching resumes against job descriptions using advanced NLP and AI technologies.
 
-## 🚀 Overview
+## 🚀 Features
 
-A production-ready FastAPI backend for **intelligent resume analysis and candidate evaluation**. This system combines advanced OCR, NLP, and AI technologies to provide comprehensive resume processing, candidate scoring, and automated recruitment workflows.
+- **PDF Text Extraction**: Extract text from both text-based and image-based PDFs
+- **OCR Support**: Advanced OCR capabilities using Tesseract and EasyOCR
+- **AI-Powered Analysis**: Resume analysis using LLM providers (Ollama, OpenRouter)
+- **Job Matching**: Intelligent resume-to-job description matching
+- **RESTful API**: Clean FastAPI endpoints with automatic documentation
+- **Batch Processing**: Support for multiple resume uploads
+- **Multiple Formats**: Support for various resume formats
 
-### ✨ Key Features
-
-- **🤖 Multi-LLM Support**: Ollama, OpenRouter, OpenAI with automatic provider switching
-- **📄 Advanced OCR**: Tesseract-based OCR with image enhancement and spell checking
-- **🧠 Intelligent Text Processing**: spaCy NLP with entity recognition and text cleaning
-- **⚡ Dual Processing Modes**: Individual detailed analysis and batch processing
-- **🎯 Smart Scoring**: AI-powered candidate fit scoring with detailed reasoning
-- **🔧 Flexible Configuration**: Dynamic LLM provider switching and auto-configuration
-- **📊 Comprehensive Analysis**: Skills extraction, experience calculation, eligibility assessment
-- **🌐 Production Ready**: CORS enabled, error handling, logging, and monitoring
-
-## 🏗️ Architecture
-
-```
-backend/
-├── api/                    # FastAPI application and routes
-│   ├── main.py            # Main application with all endpoints
-│   └── README.md          # API-specific documentation
-├── modules/               # Core business logic modules
-│   ├── llm/              # LLM provider management system
-│   │   ├── llm_automation.py     # LLM automation and configuration
-│   │   ├── provider_router.py    # Provider routing and registration
-│   │   ├── base_provider.py      # Base provider interface
-│   │   ├── utils.py              # LLM utilities and helpers
-│   │   └── handlers/             # LLM provider implementations
-│   │       ├── ollama_handler.py     # Ollama local LLM integration
-│   │       └── openrouter_handler.py # OpenRouter cloud API integration
-│   ├── llm_prompts/      # AI prompt engineering and templates
-│   │   └── parse_resume_llm.py   # Resume analysis prompts and logic
-│   └── text_extract/     # Document processing and OCR
-│       ├── extract_native_pdf.py # Native PDF text extraction
-│       └── extract_ocr_pdf.py    # Enhanced OCR with Tesseract
-├── pipelines/            # Processing workflows and pipelines
-│   └── analyze_resume.py # Main resume analysis pipeline
-└── configs/              # Configuration files
-    └── llm_config.json   # LLM provider configuration
-```
-
-## 🛠️ Installation
+## 📋 Prerequisites
 
 ### System Requirements
+- **Python**: 3.10 or higher
+- **Operating System**: Linux, macOS, or Windows
+- **Memory**: Minimum 4GB RAM (8GB+ recommended for OCR processing)
 
-- **Operating System**: Linux (Ubuntu 18+), macOS, or Windows with WSL
-- **Python**: 3.8 or higher
-- **Memory**: 4GB RAM minimum (8GB recommended for OCR processing)
-- **Storage**: 2GB free space for dependencies and models
+### System Dependencies (for non-Docker setup)
+- **Tesseract OCR**: For image-based PDF text extraction
+- **Poppler**: For PDF processing
+- **OpenCV**: For computer vision tasks
 
-### Prerequisites
+## 🛠️ Installation & Setup
 
-#### 1. System Dependencies (Ubuntu/Debian)
+### Option 1: Docker Setup (Recommended)
+
+Docker setup is the easiest way to get started as it handles all system dependencies automatically.
+
+#### Prerequisites for Docker
+- [Docker](https://docs.docker.com/get-docker/) installed on your system
+- [Docker Compose](https://docs.docker.com/compose/install/) (usually included with Docker Desktop)
+
+#### Quick Start with Docker
+1. **Clone the repository** (if you haven't already):
+   ```bash
+   git clone https://github.com/MSG-Mutual-Support-to-Grow/rule
+   cd rule
+   ```
+
+2. **Build and run the backend**:
+   ```bash
+   # From the project root directory
+   docker-compose up backend --build
+   ```
+
+3. **Access the API**:
+   - API Server: http://localhost:8000
+   - Interactive API Documentation: http://localhost:8000/docs
+   - Alternative API Documentation: http://localhost:8000/redoc
+
+#### Manual Docker Build
+If you prefer to build just the backend service:
 
 ```bash
-# Update package list
-sudo apt update
+# Build the Docker image
+docker build -f backend/Dockerfile.backend -t rule_backend .
 
-# Install Tesseract OCR engine
-sudo apt install tesseract-ocr tesseract-ocr-eng
-
-# Install PDF processing libraries
-sudo apt install poppler-utils
-
-# Install image processing dependencies
-sudo apt install libgl1-mesa-glx libglib2.0-0
-
-# Install build tools for Python packages
-sudo apt install build-essential python3-dev
-
-# Optional: Additional Tesseract language packs
-sudo apt install tesseract-ocr-all
+# Run the container
+docker run -p 8000:8000 \
+  -v $(pwd)/outputs:/app/outputs \
+  -v $(pwd)/configs:/app/configs \
+  rule_backend
 ```
 
-#### 2. System Dependencies (macOS)
+### Option 2: Local Development Setup
 
+#### Step 1: Install System Dependencies
+
+**Ubuntu/Debian:**
 ```bash
-# Install Homebrew if not already installed
+sudo apt-get update
+sudo apt-get install -y \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    poppler-utils \
+    libopencv-dev \
+    pkg-config \
+    python3.10 \
+    python3.10-venv \
+    python3-pip
+```
+
+**macOS:**
+```bash
+# Install Homebrew if you haven't already
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 # Install dependencies
-brew install tesseract
-brew install poppler
+brew install tesseract poppler opencv python@3.10
 ```
 
-#### 3. System Dependencies (Windows)
-
+**Windows:**
 ```powershell
-# Install using Chocolatey
-choco install tesseract
-choco install poppler
+# Install using Chocolatey (install Chocolatey first if needed)
+choco install tesseract poppler python3
 
 # Or download and install manually:
-# Tesseract: https://github.com/UB-Mannheim/tesseract/wiki
-# Poppler: https://blog.alivate.com.au/poppler-windows/
+# - Tesseract: https://github.com/UB-Mannheim/tesseract/wiki
+# - Poppler: https://blog.alivate.com.au/poppler-windows/
+# - Python 3.10+: https://www.python.org/downloads/
 ```
 
-### Python Environment Setup
+#### Step 2: Set Up Python Environment
 
-#### Option 1: Using UV (Recommended)
+1. **Navigate to the backend directory**:
+   ```bash
+   cd backend
+   ```
 
-```bash
-# Clone the repository
-git clone <repository-url>
-cd rule/backend
+2. **Create a virtual environment**:
+   ```bash
+   uv venv 
+   ```
 
-# Install UV if not already installed
-curl -LsSf https://astral.sh/uv/install.sh | sh
+3. **Activate the virtual environment**:
+   
+   **Linux/macOS:**
+   ```bash
+   source .venv/bin/activate
+   ```
+   
+   **Windows:**
+   ```powershell
+   .\.venv\Scripts\Activate.ps1
+   ```
 
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+4. **Upgrade pip**:
+   ```bash
+   pip install --upgrade pip
+   ```
 
-# Install Python dependencies
-uv pip install -r requirements.txt
+#### Step 3: Install Python Dependencies
 
-# Install spaCy English model
-uv run python -m spacy download en_core_web_sm
-```
+1. **Install requirements**:
+   ```bash
+   uv add -r requirements.txt
+   ```
 
-#### Option 2: Using Pip
+2. **Install spaCy language model**:
+   ```bash
+   # Install the bundled model
+   pip install api/en_core_web_sm-3.7.1-py3-none-any.whl
+   
+   # Or download directly (alternative)
+   python -m spacy download en_core_web_sm
+   ```
 
-```bash
-# Clone the repository
-git clone <repository-url>
-cd rule/backend
+#### Step 4: Environment Configuration
 
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+1. **Configure LLM settings** (optional):
+   Edit `configs/llm_config.json` to customize your LLM provider:
+   ```json
+   {
+     "provider": "ollama",
+     "model": "qwen3:4b",
+     "api_key": "",
+     "base_url": "http://localhost:11434",
+     "updated_at": "2024-01-01"
+   }
+   ```
 
-# Upgrade pip
-pip install --upgrade pip
+#### Step 5: Run the Application
 
-# Install dependencies
-pip install -r requirements.txt
+1. **Start the FastAPI server**:
+   ```bash
+   # From the backend directory
+   uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+   ```
 
-# Install spaCy English model
-python -m spacy download en_core_web_sm
-```
+2. **Verify the installation**:
+   - API Server: http://localhost:8000
+   - Health Check: http://localhost:8000/api/llm/providers
+   - API Documentation: http://localhost:8000/docs
 
-### Configuration
+## 📚 Detailed API Endpoints
 
-#### 1. Environment Variables
+All endpoints are prefixed with `/api` and return JSON responses.
 
-Create a `.env` file in the backend directory:
+### 📄 Resume Processing Endpoints
 
-```bash
-# Copy example environment file
-cp .env.example .env
-```
-
-Edit `.env` with your configurations:
-
-```env
-# API Configuration
-API_HOST=0.0.0.0
-API_PORT=8000
-DEBUG=False
-
-# OpenRouter API Key (optional)
-OPENROUTER_API_KEY=your_openrouter_api_key_here
-
-# OpenAI API Key (optional)
-OPENAI_API_KEY=your_openai_api_key_here
-
-# File Upload Settings
-MAX_FILE_SIZE_MB=10
-ALLOWED_EXTENSIONS=pdf
-
-# OCR Settings
-TESSERACT_CMD=/usr/bin/tesseract  # Adjust path as needed
-OCR_DPI=300
-OCR_TIMEOUT=60
-
-# Logging
-LOG_LEVEL=INFO
-LOG_FILE=logs/backend.log
-```
-
-#### 2. LLM Provider Configuration
-
-The system will auto-configure LLM providers. For manual configuration:
-
-```bash
-# Configure Ollama (local)
-curl -X POST http://localhost:8000/api/llm/config \
-  -H "Content-Type: application/json" \
-  -d '{
-    "provider": "ollama",
-    "model": "llama3.2:latest",
-    "base_url": "http://localhost:11434"
-  }'
-
-# Configure OpenRouter (cloud)
-curl -X POST http://localhost:8000/api/llm/config \
-  -H "Content-Type: application/json" \
-  -d '{
-    "provider": "openrouter",
-    "model": "mistralai/mistral-7b-instruct",
-    "api_key": "your_api_key"
-  }'
-```
-
-### Verification
-
-#### Test Installation
-
-```bash
-# Test Python imports
-python -c "
-import cv2
-import spacy
-import pytesseract
-import numpy as np
-from spellchecker import SpellChecker
-from pdf2image import convert_from_path
-print('✅ All Python packages imported successfully!')
-"
-
-# Test system dependencies
-tesseract --version
-pdftoppm -h
-
-# Test spaCy model
-python -c "
-import spacy
-nlp = spacy.load('en_core_web_sm')
-print('✅ spaCy English model loaded successfully!')
-"
-```
-
-#### Start the Server
-
-```bash
-# Development mode
-python api/main.py
-
-# Or with uvicorn
-uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
-
-# Production mode
-uvicorn api.main:app --host 0.0.0.0 --port 8000 --workers 4
-```
-
-#### Verify API
-
-- **API Base**: http://localhost:8000
-- **Interactive Docs**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-- **Health Check**: http://localhost:8000/api/llm/providers
-
-## 📚 API Endpoints
-
-### 📄 Resume Processing
-
-#### Individual Resume Analysis
+#### 1. Upload and Analyze Single Resume
 ```http
 POST /api/upload-resume/
-Content-Type: multipart/form-data
-
-file: resume.pdf
 ```
+
+**Description**: Upload and analyze a single PDF resume against the current job description.
+
+**Request**:
+- **Content-Type**: `multipart/form-data`
+- **Parameters**:
+  - `file` (required): PDF file upload
 
 **Response**:
 ```json
 {
   "success": true,
-  "resume_id": "uuid",
-  "filename": "resume.pdf",
-  "fit_score": 8,
-  "fit_score_reason": "Strong technical background...",
-  "eligibility_status": "Eligible",
-  "eligibility_reason": "Candidate has relevant experience...",
-  "work_experience_raw": "Software Developer at TechCorp...",
-  "job_description": "Full-stack developer position...",
-  "skills": ["Python", "React", "AWS"],
-  "total_experience": "3 years",
-  "education": "B.S. Computer Science"
-}
-```
-
-#### Batch Resume Processing
-```http
-POST /api/upload-resume-batch/
-Content-Type: multipart/form-data
-
-files[]: resume1.pdf
-files[]: resume2.pdf
-files[]: resume3.pdf
-```
-
-### 💼 Job Description Management
-
-#### Save Job Description
-```http
-POST /api/save-job-description/
-Content-Type: application/json
-
-{
-  "job_description": "We are looking for a full-stack developer..."
-}
-```
-
-#### Get Job Description
-```http
-GET /api/get-job-description/
-```
-
-### 🤖 LLM Configuration
-
-#### Get Available Providers
-```http
-GET /api/llm/providers
-```
-
-#### Configure LLM Provider
-```http
-POST /api/llm/config
-Content-Type: application/json
-
-{
-  "provider": "ollama",
-  "model": "llama3.2:latest",
-  "api_key": "optional"
-}
-```
-
-#### Get Current Configuration
-```http
-GET /api/llm/config
-```
-
-#### Fix Configuration Issues
-```http
-POST /api/llm/fix-config
-```
-
-#### Test LLM Connection
-```http
-POST /api/llm/prompt
-Content-Type: application/json
-
-{
-  "prompt": "Test prompt"
-}
-```
-
-## 🧠 LLM Provider System
-
-### Supported Providers
-
-| Provider | Models | Use Case | Cost |
-|----------|--------|----------|------|
-| **Ollama** | llama3.2, codellama, mistral, gemma | Local deployment, privacy | Free |
-| **OpenRouter** | gpt-4, claude-3, mixtral | Cloud API, multiple models | Pay-per-use |
-| **OpenAI** | gpt-4, gpt-3.5-turbo | High quality, reliable | Pay-per-use |
-
-### Auto-Configuration
-
-The system automatically configures correct endpoints:
-
-- **Ollama**: `http://127.0.0.1:11434`
-- **OpenRouter**: `https://openrouter.ai/api/v1/chat/completions`
-- **OpenAI**: `https://api.openai.com/v1/chat/completions`
-
-## 📄 Advanced OCR Pipeline
-
-### Enhanced Text Extraction
-
-The system uses a sophisticated OCR pipeline with:
-
-1. **Image Enhancement**:
-   - Bilateral filtering for noise reduction
-   - Adaptive thresholding for better contrast
-   - Grayscale conversion for optimal OCR
-
-2. **Tesseract OCR**:
-   - High-accuracy text recognition
-   - Multiple language support
-   - Configurable DPI and timeout settings
-
-3. **Intelligent Text Cleaning**:
-   - Common OCR error correction
-   - Email and URL pattern fixing
-   - Spell checking with exceptions for names
-   - Date format normalization
-
-4. **NLP Enhancement**:
-   - spaCy entity recognition for names and organizations
-   - Proper noun preservation during spell checking
-   - Intelligent spacing and punctuation correction
-
-### Processing Flow
-
-```python
-PDF → PDF2Image → Image Enhancement → Tesseract OCR → Text Cleaning → NLP Processing → Structured Output
-```
-
-## 🎯 Resume Analysis Features
-
-### Comprehensive Data Extraction
-
-- **Personal Information**: Name, email, phone, location
-- **Professional Summary**: Experience level and focus areas
-- **Skills Assessment**: Technical and soft skills identification
-- **Experience Analysis**: Years of experience calculation
-- **Education Background**: Degrees, institutions, graduation dates
-- **Project Analysis**: Notable projects and achievements
-- **Eligibility Assessment**: Job fit scoring with reasoning
-
-### Intelligent Scoring System
-
-The AI evaluates candidates based on:
-
-1. **Technical Skills Match**: Alignment with job requirements
-2. **Experience Relevance**: Industry and role experience
-3. **Education Background**: Degree relevance and institution quality
-4. **Project Portfolio**: Complexity and relevance of projects
-5. **Career Progression**: Growth pattern and advancement
-6. **Cultural Fit Indicators**: Soft skills and team collaboration
-
-## 🚀 Production Deployment
-
-### Docker Deployment
-
-```dockerfile
-# Dockerfile example
-FROM python:3.10-slim
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    tesseract-ocr \
-    tesseract-ocr-eng \
-    poppler-utils \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy and install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Download spaCy model
-RUN python -m spacy download en_core_web_sm
-
-# Copy application
-COPY . /app
-WORKDIR /app
-
-# Run application
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
-
-### Environment Variables for Production
-
-```env
-# Production settings
-DEBUG=False
-API_HOST=0.0.0.0
-API_PORT=8000
-
-# Security
-ALLOWED_HOSTS=["your-domain.com"]
-CORS_ORIGINS=["https://your-frontend.com"]
-
-# Performance
-WORKER_COUNT=4
-MAX_FILE_SIZE_MB=20
-OCR_TIMEOUT=120
-
-# Monitoring
-LOG_LEVEL=INFO
-SENTRY_DSN=your_sentry_dsn
-```
-
-### Health Checks
-
-The API provides several health check endpoints:
-
-- `GET /api/llm/providers` - LLM provider status
-- `GET /api/llm/config` - Current configuration
-- `POST /api/llm/validate-config` - Configuration validation
-
-## 🛡️ Security Considerations
-
-### File Upload Security
-
-- File type validation (PDF only)
-- File size limits (configurable)
-- Virus scanning (recommended for production)
-- Temporary file cleanup
-
-### API Security
-
-- CORS configuration for frontend domains
-- Request rate limiting (recommended)
-- API key validation for LLM providers
-- Input sanitization and validation
-
-### Data Privacy
-
-- No permanent storage of uploaded files
-- API keys stored securely
-- Option for local LLM processing (Ollama)
-- GDPR compliance considerations
-
-## 🔧 Troubleshooting
-
-### Common Issues
-
-#### spaCy Model Download Fails
-```bash
-# Manual download
-wget https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
-pip install ./en_core_web_sm-3.7.1-py3-none-any.whl
-```
-
-#### Tesseract Not Found
-```bash
-# Ubuntu/Debian
-sudo apt install tesseract-ocr
-
-# Set path in environment
-export TESSERACT_CMD=/usr/bin/tesseract
-```
-
-#### PDF2Image Issues
-```bash
-# Install poppler
-sudo apt install poppler-utils
-
-# Verify installation
-pdftoppm -h
-```
-
-#### OpenCV Import Error
-```bash
-# Install system dependencies
-sudo apt install libgl1-mesa-glx libglib2.0-0
-
-# Reinstall opencv
-pip uninstall opencv-python
-pip install opencv-python
-```
-
-### Performance Optimization
-
-1. **Memory Usage**:
-   - Process files in batches
-   - Clear temporary files regularly
-   - Use appropriate image DPI settings
-
-2. **Processing Speed**:
-   - Use local LLMs (Ollama) for faster response
-   - Optimize OCR settings for your use case
-   - Consider caching for repeated analyses
-
-3. **Scalability**:
-   - Use multiple workers with uvicorn
-   - Implement async processing for large batches
-   - Consider Redis for session management
-
-## 📊 Monitoring and Logging
-
-### Logging Configuration
-
-```python
-import logging
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('logs/backend.log'),
-        logging.StreamHandler()
-    ]
-)
-```
-
-### Metrics to Monitor
-
-- API response times
-- OCR processing duration
-- LLM provider response times
-- Error rates and types
-- Memory and CPU usage
-- File processing success rates
-
-## 🤝 Contributing
-
-### Development Setup
-
-```bash
-# Install development dependencies
-pip install black isort pytest
-
-# Format code
-black .
-isort .
-
-# Run tests
-pytest tests/
-```
-
-### Adding New LLM Providers
-
-1. Create handler in `modules/llm/handlers/`
-2. Inherit from `BaseLLMProvider`
-3. Implement required methods
-4. Register in `provider_router.py`
-5. Add tests and documentation
-
-### Code Quality
-
-- Follow PEP 8 style guidelines
-- Use type hints for all functions
-- Write comprehensive docstrings
-- Add unit tests for new features
-- Update documentation for changes
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.
-
-## 🆘 Support
-
-For issues and questions:
-
-1. Check the [troubleshooting section](#-troubleshooting)
-2. Search existing [GitHub issues](../../issues)
-3. Create a new issue with detailed information
-4. Include system information and error logs
-
----
-
-**Made with ❤️ for efficient recruitment and candidate evaluation**
-
-- Python 3.8+
-- pip or uv package manager
-- Optional: Docker for containerized deployment
-
-### Installation
-
-1. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   # or with uv
-   uv pip install -r requirements.txt
-   ```
-
-2. **Set up environment variables**:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your API keys
-   ```
-
-3. **Start the server**:
-   ```bash
-   python backend/api/main.py
-   ```
-
-4. **Access the API**:
-   - API: http://localhost:8000
-   - Interactive docs: http://localhost:8000/docs
-   - ReDoc: http://localhost:8000/redoc
-
-## 📚 API Endpoints
-
-### 📄 Resume Processing
-
-#### Individual Resume Analysis
-```http
-POST /api/upload-resume/
-```
-Upload and analyze a single resume with comprehensive scoring.
-
-**Request**: Multipart form with PDF file
-**Response**: Complete candidate analysis with fit score
-
-#### Batch Resume Processing
-```http
-POST /api/upload-resume-batch/
-```
-Process multiple resumes and get ranked candidates list.
-
-**Request**: Multiple PDF files
-**Response**: Ranked candidate list sorted by fit score
-
-### 💼 Job Description Management
-
-#### Save Job Description
-```http
-POST /api/save-job-description/
-```
-Save job description for future resume comparisons.
-
-#### Get Job Description
-```http
-GET /api/get-job-description/
-```
-Retrieve current job description configuration.
-
-### 📊 Analysis Retrieval
-
-#### Get Individual Analysis
-```http
-GET /api/get-analysis/{resume_id}
-```
-Retrieve detailed analysis for specific candidate.
-
-### 🤖 LLM Configuration
-
-#### Get Available Providers
-```http
-GET /api/llm/providers
-```
-List all available LLM providers and their status.
-
-#### Configure LLM Provider
-```http
-POST /api/llm/config
-```
-Switch between LLM providers and configure settings.
-
-#### Get Current Configuration
-```http
-GET /api/llm/config
-```
-Get current LLM provider configuration.
-
-#### Test LLM Connection
-```http
-POST /api/llm/prompt
-```
-Send test prompt to current LLM provider.
-
-## 🧠 LLM Provider System
-
-The backend supports multiple LLM providers through a plugin-based architecture:
-
-### Supported Providers
-
-| Provider | Models | Features |
-|----------|--------|----------|
-| **Ollama** | llama3.2, codellama, mistral | Local deployment, privacy-focused |
-| **OpenRouter** | gpt-4, claude-3, llama-2 | Cloud-based, multiple model access |
-
-### Adding New Providers
-
-1. Create a new handler in `modules/llm/handlers/`
-2. Inherit from `BaseLLMProvider`
-3. Implement required methods
-4. Register in `provider_router.py`
-
-```python
-# Example: custom_handler.py
-from ..base_provider import BaseLLMProvider
-
-class CustomProvider(BaseLLMProvider):
-    def send_prompt(self, prompt: str) -> dict:
-        # Implementation here
-        pass
-```
-
-## 📄 Text Extraction Pipeline
-
-### Native PDF Processing
-- Uses `pypdf` for text-based PDFs
-- Maintains formatting and structure
-- Fast and efficient for standard resumes
-
-### OCR Fallback
-- EasyOCR for image-based PDFs
-- Handles scanned documents and images
-- Automatic fallback when native extraction fails
-
-### Smart Detection
-```python
-def is_pdf_text_based(pdf_path: str, min_text_length: int = 20) -> bool:
-    """Auto-detect if PDF contains extractable text"""
-```
-
-## 🎯 Resume Analysis Features
-
-### Comprehensive Data Extraction
-
-- **Personal Information**: Name, email, phone, location
-- **Professional Experience**: Roles, companies, duration
-- **Skills Analysis**: Technical and soft skills identification
-- **Project Portfolio**: Technology stack and descriptions
-- **Education Background**: Degrees, institutions, certifications
-
-### Intelligent Scoring
-
-```json
-{
-  "fit_score": 8,
-  "fit_score_reason": "Strong technical match with required Python and FastAPI skills",
-  "candidate_fit_summary": "Excellent candidate with relevant experience",
-  "leadership_signals": true,
-  "leadership_justification": "Led development team of 5 engineers"
-}
-```
-
-### Skills Assessment
-
-- **Technology Matching**: Compares candidate skills with job requirements
-- **Experience Validation**: Verifies claimed experience levels
-- **Gap Analysis**: Identifies missing skills and training opportunities
-
-## 🔧 Configuration
-
-### Environment Variables
-
-```bash
-# LLM API Keys
-MISTRAL_API_KEY=your_mistral_key
-OPENROUTER_API_KEY=your_openrouter_key
-OLLAMA_BASE_URL=http://localhost:11434
-
-# Application Settings
-DEBUG=false
-CORS_ORIGINS=http://localhost:3000,http://localhost:5173
-```
-
-### LLM Configuration
-
-The system uses `configs/llm_config.json` for provider settings:
-
-```json
-{
-  "provider": "ollama",
-  "model": "llama3.2",
-  "api_key": null,
-  "base_url": "http://localhost:11434"
-}
-```
-
-## 🚀 Deployment
-
-### Development
-```bash
-python backend/api/main.py
-```
-
-### Production with Gunicorn
-```bash
-pip install gunicorn
-gunicorn backend.api.main:app -w 4 -k uvicorn.workers.UvicornWorker
-```
-
-### Docker Deployment
-```bash
-docker build -f Dockerfile.backend -t resume-analyzer-backend .
-docker run -p 8000:8000 resume-analyzer-backend
-```
-
-## 🧪 Testing
-
-### Run API Tests
-```bash
-python test_enhanced_backend.py
-```
-
-### Test Job Description Endpoint
-```bash
-python test_job_description_endpoint.py
-```
-
-### Manual Testing with curl
-```bash
-# Test health
-curl http://localhost:8000/api/llm/providers
-
-# Upload resume
-curl -X POST -F "file=@resume.pdf" http://localhost:8000/api/upload-resume/
-
-# Get job description
-curl http://localhost:8000/api/get-job-description/
-```
-
-## 📈 Performance
-
-### Optimization Features
-
-- **Async Processing**: FastAPI async endpoints for better concurrency
-- **Smart Caching**: Reuse extracted text for multiple analyses
-- **Batch Processing**: Efficient handling of multiple resumes
-- **Error Recovery**: Graceful degradation with OCR fallback
-
-### Benchmarks
-
-| Operation | Individual | Batch (10 files) |
-|-----------|-----------|------------------|
-| Text Extraction | ~2s | ~15s |
-| LLM Analysis | ~3-5s | ~25-40s |
-| Total Processing | ~5-7s | ~40-55s |
-
-## 🔍 Troubleshooting
-
-### Common Issues
-
-1. **LLM Connection Failed**
-   ```bash
-   # Check provider status
-   curl http://localhost:8000/api/llm/providers
-   ```
-
-2. **PDF Processing Error**
-   - Ensure PDF is not password-protected
-   - Check file size (<10MB recommended)
-   - Verify PDF format compatibility
-
-3. **Import Errors**
-   ```bash
-   # Install missing dependencies
-   pip install -r requirements.txt
-   ```
-
-### Debug Mode
-
-Enable debug logging:
-```python
-import logging
-logging.basicConfig(level=logging.DEBUG)
-```
-
-## 🤝 Contributing
-
-### Development Setup
-
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/awesome-feature`
-3. Install development dependencies: `pip install -r requirements-dev.txt`
-4. Make changes and test
-5. Submit pull request
-
-### Code Style
-
-- Follow PEP 8 guidelines
-- Use type hints where possible
-- Add docstrings for public methods
-- Format with Black: `black backend/`
-
-## 📝 API Response Examples
-
-### Individual Resume Analysis Response
-```json
-{
+  "resume_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "filename": "john_doe_resume.pdf",
   "full_name": "John Doe",
   "email": "john.doe@email.com",
   "phone_number": "+1-555-0123",
   "total_experience_years": 5,
   "fit_score": 8,
-  "fit_score_reason": "Strong match for Python and API development requirements",
-  "candidate_fit_summary": "Experienced developer with relevant tech stack",
+  "fit_score_reason": "Strong technical background matching Python and FastAPI requirements",
+  "eligibility_status": "Eligible",
+  "eligibility_reason": "Candidate has 5+ years of relevant experience",
+  "candidate_fit_summary": "Excellent match with strong technical skills",
   "skills": {
     "Python": {"source": "Professional", "years": 5},
-    "FastAPI": {"source": "Professional", "years": 2}
+    "FastAPI": {"source": "Professional", "years": 2},
+    "Docker": {"source": "Professional", "years": 3}
   },
   "projects": [
     {
-      "name": "E-commerce API",
-      "tech_stack": "Python, FastAPI, PostgreSQL",
-      "description": "Built scalable REST API serving 10k+ users"
+      "name": "E-commerce API Platform",
+      "tech_stack": "Python, FastAPI, PostgreSQL, Docker",
+      "description": "Built scalable REST API serving 10,000+ concurrent users"
     }
   ],
-  "resume_id": "uuid-here",
-  "leadership_signals": true
+  "education": "B.S. Computer Science, Stanford University, 2018",
+  "leadership_signals": true,
+  "leadership_justification": "Led development team of 5 engineers for 2 years",
+  "work_experience_raw": "Software Engineer at TechCorp (2019-2024)...",
+  "job_description": "We are seeking a Senior Backend Developer..."
 }
 ```
 
-### Batch Processing Response
+**Error Response**:
+```json
+{
+  "error": "Only PDF files are accepted",
+  "resume_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "trace": "Detailed error traceback..."
+}
+```
+
+#### 2. Batch Resume Processing
+```http
+POST /api/upload-resume-batch/
+```
+
+**Description**: Upload and process multiple PDF resumes simultaneously, returning a ranked list of candidates.
+
+**Request**:
+- **Content-Type**: `multipart/form-data`
+- **Parameters**:
+  - `files[]` (required): Multiple PDF file uploads
+
+**Response**:
 ```json
 {
   "success": true,
   "total_processed": 5,
   "successful_analyses": 4,
   "failed_analyses": 1,
+  "job_description": "We are seeking a Senior Backend Developer...",
   "ranked_resumes": [
     {
-      "resume_id": "uuid-1",
+      "resume_id": "abc123",
       "filename": "candidate1.pdf",
       "candidate_name": "Jane Smith",
       "fit_score": 9,
-      "fit_score_reason": "Perfect match for all requirements"
+      "fit_score_reason": "Perfect match for all technical requirements",
+      "total_experience": "7 years",
+      "key_skills": ["Python", "FastAPI", "AWS", "Docker"],
+      "eligibility_status": "Highly Eligible"
+    },
+    {
+      "resume_id": "def456",
+      "filename": "candidate2.pdf",
+      "candidate_name": "John Doe",
+      "fit_score": 8,
+      "fit_score_reason": "Strong technical background with minor gaps",
+      "total_experience": "5 years",
+      "key_skills": ["Python", "Django", "PostgreSQL"],
+      "eligibility_status": "Eligible"
     }
   ],
   "failed_files": [
     {
-      "filename": "corrupted.pdf",
-      "error": "Unable to extract text from PDF"
+      "filename": "corrupted_resume.pdf",
+      "error": "Unable to extract text from PDF - file may be corrupted"
     }
   ]
 }
 ```
 
-## 📊 Monitoring & Analytics
-
-### Metrics Tracked
-
-- Processing time per resume
-- LLM provider response times
-- Success/failure rates
-- Popular skill combinations
-- Fit score distributions
-
-### Health Checks
-
+#### 3. Get Analysis Results
 ```http
-GET /api/llm/providers  # Check LLM provider status
-GET /api/get-job-description/  # Verify configuration
+GET /api/get-analysis/{resume_id}
 ```
 
-## 🔒 Security
+**Description**: Retrieve detailed analysis results for a specific resume by its ID.
 
-### API Security
+**Parameters**:
+- `resume_id` (path): UUID of the resume analysis
 
-- CORS configuration for web frontend
-- Input validation and sanitization
-- File type restrictions (PDF only)
-- Size limits on uploads
+**Response**:
+```json
+{
+  "success": true,
+  "resume_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "analysis": {
+    "full_name": "John Doe",
+    "fit_score": 8,
+    "detailed_analysis": "...",
+    "processed_at": "2024-01-15T10:30:00Z"
+  }
+}
+```
 
-### Data Privacy
+### 💼 Job Description Management
 
-- No persistent storage of resume content
-- Temporary file cleanup after processing
-- Configurable data retention policies
+#### 4. Save Job Description
+```http
+POST /api/save-job-description/
+```
+
+**Description**: Save or update the job description that will be used for resume analysis.
+
+**Request**:
+```json
+{
+  "job_description": "We are seeking a Senior Backend Developer with 5+ years of experience in Python, FastAPI, and cloud technologies. The ideal candidate should have experience with microservices architecture, database design, and team leadership."
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Job description saved successfully",
+  "job_description": "We are seeking a Senior Backend Developer...",
+  "saved_at": "2024-01-15T10:30:00Z"
+}
+```
+
+#### 5. Get Current Job Description
+```http
+GET /api/get-job-description/
+```
+
+**Description**: Retrieve the currently configured job description.
+
+**Response**:
+```json
+{
+  "success": true,
+  "job_description": "We are seeking a Senior Backend Developer with 5+ years of experience...",
+  "last_updated": "2024-01-15T10:30:00Z"
+}
+```
+
+### 🤖 LLM Provider Management
+
+#### 6. Get Available Providers
+```http
+GET /api/llm/providers
+```
+
+**Description**: List all available LLM providers and their current status.
+
+**Response**:
+```json
+{
+  "available_providers": [
+    {
+      "name": "ollama",
+      "status": "available",
+      "models": ["llama3.2", "codellama", "mistral"],
+      "base_url": "http://localhost:11434",
+      "requires_api_key": false
+    },
+    {
+      "name": "openrouter",
+      "status": "configured",
+      "models": ["gpt-4", "claude-3", "mixtral"],
+      "base_url": "https://openrouter.ai/api/v1/chat/completions",
+      "requires_api_key": true
+    }
+  ],
+  "current_provider": "ollama"
+}
+```
+
+#### 7. Get Current LLM Configuration
+```http
+GET /api/llm/config
+```
+
+**Description**: Get the current LLM provider configuration.
+
+**Response**:
+```json
+{
+  "provider": "ollama",
+  "model": "llama3.2",
+  "api_key": null,
+  "base_url": "http://localhost:11434",
+  "status": "connected",
+  "last_updated": "2024-01-15T10:30:00Z"
+}
+```
+
+#### 8. Configure LLM Provider
+```http
+POST /api/llm/config
+```
+
+**Description**: Switch LLM provider or update configuration settings.
+
+**Request**:
+```json
+{
+  "provider": "openrouter",
+  "model": "mistralai/mistral-7b-instruct",
+  "api_key": "sk-or-v1-your-api-key-here",
+  "base_url": "https://openrouter.ai/api/v1/chat/completions"
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "LLM provider configured successfully",
+  "config": {
+    "provider": "openrouter",
+    "model": "mistralai/mistral-7b-instruct",
+    "api_key": "sk-or-v1-***",
+    "base_url": "https://openrouter.ai/api/v1/chat/completions",
+    "status": "connected"
+  }
+}
+```
+
+#### 9. Test LLM Connection
+```http
+POST /api/llm/prompt
+```
+
+**Description**: Send a test prompt to the current LLM provider to verify connection.
+
+**Request**:
+```json
+{
+  "prompt": "Hello, please respond with 'Connection successful' if you can process this message."
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "response": "Connection successful",
+  "provider": "ollama",
+  "model": "llama3.2",
+  "response_time_ms": 1250
+}
+```
+
+#### 10. Get Available Models for Provider
+```http
+GET /api/llm/models/{provider}
+```
+
+**Description**: Get list of available models for a specific provider.
+
+**Parameters**:
+- `provider` (path): Provider name (e.g., "ollama", "openrouter")
+
+**Response**:
+```json
+{
+  "provider": "ollama",
+  "models": [
+    {
+      "name": "llama3.2",
+      "size": "7B",
+      "description": "Meta's latest Llama model"
+    },
+    {
+      "name": "codellama",
+      "size": "13B",
+      "description": "Specialized for code generation"
+    }
+  ]
+}
+```
+
+#### 11. Fix Configuration Issues
+```http
+POST /api/llm/fix-config
+```
+
+**Description**: Automatically attempt to fix common LLM configuration issues.
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Configuration issues resolved",
+  "fixes_applied": [
+    "Updated Ollama base URL to correct endpoint",
+    "Validated API key format"
+  ],
+  "current_config": {
+    "provider": "ollama",
+    "status": "connected"
+  }
+}
+```
+
+#### 12. Validate Configuration
+```http
+POST /api/llm/validate-config
+```
+
+**Description**: Validate the current LLM configuration without making changes.
+
+**Response**:
+```json
+{
+  "valid": true,
+  "provider": "ollama",
+  "issues": [],
+  "recommendations": [
+    "Consider updating to latest model version"
+  ]
+}
+```
+
+#### 13. Reset LLM Configuration
+```http
+POST /api/llm/reset
+```
+
+**Description**: Reset LLM configuration to default settings.
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Configuration reset to defaults",
+  "config": {
+    "provider": "ollama",
+    "model": "llama3.2",
+    "base_url": "http://localhost:11434"
+  }
+}
+```
+
+## 🏗️ Project Structure
+
+```
+backend/
+├── api/
+│   ├── main.py                 # FastAPI application entry point
+│   ├── en_core_web_sm-*.whl   # spaCy language model
+│   └── README.md
+├── modules/
+│   ├── llm/                   # LLM integration modules
+│   │   ├── base_provider.py   # Base LLM provider interface
+│   │   ├── llm_automation.py  # LLM automation logic
+│   │   ├── provider_router.py # LLM provider routing
+│   │   └── handlers/          # Provider-specific handlers
+│   │       ├── ollama_handler.py
+│   │       └── openrouter_handler.py
+│   ├── llm_prompts/           # LLM prompt templates
+│   │   └── parse_resume_llm.py
+│   └── text_extract/          # Text extraction modules
+│       ├── extract_native_pdf.py  # Native PDF text extraction
+│       └── extract_ocr_pdf.py     # OCR-based text extraction
+├── pipelines/
+│   └── analyze_resume.py      # Resume analysis pipeline
+├── requirements.txt           # Python dependencies
+├── pyproject.toml            # Project configuration
+├── Dockerfile.backend        # Docker configuration
+└── README.md                 # This file
+```
+
+## ⚙️ Configuration
+
+### LLM Providers
+
+The application supports multiple LLM providers:
+
+1. **Ollama** (Local/Self-hosted):
+   - No API key required
+   - Runs locally or on specified server
+   - Configure in `configs/llm_config.json`
+
+2. **OpenRouter** (Cloud):
+   - Requires API key
+   - Set `OPENROUTER_API_KEY` in environment
+   - Access to multiple models
+
+### OCR Configuration
+
+The application automatically detects PDF type:
+- **Text-based PDFs**: Uses native text extraction
+- **Image-based PDFs**: Falls back to OCR processing
+
+## 🧪 Testing
+
+1. **Test the health endpoint**:
+   ```bash
+   curl http://localhost:8000/api/llm/providers
+   ```
+
+2. **Test resume upload**:
+   ```bash
+   curl -X POST "http://localhost:8000/api/upload-resume/" \
+     -H "accept: application/json" \
+     -F "file=@path/to/resume.pdf"
+   ```
+
+3. **Access interactive documentation**:
+   Visit http://localhost:8000/docs for interactive API testing.
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Tesseract not found**:
+   ```bash
+   # Verify Tesseract installation
+   tesseract --version
+   
+   # Install if missing (Ubuntu)
+   sudo apt-get install tesseract-ocr tesseract-ocr-eng
+   ```
+
+2. **spaCy model not found**:
+   ```bash
+   # Install the language model
+   python -m spacy download en_core_web_sm
+   ```
+
+3. **Permission errors on Windows**:
+   - Run PowerShell as Administrator
+   - Enable script execution: `Set-ExecutionPolicy RemoteSigned`
+
+4. **Memory issues during OCR**:
+   - Increase available memory
+   - Process smaller batches of documents
+   - Consider using lighter OCR models
+
+5. **LLM connection issues**:
+   - Check API keys in environment variables
+   - Verify network connectivity
+   - Check provider-specific endpoints
+
+### Performance Optimization
+
+1. **For better OCR performance**:
+   - Use SSDs for faster file I/O
+   - Increase available RAM
+   - Consider GPU acceleration for EasyOCR
+
+2. **For faster API responses**:
+   - Use text-based PDFs when possible
+   - Implement caching for repeated analyses
+   - Consider async processing for large batches
+
+## 📄 License
+
+This project is licensed under the terms specified in the [LICENSE](LICENSE) file.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
 ## 📞 Support
 
 For issues and questions:
-
-1. Check the [troubleshooting section](#🔍-troubleshooting)
-2. Review API documentation at `/docs`
-3. Submit GitHub issues for bugs
-4. Join our Discord for community support
+1. Check the troubleshooting section above
+2. Review the API documentation at `/docs`
+3. Check existing issues in the repository
+4. Create a new issue with detailed information
 
 ---
 
-**Built with ❤️ using FastAPI, Python, and AI magic** ✨
+**Happy coding! 🚀**
