@@ -14,81 +14,82 @@ export default function DocsPage() {
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Hamburger Button for Mobile */}
-          <button
-            onClick={toggleSidebar}
-            className="lg:hidden block mb-4 px-4 py-2 text-gray-700 bg-gray-100 rounded-md font-medium"
-          >
-            {isSidebarOpen ? 'Close Menu' : '☰ List of Sections'}
-          </button>
+       <div className="flex flex-col lg:flex-row gap-8">
+  {/* Hamburger Button for Mobile */}
+  <button
+    onClick={toggleSidebar}
+    className="lg:hidden block mb-4 px-4 py-2 text-gray-700 bg-gray-100 rounded-md font-medium"
+  >
+    {isSidebarOpen ? 'Close Menu' : '☰ List of Sections'}
+  </button>
 
-          {/* Sidebar Navigation */}
-          <aside
-            className={`lg:w-64 flex-shrink-0 ${
-              isSidebarOpen ? "block" : "hidden"
-            } lg:block fixed inset-0 z-50 bg-white w-full lg:static lg:z-auto lg:bg-transparent p-6 lg:p-0 overflow-y-auto`}
-          >
-            {/* Close Button for Mobile */}
-            {isSidebarOpen && (
-              <button
-                onClick={toggleSidebar}
-                className="absolute top-4 right-4 lg:hidden text-gray-600"
-              >
-                ✕
-              </button>
-            )}
+  {/* Sidebar Navigation */}
+  <aside
+    className={`${
+      isSidebarOpen ? "block" : "hidden"
+    } lg:block fixed lg:static inset-y-0 left-0 z-50 lg:z-auto w-full lg:w-64 max-w-xs bg-white lg:bg-transparent p-6 shadow-lg lg:shadow-none overflow-y-auto lg:overflow-visible transition-transform duration-300 ease-in-out`}
+  >
+    {/* Close Button for Mobile */}
+    {isSidebarOpen && (
+      <button
+        onClick={toggleSidebar}
+        className="absolute top-4 right-4 lg:hidden text-gray-600 hover:text-gray-900"
+      >
+        ✕
+      </button>
+    )}
 
-            <div className="lg:sticky lg:top-24">
-              <nav className="space-y-1">
-                {[
-                  "Introduction",
-                  "For Whom",
-                  "Features",
-                  "Architecture",
-                  "Tech Stack",
-                  "Quick Start",
-                  "Setup Options",
-                  "Configuration",
-                  "API Documentation",
-                  "Project Structure",
-                  "Scripts",
-                  "Troubleshooting",
-                  "FAQ",
-                  "Contributors",
-                  "License",
-                  "Contributing"
-                ].map((item) => {
-                  const id = item.toLowerCase().replace(/\s+/g, '-');
-                  return (
-                    <a
-                      key={item}
-                      href={`#${id}`}
-                      className="block px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-indigo-600 transition-colors"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        const element = document.getElementById(id);
-                        if (element) {
-                          element.scrollIntoView({ behavior: 'smooth' });
-                        }
-                        setIsSidebarOpen(false); // Close sidebar after clicking
-                      }}
-                    >
-                      {item}
-                    </a>
-                  );
-                })}
-              </nav>
-            </div>
-          </aside>
+    {/* Sticky Container */}
+    <div className="lg:sticky lg:top-24">
+      <nav className="space-y-1">
+        {[
+          "Introduction",
+          "For Whom",
+          "Features",
+          "Architecture",
+          "Tech Stack",
+          "Quick Start",
+          "Setup Options",
+          "Configuration",
+          "API Documentation",
+          "Project Structure",
+          "Scripts",
+          "Troubleshooting",
+          "FAQ",
+          "Contributors",
+          "License",
+          "Contributing"
+        ].map((item) => {
+          const id = item.toLowerCase().replace(/\s+/g, '-');
+          return (
+            <a
+              key={item}
+              href={`#${id}`}
+              className="block px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-indigo-600 transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                const element = document.getElementById(id);
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth' });
+                }
+                setIsSidebarOpen(false); // Close mobile menu after click
+              }}
+            >
+              {item}
+            </a>
+          );
+        })}
+      </nav>
+    </div>
+  </aside>
 
-          {/* Overlay when sidebar is open on mobile */}
-          {isSidebarOpen && (
-            <div
-              className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
-              onClick={toggleSidebar}
-            ></div>
-          )}
+  {/* Overlay when sidebar is open on mobile */}
+  {isSidebarOpen && (
+    <div
+      className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+      onClick={toggleSidebar}
+    ></div>
+  )}
 
           {/* Main Content */}
           <main className="flex-1 min-w-0">
