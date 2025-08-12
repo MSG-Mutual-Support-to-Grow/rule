@@ -2,7 +2,7 @@
 
 **RULE**: AI-Powered Resume Parsing and Analysis Platform
 
-![Landing Page](https://raw.githubusercontent.com/dharshan-kumarj/rule/main/docs/images/Landing_Page.png)
+![Landing Page](docs/images/Landing_Page.png)
 
 <div align="center">
 
@@ -77,7 +77,8 @@ Welcome to Resume Understanding Language Engine, a cutting-edge full-stack appli
 - **FastAPI** for high-performance API
 - **Python 3.10+** with modern async/await patterns
 - **PDFPlumber** and **PyPDF** for text extraction
-- **EasyOCR** for scanned document processing
+- **Tesseract OCR** for scanned document processing with image enhancement
+- **spaCy NLP** for intelligent text processing and entity recognition
 
 ### Infrastructure
 - **Docker** & **Docker Compose** for containerization
@@ -97,16 +98,24 @@ Get Resume Understanding Language Engine running on your machine in under 5 minu
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/dharshan-kumarj/rule
+   git clone https://github.com/MSG-Mutual-Support-to-Grow/rule
    cd rule
    ```
 
-2. **Start the application**
+2. **Configure LLM settings** (Required)
+   ```bash
+   # Copy the example config file
+   cp configs/llm_config_example.json configs/llm_config.json
+   
+   # Edit configs/llm_config.json with your preferred LLM provider settings
+   ```
+
+3. **Start the application**
    ```bash
    docker-compose up --build
    ```
 
-3. **Access the applications**
+4. **Access the applications**
    - **Frontend**: http://localhost:5173
    - **Backend API**: http://localhost:8000
    - **API Documentation**: http://localhost:8000/docs
@@ -119,6 +128,9 @@ That's it! 🎉 Your Resume Understanding Language Engine platform is now runnin
 
 #### Quick Commands
 ```bash
+# Configure LLM first (required)
+cp configs/llm_config_example.json configs/llm_config.json
+
 # Start services
 docker-compose up
 
@@ -146,44 +158,37 @@ docker-compose logs -f frontend
 
 ### Manual Installation
 
+For detailed manual installation instructions, please refer to the specific component documentation:
+
 #### Backend Setup
-1. **Navigate to project root**
+📖 **Detailed Backend Setup**: See [Backend README](backend/README.md) for comprehensive installation instructions including:
+- System dependencies installation (Tesseract, Poppler, OpenCV)
+- Python environment setup
+- LLM configuration
+- All available API endpoints
+
+#### Frontend Setup  
+📖 **Detailed Frontend Setup**: See [Frontend README](frontend/README.md) for complete frontend setup including:
+- Node.js and npm setup
+- Development server configuration
+- Build and deployment instructions
+- UI component documentation
+
+#### Quick Setup Summary
+If you prefer manual setup over Docker:
+
+1. **Backend**: 
    ```bash
-   cd rule
+   cd backend
+   # Follow detailed instructions in backend/README.md
+   uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
    ```
 
-2. **Install Python dependencies**
+2. **Frontend**:
    ```bash
-   # Using UV (recommended)
-   uv add -r requirements.txt
-   
-   # Or using pip
-   pip install -r requirements.txt
-   ```
-
-3. **Start the backend server**
-   ```bash
-   # Using UV
-   uv run uvicorn backend.api.main:app --reload --host 0.0.0.0 --port 8000
-   
-   # Or direct uvicorn
-   uvicorn backend.api.main:app --reload --host 0.0.0.0 --port 8000
-   ```
-
-#### Frontend Setup
-1. **Navigate to frontend directory**
-   ```bash
-   cd frontend
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Start development server**
-   ```bash
-   npm run dev
+   cd frontend  
+   # Follow detailed instructions in frontend/README.md
+   npm install && npm run dev
    ```
 
 ## Configuration
@@ -194,15 +199,31 @@ Create a .env file in the project root:
 ```env
 # AI/LLM Configuration
 MISTRAL_API_KEY="sk-or-v1-your-openrouter-mistral-api-key-here"
+OPENROUTER_API_KEY="your-openrouter-api-key-here"
+```
+
+### LLM Configuration
+📖 **Detailed LLM Setup**: For comprehensive LLM configuration including Ollama setup, model selection, and provider switching, see [Backend README](backend/README.md#-configuration).
+
+### Quick LLM Setup
+```bash
+# Copy the example config file
+cp configs/llm_config_example.json configs/llm_config.json
+
+# Edit configs/llm_config.json with your preferred settings
+# - For Ollama (local): Set provider to "ollama" 
+# - For OpenRouter (cloud): Set provider to "openrouter" and add API key
 ```
 
 ## API Documentation
 
-### Main Endpoints
+📖 **Complete API Documentation**: For detailed API endpoint documentation with request/response examples, see [Backend README](backend/README.md#-detailed-api-endpoints).
+
+### Quick API Reference
 
 #### Upload Resume
 ```http
-POST /upload-resume/
+POST /api/upload-resume/
 Content-Type: multipart/form-data
 
 Parameters:
@@ -210,17 +231,23 @@ Parameters:
 
 Response:
 {
-  "candidate_info": {
-    "name": "John Doe",
-    "email": "john@example.com",
-    "phone": "+1-234-567-8900"
-  },
+  "success": true,
+  "resume_id": "uuid",
+  "full_name": "John Doe",
+  "fit_score": 8,
   "eligibility_status": "Eligible",
-  "experience_analysis": {...},
-  "role_fit_analysis": {...},
-  "key_skills": [...]
+  "skills": {...},
+  "experience_analysis": {...}
 }
 ```
+
+#### Available Endpoints
+- **Resume Processing**: Upload single/batch resumes for analysis
+- **Job Management**: Save and retrieve job descriptions  
+- **LLM Configuration**: Manage AI providers and settings
+- **Analysis Retrieval**: Get detailed candidate analysis results
+
+📋 **Interactive API Docs**: http://localhost:8000/docs (when running)
 
 
 ## Project Structure
@@ -299,7 +326,13 @@ rule/
 
 ## Available Scripts
 
-### Frontend Scripts
+📖 **Detailed Scripts**: For comprehensive script documentation, see component-specific README files:
+- **Backend Scripts**: [Backend README](backend/README.md#-testing)
+- **Frontend Scripts**: [Frontend README](frontend/README.md)
+
+### Quick Reference
+
+#### Frontend Scripts
 ```bash
 npm run dev          # Start development server
 npm run build        # Build for production
@@ -307,13 +340,12 @@ npm run preview      # Preview production build
 npm run lint         # Run ESLint
 ```
 
-### Backend Scripts
+#### Backend Scripts  
 ```bash
-uv run uvicorn backend.api.main:app --reload    # Development server
-uv run python -m backend.api.main               # Alternative start
+uvicorn api.main:app --reload --host 0.0.0.0 --port 8000    # Development server
 ```
 
-### Docker Scripts
+#### Docker Scripts
 ```bash
 docker-compose up --build         # Build and start all services
 docker-compose down               # Stop all services
@@ -357,7 +389,19 @@ We welcome contributions to Resume Understanding Language Engine! Here's how to 
 
 ## Troubleshooting
 
-### Common Issues
+📖 **Detailed Troubleshooting**: For comprehensive troubleshooting guides, see [Backend README](backend/README.md#-troubleshooting).
+
+### Quick Fixes
+
+#### Configuration Issues
+**Problem**: Application won't start or LLM errors
+**Solution**:
+```bash
+# Ensure config file exists
+cp configs/llm_config_example.json configs/llm_config.json
+
+# Edit configs/llm_config.json with valid settings
+```
 
 #### Port Conflicts
 **Problem**: Port 5173 or 8000 already in use
@@ -379,25 +423,6 @@ docker system prune -a
 
 # Rebuild without cache
 docker-compose build --no-cache
-```
-
-#### PDF Processing Errors
-**Problem**: Error processing PDF files
-**Solutions**:
-- Ensure PDF is not password protected
-- Check if PDF contains extractable text
-- For scanned PDFs, OCR processing may take longer
-
-#### Python Dependencies
-**Problem**: Module not found errors
-**Solution**:
-```bash
-# Reinstall dependencies
-uv add -r requirements.txt
-
-# Or clear cache and reinstall
-pip cache purge
-pip install -r requirements.txt --force-reinstall
 ```
 
 
@@ -430,7 +455,7 @@ A: Yes, exports are available in CSV and JSON formats.
 A: Currently, the app uses OpenRouter's Mistral API. You can also configure OpenAI, Anthropic, Groq, and others for local or cloud-based inference.
 
 **Q: How accurate is the OCR for scanned documents?**  
-A: The system uses EasyOCR, which provides good accuracy depending on the quality of the scanned document.
+A: The system uses Tesseract OCR with image enhancement, which provides good accuracy depending on the quality of the scanned document. The system also includes intelligent text cleaning and spell checking for better results.
 
 **Q: Can I customize the analysis criteria?**  
 A: Yes. Modify the LLM prompts in `backend/modules/llm_prompts/parse_resume_llm.py` to change evaluation logic for different job roles.
@@ -507,7 +532,7 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 ### Get Help
 - 📖 **Documentation**: [https://rule-docs.onrender.com/](https://rule-docs.onrender.com/)
 - ❓ **FAQ**: [https://rule-docs.onrender.com/#faq](https://rule-docs.onrender.com/#faq)
-- 🐛 **Bug Reports**: [Open an issue](https://github.com/dharshan-kumarj/rule/issues)
+- 🐛 **Bug Reports**: [Open an issue](https://github.com/MSG-Mutual-Support-to-Grow/rule/issues)
 
 ---
 
