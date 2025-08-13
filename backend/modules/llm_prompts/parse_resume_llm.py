@@ -11,114 +11,95 @@ def call_mistral_resume_analyzer(resume_text,job_description,api_key):
     # job_description = job_description
 
     prompt = f"""
-You are a highly intelligent AI assistant specialized in technical recruitment. Your job is to **analyze whether a candidate's resume is logically and practically relevant** to a given job description. You must use industry knowledge, pattern recognition, and smart matching—not just keyword comparison.
+You are an expert AI assistant for technical recruitment. Your task is to judge a candidate's resume **only in relation to the Job Description (JD)**. The JD is the SINGLE SOURCE OF TRUTH. Do not reward unrelated experience. Be strict, practical, and industry-aware (no keyword gaming).
 
----
+Return **ONLY a valid JSON object** that conforms EXACTLY to the structure shown below—no extra keys, no markdown, no comments, no code fences.
 
-**JOB DESCRIPTION:**
+------------
+JOB DESCRIPTION (FOUNDATION — canonical source of truth):
 {job_description}
 
----
-
-**CANDIDATE RESUME**
-Plain Text:
-
+------------
+CANDIDATE RESUME (Plain Text):
 {resume_text}
 
----
+------------
+EVALUATION RULES (apply in order):
 
-### INTELLIGENT MATCHING CRITERIA:
+1) JD-FIRST LOGIC
+- Relevance is judged strictly against the JD's core responsibilities and required skills.
+- Skills that are superficially similar but functionally different (e.g., Python for ML vs. Python for web backends) are NOT equivalent.
+- Equivalent frameworks and ecosystems may be treated as similar (e.g., React ~ Angular, Django ~ Express) **only if** responsibilities align.
 
-1. **Direct Relevance Check**: Does the candidate's primary experience directly align with the core job duties?
-2. **Skill Transferability**: Are the technical skills genuinely transferable and applicable to the role? (Be strict - data science Python ≠ web development Python)
-3. **Industry Alignment**: Is the background common and valued in the target industry?
-4. **Role-Specific Fit**: Web dev needs HTML/CSS/JS/frameworks, not just programming in general
-5. **Practical Success Probability**: Could the candidate realistically succeed without extensive retraining?
+2) INTELLIGENT MATCHING CRITERIA
+- Direct Relevance: Does prior work map to the JD’s core duties?
+- Skill Transferability: Are skills truly applicable to this role, not just namesake overlaps?
+- Industry Alignment: Does the background fit the target industry norms and expectations?
+- Role-Specific Fit: Frontend needs HTML/CSS/JS/frameworks; Backend needs APIs, databases, services; Data roles need pipelines/ETL/ML ops, etc.
+- Practical Success Probability: Could the candidate realistically succeed without extensive re-training?
 
----
+3) EVALUATION PRINCIPLES
+- Understand intent, not just keywords.
+- Consider total experience, role history, progression, and initiative/ownership (leadership).
+- Penalize vague buzzwords if unsupported by projects or outcomes.
 
-### EVALUATION PRINCIPLES:
+4) SCORING & ELIGIBILITY
+- fit_score: integer 1–10
+  * 8–10 Strong fit (direct, demonstrated, recent relevance)
+  * 5–7 Moderate fit (partial match; gaps or limited depth)
+  * 1–4 Poor/irrelevant (different field/insufficient alignment)
+- eligibility_status:
+  * "Eligible" only if the candidate’s experience & skills directly align with core JD requirements.
+  * Otherwise "Not Eligible", with a clear reason.
 
-* Understand the **intent** behind the job, not just the keywords.
-* Detect **equivalent tools or frameworks** (e.g., React ~ Angular, Django ~ Express).
-* Consider **overall experience level**, role history, and growth signals.
-* Recognize leadership or initiative when stated or implied.
-
----
-
-### MATCHING EXAMPLES:
-
-✓ Job: "Frontend web app" + Resume: "React, UI/UX work, SPAs" → RELEVANT
-✓ Job: "Backend APIs" + Resume: "Node.js, DB design, RESTful services" → RELEVANT
-✓ Job: "Full-stack dev" + Resume: "MERN stack, REST APIs, responsive design" → RELEVANT
-✗ Job: "Web Developer" + Resume: "Data science, ML models, research papers" → NOT RELEVANT  
-✗ Job: "Frontend dev" + Resume: "Data analytics, Python for ML, computer vision" → NOT RELEVANT
-✗ Job: "DevOps role" + Resume: "Marketing, SEO, social media" → NOT RELEVANT
-✗ Job: "Data Engineer" + Resume: "Retail sales, no technical background" → NOT RELEVANT
-
----
-
-### OUTPUT REQUIREMENTS:
-
-Return **ONLY a valid JSON** response in the structure below. Do not include any explanatory text, markdown formatting, or code blocks - just the raw JSON:
+------------
+OUTPUT (RAW JSON ONLY — EXACT KEYS, NO EXTRAS):
 
 {{
-  "full_name": "Extract candidate's full name or 'Unknown' if not found",
-  "email": "Extract email or empty string if not found",
-  "phone_number": "Extract phone or empty string if not found",
+  "job_description": "Verbatim JD text (copy the JD above)",
+  "full_name": "Candidate full name or 'Unknown'",
+  "email": "Valid email or empty string",
+  "phone_number": "Phone number or empty string",
   "total_experience_years": 0,
   "roles": [
     {{
       "title": "Job title",
       "company": "Company name",
-      "duration": "Duration like '2 years'",
-      "start_date": "Start date or 'Unknown'",
-      "end_date": "End date or 'Present'"
+      "duration": "e.g., '2 years' or 'Unknown'",
+      "start_date": "YYYY-MM or 'Unknown'",
+      "end_date": "YYYY-MM or 'Present'"
     }}
   ],
-  "work_experience_raw": "Brief summary of work experience",
+  "work_experience_raw": "1–4 sentences summarizing relevant work experience in plain text",
   "skills": {{
     "skill_name": {{
-      "source": "Where skill was mentioned",
-      "years": "Years of experience or 'Unknown'"
+      "source": "Where it appeared (e.g., 'Work Experience', 'Projects', 'Skills section')",
+      "years": "Years of experience (number as string) or 'Unknown'"
     }}
   }},
   "projects": [
     {{
       "name": "Project name",
-      "tech_stack": "Technologies used",
-      "description": "Brief description"
+      "tech_stack": "Comma-separated technologies",
+      "description": "1–3 line description focused on relevance to JD"
     }}
   ],
   "leadership_signals": true,
-  "leadership_justification": "Why leadership signals were detected or not",
-  "candidate_fit_summary": "Brief summary of how candidate fits the role",
+  "leadership_justification": "Why leadership/ownership was or was not detected",
+  "candidate_fit_summary": "2–3 lines explaining suitability strictly vs the JD",
   "fit_score": 1,
-  "fit_score_reason": "Clear explanation of the score",
-  "eligibility_status": "Eligible or Not Eligible",
-  "eligibility_reason": "Clear explanation of eligibility decision"
+  "fit_score_reason": "Plain reason tied directly to JD requirements",
+  "eligibility_status": "Eligible" or "Not Eligible",
+  "eligibility_reason": "Clear justification grounded in JD"
 }}
 
----
-
-### OUTPUT RULES:
-
-* **fit_score**: Integer 1–10
-  8–10 = Strong fit (direct relevant experience)
-  5–7 = Moderate fit (some relevant skills but gaps exist)
-  1–4 = Poor fit or irrelevant (different field/industry)
-
-* **eligibility_status**:
-  * "Eligible" ONLY if skills/experience directly align with job requirements
-  * "Not Eligible" if experience is in a different field (e.g., data science vs web dev)
-
-* **eligibility_reason**: Use clear, practical explanation why they qualify or don't.
-
----
-
-### FINAL TASK:
-
-Analyze the resume and job description using smart reasoning. Then return ONLY the structured JSON output as described above. Do not wrap the JSON in code blocks or add any explanatory text - just return the raw JSON object.
+STRICT RULES:
+- Output MUST be valid JSON.
+- Use ONLY the keys defined above.
+- Do NOT invent data; use 'Unknown' or empty strings when missing.
+- Date format MUST be 'YYYY-MM', 'Present', or 'Unknown'.
+- The "job_description" field MUST echo the JD verbatim from above.
+- Keep explanations concise and practical.
 """
 
     # Dynamically load API key from llm_config.json
