@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import RuleLogo from "../public/images/rule-logo.png";
 import Navbar from "./components/Navbar";
 import arch from "../public/images/RULE.svg";
+import CodeBlock from "./components/CodeBlock";
 
 export default function DocsPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -360,12 +361,14 @@ export default function DocsPage() {
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Start</h2>
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
                   <p className="text-gray-700 mb-4">Run RULE locally using Docker:</p>
-                  <div className="bg-gray-800 text-gray-100 p-4 rounded-lg mb-4 font-mono text-sm">
+                  <CodeBlock code={`git clone https://github.com/MSG-Mutual-Support-to-Grow/rule.git
+cd rule
+docker-compose up --build`}>
                     <div>git clone https://github.com/MSG-Mutual-Support-to-Grow/rule.git</div>
                     <div>cd rule</div>
                     <div>docker-compose up --build</div>
-                  </div>
-                  <p className="text-gray-700">
+                  </CodeBlock>
+                  <p className="text-gray-700 mt-4">
                     Access the frontend at <code className="bg-gray-200 px-1 rounded">localhost:5173</code> and backend docs at
                     <code className="bg-gray-200 px-1 rounded ml-1">localhost:8000/docs</code>
                   </p>
@@ -378,27 +381,33 @@ export default function DocsPage() {
                 <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-6">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">Docker Commands</h3>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm">
+                    <CodeBlock code={`docker-compose up
+docker-compose up -d
+docker-compose down
+docker-compose logs -f backend`}>
                       <div>docker-compose up</div>
                       <div>docker-compose up -d</div>
                       <div>docker-compose down</div>
                       <div>docker-compose logs -f backend</div>
-                    </div>
+                    </CodeBlock>
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">Manual Setup (Backend)</h3>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm">
+                    <CodeBlock code={`uv add -r requirements.txt
+uv run uvicorn backend.api.main:app --reload`}>
                       <div>uv add -r requirements.txt</div>
                       <div>uv run uvicorn backend.api.main:app --reload</div>
-                    </div>
+                    </CodeBlock>
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">Manual Setup (Frontend)</h3>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm">
+                    <CodeBlock code={`cd frontend
+npm install
+npm run dev`}>
                       <div>cd frontend</div>
                       <div>npm install</div>
                       <div>npm run dev</div>
-                    </div>
+                    </CodeBlock>
                   </div>
                 </div>
               </section>
@@ -460,10 +469,10 @@ export default function DocsPage() {
                   {/* Upload and Analyze Single Resume */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">1. Upload and Analyze Single Resume</h4>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm mb-4">
+                    <CodeBlock code={`POST /api/upload-resume/`}>
                       POST /api/upload-resume/
-                    </div>
-                    <p className="text-gray-700 mb-2"><strong>Description:</strong> Upload and analyze a single PDF resume against the current job description.</p>
+                    </CodeBlock>
+                    <p className="text-gray-700 my-2"><strong>Description:</strong> Upload and analyze a single PDF resume against the current job description.</p>
                     <p className="text-gray-700 mb-3"><strong>Request:</strong></p>
                     <ul className="list-disc list-inside text-gray-700 ml-4 mb-3">
                       <li><strong>Content-Type:</strong> <code className="bg-gray-100 px-1 rounded">multipart/form-data</code></li>
@@ -474,8 +483,39 @@ export default function DocsPage() {
                       </li>
                     </ul>
                     <p className="text-gray-700 mb-2"><strong>Response:</strong></p>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto mb-3">
-                      {`{
+                    <CodeBlock code={`{
+  "success": true,
+  "resume_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "filename": "john_doe_resume.pdf",
+  "full_name": "John Doe",
+  "email": "john.doe@email.com",
+  "phone_number": "+1-555-0123",
+  "total_experience_years": 5,
+  "fit_score": 8,
+  "fit_score_reason": "Strong technical background matching Python and FastAPI requirements",
+  "eligibility_status": "Eligible",
+  "eligibility_reason": "Candidate has 5+ years of relevant experience",
+  "candidate_fit_summary": "Excellent match with strong technical skills",
+  "skills": {
+    "Python": {"source": "Professional", "years": 5},
+    "FastAPI": {"source": "Professional", "years": 2},
+    "Docker": {"source": "Professional", "years": 3}
+  },
+  "projects": [
+    {
+      "name": "E-commerce API Platform",
+      "tech_stack": "Python, FastAPI, PostgreSQL, Docker",
+      "description": "Built scalable REST API serving 10,000+ concurrent users"
+    }
+  ],
+  "education": "B.S. Computer Science, Stanford University, 2018",
+  "leadership_signals": true,
+  "leadership_justification": "Led development team of 5 engineers for 2 years",
+  "work_experience_raw": "Software Engineer at TechCorp (2019-2024)...",
+  "job_description": "We are seeking a Senior Backend Developer..."
+}`}>
+                      <pre className="text-sm overflow-x-auto">
+                        {`{
   "success": true,
   "resume_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
   "filename": "john_doe_resume.pdf",
@@ -506,23 +546,30 @@ export default function DocsPage() {
   "work_experience_raw": "Software Engineer at TechCorp (2019-2024)...",
   "job_description": "We are seeking a Senior Backend Developer..."
 }`}
-                    </pre>
-                    <p className="text-gray-700 mb-2"><strong>Error Response:</strong></p>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
-                      {`{
+                      </pre>
+                    </CodeBlock>
+                    <p className="text-gray-700 mt-3 mb-2"><strong>Error Response:</strong></p>
+                    <CodeBlock code={`{
+  "error": "Only PDF files are accepted",
+  "resume_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "trace": "Detailed error traceback..."
+}`}>
+                      <pre className="text-sm overflow-x-auto">
+                        {`{
   "error": "Only PDF files are accepted",
   "resume_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
   "trace": "Detailed error traceback..."
 }`}
-                    </pre>
+                      </pre>
+                    </CodeBlock>
                   </div>
                   {/* Batch Resume Processing */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">2. Batch Resume Processing</h4>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm mb-4">
+                    <CodeBlock code={`POST /api/upload-resume-batch/`}>
                       POST /api/upload-resume-batch/
-                    </div>
-                    <p className="text-gray-700 mb-2"><strong>Description:</strong> Upload and process multiple PDF resumes simultaneously, returning a ranked list of candidates.</p>
+                    </CodeBlock>
+                    <p className="text-gray-700 my-2"><strong>Description:</strong> Upload and process multiple PDF resumes simultaneously, returning a ranked list of candidates.</p>
                     <p className="text-gray-700 mb-3"><strong>Request:</strong></p>
                     <ul className="list-disc list-inside text-gray-700 ml-4 mb-3">
                       <li><strong>Content-Type:</strong> <code className="bg-gray-100 px-1 rounded">multipart/form-data</code></li>
@@ -533,8 +580,43 @@ export default function DocsPage() {
                       </li>
                     </ul>
                     <p className="text-gray-700 mb-2"><strong>Response:</strong></p>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
-                      {`{
+                    <CodeBlock code={`{
+  "success": true,
+  "total_processed": 5,
+  "successful_analyses": 4,
+  "failed_analyses": 1,
+  "job_description": "We are seeking a Senior Backend Developer...",
+  "ranked_resumes": [
+    {
+      "resume_id": "abc123",
+      "filename": "candidate1.pdf",
+      "candidate_name": "Jane Smith",
+      "fit_score": 9,
+      "fit_score_reason": "Perfect match for all technical requirements",
+      "total_experience": "7 years",
+      "key_skills": ["Python", "FastAPI", "AWS", "Docker"],
+      "eligibility_status": "Highly Eligible"
+    },
+    {
+      "resume_id": "def456",
+      "filename": "candidate2.pdf",
+      "candidate_name": "John Doe",
+      "fit_score": 8,
+      "fit_score_reason": "Strong technical background with minor gaps",
+      "total_experience": "5 years",
+      "key_skills": ["Python", "Django", "PostgreSQL"],
+      "eligibility_status": "Eligible"
+    }
+  ],
+  "failed_files": [
+    {
+      "filename": "corrupted_resume.pdf",
+      "error": "Unable to extract text from PDF - file may be corrupted"
+    }
+  ]
+}`}>
+                      <pre className="text-sm overflow-x-auto">
+                        {`{
   "success": true,
   "total_processed": 5,
   "successful_analyses": 4,
@@ -569,22 +651,33 @@ export default function DocsPage() {
     }
   ]
 }`}
-                    </pre>
+                      </pre>
+                    </CodeBlock>
                   </div>
                   {/* Get Analysis Results */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">3. Get Analysis Results</h4>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm mb-4">
+                    <CodeBlock code={`GET /api/get-analysis/(resume_id)`}>
                       GET /api/get-analysis/(resume_id)
-                    </div>
-                    <p className="text-gray-700 mb-2"><strong>Description:</strong> Retrieve detailed analysis results for a specific resume by its ID.</p>
+                    </CodeBlock>
+                    <p className="text-gray-700 my-2"><strong>Description:</strong> Retrieve detailed analysis results for a specific resume by its ID.</p>
                     <p className="text-gray-700 mb-3"><strong>Parameters:</strong></p>
                     <ul className="list-disc list-inside text-gray-700 ml-4 mb-3">
                       <li><code>resume_id</code> (path): UUID of the resume analysis</li>
                     </ul>
                     <p className="text-gray-700 mb-2"><strong>Response:</strong></p>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
-                      {`{
+                    <CodeBlock code={`{
+  "success": true,
+  "resume_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "analysis": {
+    "full_name": "John Doe",
+    "fit_score": 8,
+    "detailed_analysis": "...",
+    "processed_at": "2024-01-15T10:30:00Z"
+  }
+}`}>
+                      <pre className="text-sm overflow-x-auto">
+                        {`{
   "success": true,
   "resume_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
   "analysis": {
@@ -594,61 +687,98 @@ export default function DocsPage() {
     "processed_at": "2024-01-15T10:30:00Z"
   }
 }`}
-                    </pre>
+                      </pre>
+                    </CodeBlock>
                   </div>
                   {/* Job Description Management */}
                   <h3 className="text-xl font-semibold text-gray-900 mt-10 mb-4">Job Description Management</h3>
                   {/* Save Job Description */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">4. Save Job Description</h4>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm mb-4">
+                    <CodeBlock code={`POST /api/save-job-description/`}>
                       POST /api/save-job-description/
-                    </div>
-                    <p className="text-gray-700 mb-2"><strong>Description:</strong> Save or update the job description that will be used for resume analysis.</p>
+                    </CodeBlock>
+                    <p className="text-gray-700 my-2"><strong>Description:</strong> Save or update the job description that will be used for resume analysis.</p>
                     <p className="text-gray-700 mb-2"><strong>Request:</strong></p>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto mb-3">
-                      {`{
+                    <CodeBlock code={`{
+  "job_description": "We are seeking a Senior Backend Developer with 5+ years of experience in Python, FastAPI, and cloud technologies. The ideal candidate should have experience with microservices architecture, database design, and team leadership."
+}`}>
+                      <pre className="text-sm overflow-x-auto">
+                        {`{
   "job_description": "We are seeking a Senior Backend Developer with 5+ years of experience in Python, FastAPI, and cloud technologies. The ideal candidate should have experience with microservices architecture, database design, and team leadership."
 }`}
-                    </pre>
-                    <p className="text-gray-700 mb-2"><strong>Response:</strong></p>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
-                      {`{
+                      </pre>
+                    </CodeBlock>
+                    <p className="text-gray-700 mt-3 mb-2"><strong>Response:</strong></p>
+                    <CodeBlock code={`{
+  "success": true,
+  "message": "Job description saved successfully",
+  "job_description": "We are seeking a Senior Backend Developer...",
+  "saved_at": "2024-01-15T10:30:00Z"
+}`}>
+                      <pre className="text-sm overflow-x-auto">
+                        {`{
   "success": true,
   "message": "Job description saved successfully",
   "job_description": "We are seeking a Senior Backend Developer...",
   "saved_at": "2024-01-15T10:30:00Z"
 }`}
-                    </pre>
+                      </pre>
+                    </CodeBlock>
                   </div>
                   {/* Get Current Job Description */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">5. Get Current Job Description</h4>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm mb-4">
+                    <CodeBlock code={`GET /api/get-job-description/`}>
                       GET /api/get-job-description/
-                    </div>
-                    <p className="text-gray-700 mb-2"><strong>Description:</strong> Retrieve the currently configured job description.</p>
+                    </CodeBlock>
+                    <p className="text-gray-700 my-2"><strong>Description:</strong> Retrieve the currently configured job description.</p>
                     <p className="text-gray-700 mb-2"><strong>Response:</strong></p>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
-                      {`{
+                    <CodeBlock code={`{
+  "success": true,
+  "job_description": "We are seeking a Senior Backend Developer with 5+ years of experience...",
+  "last_updated": "2024-01-15T10:30:00Z"
+}`}>
+                      <pre className="text-sm overflow-x-auto">
+                        {`{
   "success": true,
   "job_description": "We are seeking a Senior Backend Developer with 5+ years of experience...",
   "last_updated": "2024-01-15T10:30:00Z"
 }`}
-                    </pre>
+                      </pre>
+                    </CodeBlock>
                   </div>
                   {/* LLM Provider Management */}
                   <h3 className="text-xl font-semibold text-gray-900 mt-10 mb-4">LLM Provider Management</h3>
                   {/* Get Available Providers */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">6. Get Available Providers</h4>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm mb-4">
+                    <CodeBlock code={`GET /api/llm/providers`}>
                       GET /api/llm/providers
-                    </div>
-                    <p className="text-gray-700 mb-2"><strong>Description:</strong> List all available LLM providers and their current status.</p>
+                    </CodeBlock>
+                    <p className="text-gray-700 my-2"><strong>Description:</strong> List all available LLM providers and their current status.</p>
                     <p className="text-gray-700 mb-2"><strong>Response:</strong></p>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
-                      {`{
+                    <CodeBlock code={`{
+  "available_providers": [
+    {
+      "name": "ollama",
+      "status": "available",
+      "models": ["llama3.2", "codellama", "mistral"],
+      "base_url": "http://localhost:11434",
+      "requires_api_key": false
+    },
+    {
+      "name": "openrouter",
+      "status": "configured",
+      "models": ["gpt-4", "claude-3", "mixtral"],
+      "base_url": "https://openrouter.ai/api/v1/chat/completions",
+      "requires_api_key": true
+    }
+  ],
+  "current_provider": "ollama"
+}`}>
+                      <pre className="text-sm overflow-x-auto">
+                        {`{
   "available_providers": [
     {
       "name": "ollama",
@@ -667,18 +797,27 @@ export default function DocsPage() {
   ],
   "current_provider": "ollama"
 }`}
-                    </pre>
+                      </pre>
+                    </CodeBlock>
                   </div>
                   {/* Get Current LLM Configuration */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">7. Get Current LLM Configuration</h4>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm mb-4">
+                    <CodeBlock code={`GET /api/llm/config`}>
                       GET /api/llm/config
-                    </div>
-                    <p className="text-gray-700 mb-2"><strong>Description:</strong> Get the current LLM provider configuration.</p>
+                    </CodeBlock>
+                    <p className="text-gray-700 my-2"><strong>Description:</strong> Get the current LLM provider configuration.</p>
                     <p className="text-gray-700 mb-2"><strong>Response:</strong></p>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
-                      {`{
+                    <CodeBlock code={`{
+  "provider": "ollama",
+  "model": "llama3.2",
+  "api_key": null,
+  "base_url": "http://localhost:11434",
+  "status": "connected",
+  "last_updated": "2024-01-15T10:30:00Z"
+}`}>
+                      <pre className="text-sm overflow-x-auto">
+                        {`{
   "provider": "ollama",
   "model": "llama3.2",
   "api_key": null,
@@ -686,27 +825,46 @@ export default function DocsPage() {
   "status": "connected",
   "last_updated": "2024-01-15T10:30:00Z"
 }`}
-                    </pre>
+                      </pre>
+                    </CodeBlock>
                   </div>
                   {/* Configure LLM Provider */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">8. Configure LLM Provider</h4>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm mb-4">
+                    <CodeBlock code={`POST /api/llm/config`}>
                       POST /api/llm/config
-                    </div>
-                    <p className="text-gray-700 mb-2"><strong>Description:</strong> Switch LLM provider or update configuration settings.</p>
+                    </CodeBlock>
+                    <p className="text-gray-700 my-2"><strong>Description:</strong> Switch LLM provider or update configuration settings.</p>
                     <p className="text-gray-700 mb-2"><strong>Request:</strong></p>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto mb-3">
-                      {`{
+                    <CodeBlock code={`{
+  "provider": "openrouter",
+  "model": "mistralai/mistral-7b-instruct",
+  "api_key": "sk-or-v1-your-api-key-here",
+  "base_url": "https://openrouter.ai/api/v1/chat/completions"
+}`}>
+                      <pre className="text-sm overflow-x-auto">
+                        {`{
   "provider": "openrouter",
   "model": "mistralai/mistral-7b-instruct",
   "api_key": "sk-or-v1-your-api-key-here",
   "base_url": "https://openrouter.ai/api/v1/chat/completions"
 }`}
-                    </pre>
-                    <p className="text-gray-700 mb-2"><strong>Response:</strong></p>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
-                      {`{
+                      </pre>
+                    </CodeBlock>
+                    <p className="text-gray-700 mt-3 mb-2"><strong>Response:</strong></p>
+                    <CodeBlock code={`{
+  "success": true,
+  "message": "LLM provider configured successfully",
+  "config": {
+    "provider": "openrouter",
+    "model": "mistralai/mistral-7b-instruct",
+    "api_key": "sk-or-v1-***",
+    "base_url": "https://openrouter.ai/api/v1/chat/completions",
+    "status": "connected"
+  }
+}`}>
+                      <pre className="text-sm overflow-x-auto">
+                        {`{
   "success": true,
   "message": "LLM provider configured successfully",
   "config": {
@@ -717,46 +875,74 @@ export default function DocsPage() {
     "status": "connected"
   }
 }`}
-                    </pre>
+                      </pre>
+                    </CodeBlock>
                   </div>
                   {/* Test LLM Connection */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">9. Test LLM Connection</h4>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm mb-4">
+                    <CodeBlock code={`POST /api/llm/prompt`}>
                       POST /api/llm/prompt
-                    </div>
-                    <p className="text-gray-700 mb-2"><strong>Description:</strong> Send a test prompt to the current LLM provider to verify connection.</p>
+                    </CodeBlock>
+                    <p className="text-gray-700 my-2"><strong>Description:</strong> Send a test prompt to the current LLM provider to verify connection.</p>
                     <p className="text-gray-700 mb-2"><strong>Request:</strong></p>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto mb-3">
-                      {`{
+                    <CodeBlock code={`{
+  "prompt": "Hello, please respond with 'Connection successful' if you can process this message."
+}`}>
+                      <pre className="text-sm overflow-x-auto">
+                        {`{
   "prompt": "Hello, please respond with 'Connection successful' if you can process this message."
 }`}
-                    </pre>
-                    <p className="text-gray-700 mb-2"><strong>Response:</strong></p>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
-                      {`{
+                      </pre>
+                    </CodeBlock>
+                    <p className="text-gray-700 mt-3 mb-2"><strong>Response:</strong></p>
+                    <CodeBlock code={`{
+  "success": true,
+  "response": "Connection successful",
+  "provider": "ollama",
+  "model": "llama3.2",
+  "response_time_ms": 1250
+}`}>
+                      <pre className="text-sm overflow-x-auto">
+                        {`{
   "success": true,
   "response": "Connection successful",
   "provider": "ollama",
   "model": "llama3.2",
   "response_time_ms": 1250
 }`}
-                    </pre>
+                      </pre>
+                    </CodeBlock>
                   </div>
                   {/* Get Available Models for Provider */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">10. Get Available Models for Provider</h4>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm mb-4">
+                    <CodeBlock code={`GET /api/llm/models/(provider)`}>
                       GET /api/llm/models/(provider)
-                    </div>
-                    <p className="text-gray-700 mb-2"><strong>Description:</strong> Get list of available models for a specific provider.</p>
+                    </CodeBlock>
+                    <p className="text-gray-700 my-2"><strong>Description:</strong> Get list of available models for a specific provider.</p>
                     <p className="text-gray-700 mb-3"><strong>Parameters:</strong></p>
                     <ul className="list-disc list-inside text-gray-700 ml-4 mb-3">
                       <li><code>provider</code> (path): Provider name (e.g., "ollama", "openrouter")</li>
                     </ul>
                     <p className="text-gray-700 mb-2"><strong>Response:</strong></p>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
-                      {`{
+                    <CodeBlock code={`{
+  "provider": "ollama",
+  "models": [
+    {
+      "name": "llama3.2",
+      "size": "7B",
+      "description": "Meta's latest Llama model"
+    },
+    {
+      "name": "codellama",
+      "size": "13B",
+      "description": "Specialized for code generation"
+    }
+  ]
+}`}>
+                      <pre className="text-sm overflow-x-auto">
+                        {`{
   "provider": "ollama",
   "models": [
     {
@@ -771,18 +957,31 @@ export default function DocsPage() {
     }
   ]
 }`}
-                    </pre>
+                      </pre>
+                    </CodeBlock>
                   </div>
                   {/* Fix Configuration Issues */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">11. Fix Configuration Issues</h4>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm mb-4">
+                    <CodeBlock code={`POST /api/llm/fix-config`}>
                       POST /api/llm/fix-config
-                    </div>
-                    <p className="text-gray-700 mb-2"><strong>Description:</strong> Automatically attempt to fix common LLM configuration issues.</p>
+                    </CodeBlock>
+                    <p className="text-gray-700 my-2"><strong>Description:</strong> Automatically attempt to fix common LLM configuration issues.</p>
                     <p className="text-gray-700 mb-2"><strong>Response:</strong></p>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
-                      {`{
+                    <CodeBlock code={`{
+  "success": true,
+  "message": "Configuration issues resolved",
+  "fixes_applied": [
+    "Updated Ollama base URL to correct endpoint",
+    "Validated API key format"
+  ],
+  "current_config": {
+    "provider": "ollama",
+    "status": "connected"
+  }
+}`}>
+                      <pre className="text-sm overflow-x-auto">
+                        {`{
   "success": true,
   "message": "Configuration issues resolved",
   "fixes_applied": [
@@ -794,18 +993,27 @@ export default function DocsPage() {
     "status": "connected"
   }
 }`}
-                    </pre>
+                      </pre>
+                    </CodeBlock>
                   </div>
                   {/* Validate Configuration */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">12. Validate Configuration</h4>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm mb-4">
+                    <CodeBlock code={`POST /api/llm/validate-config`}>
                       POST /api/llm/validate-config
-                    </div>
-                    <p className="text-gray-700 mb-2"><strong>Description:</strong> Validate the current LLM configuration without making changes.</p>
+                    </CodeBlock>
+                    <p className="text-gray-700 my-2"><strong>Description:</strong> Validate the current LLM configuration without making changes.</p>
                     <p className="text-gray-700 mb-2"><strong>Response:</strong></p>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
-                      {`{
+                    <CodeBlock code={`{
+  "valid": true,
+  "provider": "ollama",
+  "issues": [],
+  "recommendations": [
+    "Consider updating to latest model version"
+  ]
+}`}>
+                      <pre className="text-sm overflow-x-auto">
+                        {`{
   "valid": true,
   "provider": "ollama",
   "issues": [],
@@ -813,18 +1021,28 @@ export default function DocsPage() {
     "Consider updating to latest model version"
   ]
 }`}
-                    </pre>
+                      </pre>
+                    </CodeBlock>
                   </div>
                   {/* Reset LLM Configuration */}
                   <div className="mb-8">
                     <h4 className="font-semibold text-gray-900 mb-2">13. Reset LLM Configuration</h4>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm mb-4">
+                    <CodeBlock code={`POST /api/llm/reset`}>
                       POST /api/llm/reset
-                    </div>
-                    <p className="text-gray-700 mb-2"><strong>Description:</strong> Reset LLM configuration to default settings.</p>
+                    </CodeBlock>
+                    <p className="text-gray-700 my-2"><strong>Description:</strong> Reset LLM configuration to default settings.</p>
                     <p className="text-gray-700 mb-2"><strong>Response:</strong></p>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
-                      {`{
+                    <CodeBlock code={`{
+  "success": true,
+  "message": "Configuration reset to defaults",
+  "config": {
+    "provider": "ollama",
+    "model": "llama3.2",
+    "base_url": "http://localhost:11434"
+  }
+}`}>
+                      <pre className="text-sm overflow-x-auto">
+                        {`{
   "success": true,
   "message": "Configuration reset to defaults",
   "config": {
@@ -833,7 +1051,8 @@ export default function DocsPage() {
     "base_url": "http://localhost:11434"
   }
 }`}
-                    </pre>
+                      </pre>
+                    </CodeBlock>
                   </div>
                 </div>
               </section>
@@ -842,7 +1061,13 @@ export default function DocsPage() {
               <section id="project-structure" className="mb-12 scroll-mt-20">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Project Structure</h2>
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                  <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm">
+                  <CodeBlock code={`rule/
+├── backend/
+│   └── api/, modules/, pipelines/
+├── frontend/
+│   └── components/, pages/, lib/
+├── docker-compose.yml, Dockerfile.*
+├── README.md, requirements.txt`}>
                     <div>rule/</div>
                     <div>├── backend/</div>
                     <div>│   └── api/, modules/, pipelines/</div>
@@ -850,7 +1075,7 @@ export default function DocsPage() {
                     <div>│   └── components/, pages/, lib/</div>
                     <div>├── docker-compose.yml, Dockerfile.*</div>
                     <div>├── README.md, requirements.txt</div>
-                  </div>
+                  </CodeBlock>
                 </div>
               </section>
 
@@ -860,23 +1085,25 @@ export default function DocsPage() {
                 <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-6">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">Frontend:</h3>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm">
+                    <CodeBlock code={`npm run dev
+npm run build`}>
                       <div>npm run dev</div>
                       <div>npm run build</div>
-                    </div>
+                    </CodeBlock>
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">Backend:</h3>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm">
+                    <CodeBlock code={`uv run uvicorn backend.api.main:app --reload`}>
                       <div>uv run uvicorn backend.api.main:app --reload</div>
-                    </div>
+                    </CodeBlock>
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">Docker:</h3>
-                    <div className="bg-gray-800 text-gray-100 p-4 rounded-lg font-mono text-sm">
+                    <CodeBlock code={`docker-compose up --build
+docker-compose logs -f frontend`}>
                       <div>docker-compose up --build</div>
                       <div>docker-compose logs -f frontend</div>
-                    </div>
+                    </CodeBlock>
                   </div>
                 </div>
               </section>
