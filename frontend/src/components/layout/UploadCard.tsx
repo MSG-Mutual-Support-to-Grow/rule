@@ -6,6 +6,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { useRef } from "react";
+import { FolderOpen, FileText, Files } from "lucide-react";
 
 interface Props {
   title: string;
@@ -27,6 +28,12 @@ export default function UploadCard({ title, description, onUpload, folder, multi
     e.target.value = ""; // reset so reselecting the same file works
   };
 
+  const getIcon = () => {
+    if (folder) return <FolderOpen size={24} className="text-blue-600" />;
+    if (multiple) return <Files size={24} className="text-green-600" />;
+    return <FileText size={24} className="text-purple-600" />;
+  };
+
   return (
     <>
       <input
@@ -34,9 +41,12 @@ export default function UploadCard({ title, description, onUpload, folder, multi
         ref={inputRef}
         onChange={handleChange}
         className="hidden"
-        accept={!folder ? "application/pdf" : undefined} // only allow PDFs for file upload
+        accept={!folder ? "application/pdf" : ""}
         multiple={folder || multiple}
-        {...(folder ? { webkitdirectory: "", directory: "" } : {})}
+        {...(folder ? { 
+          webkitdirectory: "" as any, 
+          directory: "" as any 
+        } : {})}
       />
 
       <Card
@@ -44,8 +54,11 @@ export default function UploadCard({ title, description, onUpload, folder, multi
         className="w-64 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] bg-white/80 backdrop-blur-sm"
       >
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">{title}</CardTitle>
-          <CardDescription className="text-gray-600 text-sm">
+          <div className="flex items-center justify-center mb-2">
+            {getIcon()}
+          </div>
+          <CardTitle className="text-lg font-semibold text-center">{title}</CardTitle>
+          <CardDescription className="text-gray-600 text-sm text-center">
             {description}
           </CardDescription>
         </CardHeader>

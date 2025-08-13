@@ -14,6 +14,7 @@ dependencies = [
     "multiprocess==0.70.15",
     "numpy>=1.26.4",
     "opencv-python==4.9.0.80",
+    "opencv-python-headless==4.9.0.80",
     "pdf2image==1.17.0",
     "pdfplumber==0.10.3",
     "pillow==10.3.0",
@@ -31,4 +32,4 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-en-core-web-sm = { path = "backend/api/en_core_web_sm-3.7.1-py3-none-any.whl" }
+en-core-web-sm = { path = "api/en_core_web_sm-3.7.1-py3-none-any.whl" }
