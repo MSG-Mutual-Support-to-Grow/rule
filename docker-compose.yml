@@ -41,6 +41,8 @@ services:
     ports:
       - "11434:11434"
     volumes:
+
+      - ./configs/llm_config.json:/app/configs/llm_config.json
       # Mount local Ollama models directory from host machine
       # Windows path (adjust the path according to your Ollama installation)
       - ~/.ollama:/root/.ollama

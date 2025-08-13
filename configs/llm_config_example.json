@@ -1,0 +1,7 @@
+{
+  "provider": "openrouter",
+  "model": "mistral/mistral-medium",
+  "api_key": "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",
+  "base_url": "https://openrouter.ai/api/v1",
+  "updated_at": "2025-08-13T15:40:00Z"
+}
