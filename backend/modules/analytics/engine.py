@@ -19,7 +19,7 @@ from .models import (
 class AnalyticsEngine:
     """Core analytics processing engine"""
 
-    def __init__(self, outputs_dir: str = "outputs", analytics_dir: str = "analytics_data"):
+    def __init__(self, outputs_dir: str = "../outputs", analytics_dir: str = "../analytics_data"):
         self.outputs_dir = outputs_dir
         self.analytics_dir = analytics_dir
         self._ensure_directories()
@@ -41,13 +41,20 @@ class AnalyticsEngine:
                 data = json.load(f)
 
             # Extract relevant analytics data
+            skills_data = data.get('skills', {})
+            if isinstance(skills_data, dict):
+                # Convert skills object to array of skill names
+                skills_list = list(skills_data.keys())
+            else:
+                skills_list = skills_data if isinstance(skills_data, list) else []
+
             candidate = CandidateAnalytics(
                 resume_id=resume_id,
                 filename=data.get('filename', ''),
                 full_name=data.get('full_name', ''),
                 fit_score=float(data.get('fit_score', 0)),
                 eligibility_status=data.get('eligibility_status', 'Unknown'),
-                skills=data.get('skills', []),
+                skills=skills_list,
                 experience_years=self._extract_experience_years(data),
                 location=data.get('location', ''),
                 education_level=data.get('education_level', ''),
