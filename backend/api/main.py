@@ -24,6 +24,9 @@ from backend.pipelines.analyze_resume import (
 from backend.modules.llm.llm_automation import llm_automation
 from backend.modules.llm.handlers.openrouter_handler import OpenRouterProvider
 
+# Import Analytics module
+from backend.modules.analytics.api import router as analytics_router
+
 # Pydantic model for job description request
 class JobDescriptionRequest(BaseModel):
     job_description: str
@@ -53,6 +56,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include analytics router
+app.include_router(analytics_router)
 
 # Helper function to get job description
 def get_job_description_from_file(custom_job_description: Optional[str] = None) -> str:
@@ -606,4 +612,3 @@ async def reset_llm_config():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
