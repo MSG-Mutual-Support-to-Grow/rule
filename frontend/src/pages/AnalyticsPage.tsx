@@ -5,9 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { TrendingUp, Users, Target, Award, Download, RefreshCw, Calendar, Filter } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { TrendingUp, Users, Target, Award, Download, RefreshCw, Calendar } from "lucide-react";
 import { getAnalyticsMetrics, getCandidateAnalytics, getSkillsAnalysis, getDashboardSummary, exportAnalyticsData } from "@/lib/api";
+import Sidebar from "@/components/layout/Sidebar";
 import toast from "react-hot-toast";
 
 interface AnalyticsData {
@@ -140,7 +141,8 @@ export default function AnalyticsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
+      <Sidebar />
+      <div className="max-w-7xl mx-auto ml-16">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -311,7 +313,7 @@ export default function AnalyticsPage() {
                           {candidate.full_name || candidate.filename}
                         </TableCell>
                         <TableCell>
-                          <Badge variant={candidate.fit_score >= 7 ? "default" : candidate.fit_score >= 5 ? "secondary" : "destructive"}>
+                          <Badge variant={candidate.fit_score >= 7 ? "default" : "secondary"}>
                             {candidate.fit_score}/10
                           </Badge>
                         </TableCell>
@@ -358,33 +360,35 @@ export default function AnalyticsPage() {
                     </CardContent>
                   </Card>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Top Skills Distribution</CardTitle>
-                      <CardDescription>Most frequently mentioned skills</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                          <Pie
-                            data={skillsAnalysis.top_skills}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            label={({ skill, percentage }) => `${skill}: ${percentage.toFixed(1)}%`}
-                            outerRadius={80}
-                            fill="#8884d8"
-                            dataKey="count"
-                          >
-                            {skillsAnalysis.top_skills.map((entry: any, index: number) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                          </Pie>
-                          <Tooltip />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </CardContent>
-                  </Card>
+                  {Array.isArray(skillsAnalysis.top_skills) && skillsAnalysis.top_skills.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Top Skills Distribution</CardTitle>
+                        <CardDescription>Most frequently mentioned skills</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <PieChart>
+                            <Pie
+                              data={Array.isArray(skillsAnalysis?.top_skills) ? skillsAnalysis.top_skills : []}
+                              cx="50%"
+                              cy="50%"
+                              labelLine={false}
+                              label={(entry: any) => `${entry.skill}: ${entry.percentage?.toFixed(1) ?? 0}%`}
+                              outerRadius={80}
+                              fill="#8884d8"
+                              dataKey="count"
+                            >
+                              {Array.isArray(skillsAnalysis?.top_skills) && skillsAnalysis.top_skills.map((_: any, index: number) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                              ))}
+                            </Pie>
+                            <Tooltip />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+                  )}
                 </>
               )}
             </div>
