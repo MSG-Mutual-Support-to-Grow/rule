@@ -167,7 +167,7 @@ export default function AnalyticsPage() {
         {/* Time Range Selector */}
         <div className="mb-8">
           <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-48 bg-white/80 backdrop-blur-sm border-gray-300">
+            <SelectTrigger className="w-48 bg-black backdrop-blur-sm border-gray-300">
               <Calendar className="w-4 h-4 mr-2" />
               <SelectValue />
             </SelectTrigger>
@@ -184,15 +184,28 @@ export default function AnalyticsPage() {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap justify-center gap-4 mb-12">
-          <Button onClick={loadAnalyticsData} variant="outline" className="bg-white/80 backdrop-blur-sm">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh Data
+          <Button
+            onClick={loadAnalyticsData}
+            variant="default"
+            className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-md transition-all duration-200"
+            disabled={loading}
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? 'Loading...' : 'Refresh Data'}
           </Button>
-          <Button onClick={() => handleExport('json')} variant="outline" className="bg-white/80 backdrop-blur-sm">
+          <Button
+            onClick={() => handleExport('json')}
+            variant="outline"
+            className="bg-gray-50 border-gray-300 hover:bg-gray-100 hover:border-gray-400 text-gray-700 transition-all duration-200 shadow-sm"
+          >
             <Download className="w-4 h-4 mr-2" />
             Export JSON
           </Button>
-          <Button onClick={() => handleExport('csv')} variant="outline" className="bg-white/80 backdrop-blur-sm">
+          <Button
+            onClick={() => handleExport('csv')}
+            variant="outline"
+            className="bg-gray-50 border-gray-300 hover:bg-gray-100 hover:border-gray-400 text-gray-700 transition-all duration-200 shadow-sm"
+          >
             <Download className="w-4 h-4 mr-2" />
             Export CSV
           </Button>
