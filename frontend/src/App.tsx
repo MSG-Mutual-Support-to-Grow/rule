@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import LandingPage from "./pages/LandingPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <div className="relative h-full overflow-y-auto">
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/analytics" element={<AnalyticsPage />} />
             {/* Future routes can be added here */}
           </Routes>
         </div>

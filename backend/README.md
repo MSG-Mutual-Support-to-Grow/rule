@@ -44,7 +44,7 @@ Docker setup is the easiest way to get started as it handles all system dependen
 2. **Build and run the backend**:
    ```bash
    # From the project root directory
-   docker-compose up backend --build
+   docker-compose up --backend build
    ```
 
 3. **Access the API**:

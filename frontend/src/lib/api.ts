@@ -240,6 +240,96 @@ export const resetLLMConfig = async (): Promise<{ success: boolean; message: str
   return result;
 };
 
+// ========== Analytics API Functions ==========
+
+export interface AnalyticsResponse {
+  success: boolean;
+  data?: any;
+  message?: string;
+  metadata?: any;
+  timestamp?: string;
+}
+
+export const getAnalyticsMetrics = async (timeRange: string = 'month'): Promise<AnalyticsResponse> => {
+  const response = await fetch(`${API_BASE_URL}/api/analytics/metrics?time_range=${timeRange}`);
+  if (!response.ok) {
+    throw new Error(`Failed to get analytics metrics: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+export const getCandidateAnalytics = async (
+  timeRange: string = 'month',
+  limit: number = 100,
+  offset: number = 0,
+  sortBy: string = 'fit_score',
+  sortOrder: string = 'desc'
+): Promise<AnalyticsResponse> => {
+  const params = new URLSearchParams({
+    time_range: timeRange,
+    limit: limit.toString(),
+    offset: offset.toString(),
+    sort_by: sortBy,
+    sort_order: sortOrder
+  });
+
+  const response = await fetch(`${API_BASE_URL}/api/analytics/candidates?${params}`);
+  if (!response.ok) {
+    throw new Error(`Failed to get candidate analytics: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+export const getSkillsAnalysis = async (
+  timeRange: string = 'month',
+  topN: number = 20
+): Promise<AnalyticsResponse> => {
+  const response = await fetch(`${API_BASE_URL}/api/analytics/skills/analysis?time_range=${timeRange}&top_n=${topN}`);
+  if (!response.ok) {
+    throw new Error(`Failed to get skills analysis: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+export const getDashboardSummary = async (timeRange: string = 'month'): Promise<AnalyticsResponse> => {
+  const response = await fetch(`${API_BASE_URL}/api/analytics/dashboard/summary?time_range=${timeRange}`);
+  if (!response.ok) {
+    throw new Error(`Failed to get dashboard summary: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+export const exportAnalyticsData = async (
+  timeRange: string = 'month',
+  format: 'json' | 'csv' = 'json'
+): Promise<AnalyticsResponse> => {
+  const response = await fetch(`${API_BASE_URL}/api/analytics/export?time_range=${timeRange}&format=${format}`);
+  if (!response.ok) {
+    throw new Error(`Failed to export analytics data: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+export const compareCandidates = async (
+  resumeIdA: string,
+  resumeIdB: string,
+  criteria: string = 'fit_score'
+): Promise<AnalyticsResponse> => {
+  const params = new URLSearchParams({
+    resume_id_a: resumeIdA,
+    resume_id_b: resumeIdB,
+    criteria: criteria
+  });
+
+  const response = await fetch(`${API_BASE_URL}/api/analytics/compare?${params}`, {
+    method: 'POST'
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to compare candidates: ${response.statusText}`);
+  }
+  return response.json();
+};
+
 export default {
   uploadResume,
   uploadResumeBatch,

@@ -1,0 +1,207 @@
+name: 🔍 CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Backend Testing and Quality Checks
+  backend-tests:
+    name: 🐍 Backend Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: 📦 Install dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: 🔍 Run linting
+      working-directory: ./backend
+      run: |
+        # Install linting tools if needed
+        pip install flake8 black isort
+        # Run linting checks
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        black --check .
+        isort --check-only .
+
+    - name: 🧪 Run tests
+      working-directory: ./backend
+      run: |
+        # Install test dependencies
+        pip install pytest pytest-cov
+        # Run tests with coverage
+        pytest --cov=. --cov-report=xml
+
+    - name: 📊 Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./backend/coverage.xml
+        flags: backend
+        name: Backend Coverage
+
+  # Frontend Testing and Quality Checks
+  frontend-tests:
+    name: ⚛️ Frontend Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: ./frontend/package-lock.json
+
+    - name: 📦 Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: 🔍 Run linting
+      working-directory: ./frontend
+      run: npm run lint
+
+    - name: 🧪 Run tests
+      working-directory: ./frontend
+      run: npm test -- --coverage --watchAll=false
+
+    - name: 📊 Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./frontend/coverage/lcov.info
+        flags: frontend
+        name: Frontend Coverage
+
+  # Docker Build Test
+  docker-build:
+    name: 🐳 Docker Build Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🐳 Build backend Docker image
+      run: docker build -f backend/Dockerfile.backend -t rule-backend:test ./backend
+
+    - name: 🐳 Build frontend Docker image
+      run: docker build -f frontend/Dockerfile.frontend -t rule-frontend:test ./frontend
+
+    - name: 🐳 Test Docker Compose
+      run: docker-compose config --quiet
+
+  # Security Scanning
+  security-scan:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🔍 Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: 📤 Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # Dependency Review
+  dependency-review:
+    name: 📦 Dependency Review
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🔍 Dependency Review
+      uses: actions/dependency-review-action@v3
+
+  # CodeQL Analysis
+  codeql-analysis:
+    name: 🔍 CodeQL Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🔧 Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: python,javascript
+
+    - name: 🔍 Autobuild
+      uses: github/codeql-action/autobuild@v2
+
+    - name: 🔍 Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+
+  # Documentation Check
+  docs-check:
+    name: 📚 Documentation Check
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🔍 Check for broken links in documentation
+      uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        use-quiet-mode: 'yes'
+        use-verbose-mode: 'yes'
+        config-file: '.github/workflows/link-check-config.json'
+
+  # Release Preparation
+  release-prep:
+    name: 🚀 Release Preparation
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: 🔖 Generate changelog
+      run: |
+        # This would typically use a tool like git-cliff or conventional-changelog
+        echo "Changelog generation would happen here"
+
+    - name: 📦 Create release archive
+      run: |
+        tar -czf rule-${{ github.sha }}.tar.gz .
+        echo "Release archive created"
+
+    - name: 📤 Upload release artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-artifacts
+        path: |
+          rule-*.tar.gz
+          CHANGELOG.md

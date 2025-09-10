@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 from backend.modules.text_extract.extract_native_pdf import extract_lines_from_pdf
 from backend.modules.llm_prompts.parse_resume_llm import call_mistral_resume_analyzer
 from backend.modules.text_extract.extract_ocr_pdf import extract_text_easyocr_from_pdf
+from backend.modules.llm.response_validator import validate_llm_response, response_validator
 
 load_dotenv()
 api_key = os.getenv("MISTRAL_API_KEY")
@@ -97,31 +98,31 @@ def process_resume(pdf_path: str, job_description: str, resume_id: str):
         return None
 
     print("[DEBUG] Calling Mistral LLM for analysis...")
-    result = call_mistral_resume_analyzer(resume_text, job_description,api_key)
+    raw_result = call_mistral_resume_analyzer(resume_text, job_description, api_key)
 
-    if result is None:
+    if raw_result is None:
         print("❌ AI analysis returned None.")
-        return None
+        fallback = response_validator.create_fallback_response(job_description, "AI returned None")
+        save_result_to_json(fallback.dict(), resume_id)
+        return fallback.dict()
 
-    try:
-        if isinstance(result, str):
-            cleaned_result = clean_ai_response(result)
-            try:
-                result = json.loads(cleaned_result)
-            except json.JSONDecodeError:
-                print("[WARNING] Mistral returned malformed JSON string.")
-                print("Raw cleaned result:", cleaned_result)
-                return None
-        if result:
-            save_result_to_json(result, resume_id)  
-            return result
-        else:
-            print("❌ AI analysis failed.")
-            return None
-    except Exception as e:
-        print(f"[ERROR] Unexpected result error: {e}")
-        print("Raw result:", result)
-        return None
+    # Validate and extract structured data using Pydantic AI
+    validation_result = validate_llm_response(raw_result, job_description)
+
+    if validation_result.is_valid and validation_result.validated_data:
+        print("✅ LLM response validation successful")
+        result_dict = validation_result.validated_data.dict()
+        save_result_to_json(result_dict, resume_id)
+        return result_dict
+    else:
+        print(f"❌ LLM response validation failed: {validation_result.errors}")
+        # Create fallback response with validation errors
+        fallback = response_validator.create_fallback_response(
+            job_description,
+            f"Validation failed: {', '.join(validation_result.errors)}"
+        )
+        save_result_to_json(fallback.dict(), resume_id)
+        return fallback.dict()
 
 
 def process_resume_ocr(pdf_path: str, job_description: str, resume_id: str):
@@ -137,28 +138,28 @@ def process_resume_ocr(pdf_path: str, job_description: str, resume_id: str):
         return None
 
     print("[DEBUG] Calling Mistral LLM for OCR analysis...")
-    result = call_mistral_resume_analyzer(resume_text, job_description,api_key)
+    raw_result = call_mistral_resume_analyzer(resume_text, job_description, api_key)
 
-    if result is None:
+    if raw_result is None:
         print("❌ AI OCR analysis returned None.")
-        return None
+        fallback = response_validator.create_fallback_response(job_description, "AI OCR returned None")
+        save_result_to_json(fallback.dict(), resume_id)
+        return fallback.dict()
 
-    try:
-        if isinstance(result, str):
-            cleaned_result = clean_ai_response(result)
-            try:
-                result = json.loads(cleaned_result)
-            except json.JSONDecodeError:
-                print("[WARNING] Mistral returned malformed JSON string.")
-                print("Raw cleaned result:", cleaned_result)
-                return None
-        if result:
-            save_result_to_json(result, resume_id)
-            return result
-        else:
-            print("❌ AI analysis failed.")
-            return None
-    except Exception as e:
-        print(f"[ERROR] Unexpected result error: {e}")
-        print("Raw result:", result)
-        return None
+    # Validate and extract structured data using Pydantic AI
+    validation_result = validate_llm_response(raw_result, job_description)
+
+    if validation_result.is_valid and validation_result.validated_data:
+        print("✅ LLM OCR response validation successful")
+        result_dict = validation_result.validated_data.dict()
+        save_result_to_json(result_dict, resume_id)
+        return result_dict
+    else:
+        print(f"❌ LLM OCR response validation failed: {validation_result.errors}")
+        # Create fallback response with validation errors
+        fallback = response_validator.create_fallback_response(
+            job_description,
+            f"OCR validation failed: {', '.join(validation_result.errors)}"
+        )
+        save_result_to_json(fallback.dict(), resume_id)
+        return fallback.dict()

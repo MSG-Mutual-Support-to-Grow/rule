@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { saveJobDescription, getJobDescription } from "../../lib/api";
+import toast from "react-hot-toast";
 
 export default function JobDescriptionBox() {
   const [description, setDescription] = useState("");
@@ -77,10 +78,13 @@ export default function JobDescriptionBox() {
       
       setIsEditable(false);
       setSaveMessage("Job description saved successfully!");
+      toast.success("Job description saved successfully!");
       setTimeout(() => setSaveMessage(""), 3000);
     } catch (error) {
       console.error("Failed to save job description:", error);
-      setSaveMessage(`Failed to save: ${error instanceof Error ? error.message : "Unknown error"}`);
+      const errorMessage = `Failed to save: ${error instanceof Error ? error.message : "Unknown error"}`;
+      setSaveMessage(errorMessage);
+      toast.error(errorMessage);
       setTimeout(() => setSaveMessage(""), 5000);
     } finally {
       setIsSaving(false);
@@ -148,7 +152,7 @@ export default function JobDescriptionBox() {
   };
 
   return (
-    <div className="mt-10 w-full max-w-4xl bg-black/40 border border-white/20 rounded-lg backdrop-blur-md p-6 shadow text-left">
+    <div className="mt-10 w-full max-w-4xl bg-black/70 border border-white/20 rounded-lg backdrop-blur-md p-6 shadow text-left">
       <div className="flex justify-between items-center mb-3">
         <h2 className="text-xl font-bold text-white">Job Description</h2>
         <div className="space-x-2">
@@ -209,9 +213,10 @@ export default function JobDescriptionBox() {
         disabled={!isEditable || isLoading}
         placeholder={isLoading ? "Loading job description..." : "Paste or type your job description here..."}
         rows={8}
-        className={`w-full p-4 bg-white/10 border border-white/30 text-white rounded resize-none focus:outline-none ${
+        className={`w-full p-4 bg-white/10 border border-white/30 text-white placeholder-gray-400 rounded resize-none focus:outline-none ${
           isEditable && !isLoading ? "focus:ring-2 focus:ring-blue-500" : "opacity-50 cursor-not-allowed"
         }`}
+        style={{ color: 'white' }}
       />
     </div>
   );
