@@ -593,47 +593,6 @@ We welcome contributions to Resume Understanding Language Engine! Here's how to 
 - Update documentation for new features
 - Test your changes thoroughly
 
-## Code of Conduct
-
-### 🤝 Our Pledge
-
-We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, caste, color, religion, or sexual identity and orientation.
-
-We pledge to act and interact in ways that contribute to an open, welcoming, diverse, inclusive, and healthy community.
-
-### 📋 Our Standards
-
-#### Expected Behavior
-- **Be respectful** of differing opinions, viewpoints, and experiences
-- **Give and gracefully accept** constructive feedback
-- **Accept responsibility** and apologize for mistakes
-- **Focus on what is best** for the community
-- **Show empathy** towards other community members
-
-#### Unacceptable Behavior
-- **Harassment, intimidation, or discrimination** in any form
-- **Trolling, insulting, or derogatory comments**
-- **Personal or political attacks**
-- **Public or private harassment**
-- **Publishing others' private information** without permission
-- **Other conduct** that could reasonably be considered inappropriate
-
-### 🏗️ Our Responsibilities
-
-Community leaders are responsible for clarifying and enforcing our standards of acceptable behavior and will take appropriate and fair corrective action in response to any instances of unacceptable behavior.
-
-### 📜 Enforcement
-
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at:
-
-- **Email**: conduct@rule-project.org
-- **GitHub Issues**: [Report misconduct](https://github.com/MSG-Mutual-Support-to-Grow/rule/issues/new?template=report_misconduct.md)
-
-All complaints will be reviewed and investigated promptly and fairly. All community leaders are obligated to respect the privacy and security of the reporter.
-
-### 🎯 Attribution
-
-This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org/), version 2.1.
 
 ## Troubleshooting
 
@@ -794,25 +753,11 @@ We believe in the power of community-driven development. Whether you're a develo
 
 #### 📢 Stay Connected
 
-- **🐙 GitHub**: [Follow us](https://github.com/MSG-Mutual-Support-to-Grow/rule) for updates
+- **🐙 GitHub**: [Follow us](https://github.com/MSG-Mutual-Support-to-Grow) for updates
 - **💬 Discussions**: [Join the conversation](https://github.com/MSG-Mutual-Support-to-Grow/rule/discussions)
 - **📧 Newsletter**: Subscribe for monthly updates and releases
 - **🎯 Roadmap**: [View our development roadmap](https://github.com/MSG-Mutual-Support-to-Grow/rule/projects)
 
-### 👥 Community Guidelines
-
-#### Communication Standards
-- **Be Respectful**: Treat all community members with respect
-- **Be Constructive**: Provide helpful feedback and suggestions
-- **Be Patient**: Allow time for responses and implementations
-- **Be Collaborative**: Work together towards common goals
-
-#### Recognition Program
-We recognize our community contributors through:
-- **🏆 Contributor Badges**: GitHub profile badges for active contributors
-- **📜 Hall of Fame**: Featured contributors in our README
-- **🎉 Shoutouts**: Recognition in release notes and social media
-- **🎯 Early Access**: Beta features for top contributors
 
 ### 📚 Resources
 
@@ -832,22 +777,6 @@ We recognize our community contributors through:
 - **GitHub Discussions**: General questions and community chat
 - **Stack Overflow**: Technical questions with `rule-ai` tag
 - **Discord Community**: Real-time chat and support
-
-### 🎯 Success Stories
-
-*See how organizations are transforming their hiring with RULE:*
-
-#### 🏢 Enterprise Implementation
-*"RULE reduced our resume screening time by 80% while improving candidate quality scores."*
-– Sarah Chen, Head of Talent Acquisition at TechCorp
-
-#### 🏗️ Startup Success
-*"As a growing startup, RULE helped us scale our hiring process efficiently with AI-powered insights."*
-– Michael Rodriguez, CTO at InnovateLabs
-
-#### 🎓 Academic Research
-*"RULE's open-source nature makes it perfect for our HR technology research projects."*
-– Dr. Emily Watson, Professor of Organizational Psychology
 
 ### 🙌 Contributors
 

@@ -215,6 +215,3 @@ For security-related questions or concerns:
 We appreciate the security research community for helping keep open-source projects secure. Your contributions help protect users worldwide.
 
 ---
-
-**Last updated**: January 2025
-**Version**: 2.0.0
