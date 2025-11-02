@@ -23,7 +23,7 @@ pyspellchecker==0.8.1
 clean-text==0.6.0
 
 # Mathematical and Scientific Computing
-numpy>=1.26.4
+numpy>=1.26.4,<2.0.0
 
 # Development and Code Quality
 black==24.4.2

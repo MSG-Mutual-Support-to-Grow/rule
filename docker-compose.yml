@@ -11,6 +11,7 @@ services:
     volumes:
       - ./outputs:/app/outputs
       - ./backend:/app/backend
+      - ./configs:/app/configs
     environment:
       - PYTHONPATH=/app
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}

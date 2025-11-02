@@ -322,7 +322,23 @@ Get Resume Understanding Language Engine running on your machine in under 5 minu
    # Copy the example config file
    cp configs/llm_config_example.json configs/llm_config.json
    
-   # Edit configs/llm_config.json with your preferred LLM provider settings in the frontend
+   # Choose your LLM provider:
+   
+   # Option A: OpenRouter (Cloud) - Edit configs/llm_config.json:
+   # {
+   #   "provider": "openrouter",
+   #   "model": "mistralai/mistral-7b-instruct",
+   #   "api_key": "YOUR_OPENROUTER_API_KEY",
+   #   "base_url": "https://openrouter.ai/api/v1"
+   # }
+   
+   # Option B: Ollama (Local) - Edit configs/llm_config.json:
+   # {
+   #   "provider": "ollama",
+   #   "model": "llama2",
+   #   "api_key": "not-needed",
+   #   "base_url": "http://ollama:11434"
+   # }
    ```
 
 3. **Start the application**
@@ -330,10 +346,16 @@ Get Resume Understanding Language Engine running on your machine in under 5 minu
    docker-compose up --build
    ```
 
-4. **Access the applications**
+4. **If using Ollama, pull a model** (first time only)
+   ```bash
+   docker exec rule_ollama ollama pull llama2
+   ```
+
+5. **Access the applications**
    - **Frontend**: http://localhost:5173
    - **Backend API**: http://localhost:8000
    - **API Documentation**: http://localhost:8000/docs
+   - **Analytics Dashboard**: http://localhost:5173 (navigate via sidebar)
 
 That's it! 🎉 Your Resume Understanding Language Engine platform is now running!
 
@@ -608,17 +630,73 @@ We welcome contributions to Resume Understanding Language Engine! Here's how to 
 cp configs/llm_config_example.json configs/llm_config.json
 
 # Edit configs/llm_config.json with valid settings
+# For OpenRouter: Add your API key
+# For Ollama: Use provider "ollama" and base_url "http://ollama:11434"
+```
+
+#### Backend Error: "API key not found in llm_config.json"
+**Problem**: Resume parsing fails with API key error
+**Solution**:
+```bash
+# Option 1: Add API key to config file
+# Edit configs/llm_config.json and add your OpenRouter API key
+
+# Option 2: Use Ollama (local, no API key needed)
+# 1. Set provider to "ollama" in configs/llm_config.json
+# 2. Pull a model: docker exec rule_ollama ollama pull llama2
+# 3. Restart: docker-compose restart backend
+```
+
+#### Analytics Page Shows No Data
+**Problem**: Processed resumes but analytics page is empty
+**Solution**: This was fixed by correcting the analytics path. If you still see this:
+```bash
+# Restart the backend to pick up the fix
+docker-compose restart backend
+
+# Verify outputs directory has data
+ls -la outputs/
+```
+
+#### Settings Not Saving in UI
+**Problem**: Changes to LLM settings in UI don't persist
+**Solution**: The configs directory must be mounted as a volume (fixed in docker-compose.yml)
+```bash
+# If you don't see this line in docker-compose.yml, add it:
+# Under backend -> volumes:
+#   - ./configs:/app/configs
+
+# Then restart
+docker-compose down
+docker-compose up -d
 ```
 
 #### Port Conflicts
-**Problem**: Port 5173 or 8000 already in use
+**Problem**: Port 5173, 8000, or 11434 already in use
 **Solution**: 
 ```bash
-# Kill processes using the ports
+# For Ollama (port 11434)
+sudo systemctl stop ollama
+
+# For frontend (port 5173)
 lsof -ti:5173 | xargs kill -9
+
+# For backend (port 8000)
 lsof -ti:8000 | xargs kill -9
 
 # Or change ports in docker-compose.yml
+```
+
+#### NumPy/OpenCV Compatibility Error
+**Problem**: Backend fails with "numpy.core.multiarray failed to import"
+**Solution**: Fixed by constraining NumPy version in requirements.txt
+```bash
+# The fix is already in requirements.txt:
+# numpy>=1.26.4,<2.0.0
+
+# Rebuild if you encounter this:
+docker-compose down
+docker-compose up --build
 ```
 
 #### Docker Build Failures
@@ -630,6 +708,9 @@ docker system prune -a
 
 # Rebuild without cache
 docker-compose build --no-cache
+
+# If still failing, check disk space
+df -h
 ```
 
 
