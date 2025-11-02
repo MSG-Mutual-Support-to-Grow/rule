@@ -436,7 +436,7 @@ npm run preview
 
 ## 🔗 Related Documentation
 
-- [Backend API Documentation](../backend/ENHANCED_BACKEND_API.md)
+- [Backend API Documentation](../backend/README.md)
 - [Project Main README](../README.md)
 
 ## 📄 License
