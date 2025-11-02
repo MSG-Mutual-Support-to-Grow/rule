@@ -13,18 +13,22 @@ RUN apt-get update && apt-get install -y \
     libxrender-dev \
     libgomp1 \
     wget \
+    curl \
     && rm -rf /var/lib/apt/lists/*
+
+# Install uv (faster than pip)
+RUN pip install uv
 
 # Set working directory
 WORKDIR /app
 
 # Copy requirements and install Python dependencies
 COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN uv pip install --system --no-cache -r requirements.txt
 
 # Copy spaCy model wheel and install it
 COPY backend/api/en_core_web_sm-3.7.1-py3-none-any.whl .
-RUN pip install en_core_web_sm-3.7.1-py3-none-any.whl
+RUN uv pip install --system en_core_web_sm-3.7.1-py3-none-any.whl
 
 # Download spaCy model (backup in case wheel installation fails)
 RUN python -m spacy download en_core_web_sm || true
