@@ -72,15 +72,3 @@ Community leaders will follow these Community Impact Guidelines in determining t
 
 This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org/), version 2.1, available at [https://www.contributor-covenant.org/version/2/1/code_of_conduct.html](https://www.contributor-covenant.org/version/2/1/code_of_conduct.html).
 
-## Contact Information
-
-For questions or concerns about this Code of Conduct, please contact:
-
-- **Project Maintainers**: maintainers@rule-project.org
-- **Community Team**: community@rule-project.org
-
-We are committed to maintaining a positive and inclusive community environment. Your participation and feedback are valuable to us.
-
----
-
-*This Code of Conduct helps ensure that the RULE community remains a welcoming and productive space for all contributors.*
