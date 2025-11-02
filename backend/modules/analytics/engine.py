@@ -19,7 +19,7 @@ from .models import (
 class AnalyticsEngine:
     """Core analytics processing engine"""
 
-    def __init__(self, outputs_dir: str = "../outputs", analytics_dir: str = "../analytics_data"):
+    def __init__(self, outputs_dir: str = "/app/outputs", analytics_dir: str = "/app/analytics_data"):
         self.outputs_dir = outputs_dir
         self.analytics_dir = analytics_dir
         self._ensure_directories()
