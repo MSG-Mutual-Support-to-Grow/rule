@@ -62,7 +62,7 @@ export default function Sidebar() {
               </Link>
 
               <a
-                href="/docs"
+                href="https://rule-docs.onrender.com/"
                 className="flex items-center space-x-2 hover:text-blue-200 transition-colors"
               >
                 <BookOpen size={20} />
