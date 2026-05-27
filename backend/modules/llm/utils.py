@@ -1,16 +1,17 @@
 import json
 from typing import Optional
 
+
 def parse_llm_response(response, provider_name: str = "LLM") -> Optional[dict]:
     try:
-        raw = response.json()['choices'][0]['message']['content']
+        raw = response.json()["choices"][0]["message"]["content"]
         cleaned = raw.strip()
 
         # Clean markdown block (```json ... ```)
         if cleaned.startswith("```"):
-            first_newline = cleaned.find('\n')
+            first_newline = cleaned.find("\n")
             if first_newline != -1:
-                cleaned = cleaned[first_newline + 1:]
+                cleaned = cleaned[first_newline + 1 :]
             else:
                 cleaned = cleaned[3:]
         if cleaned.endswith("```"):
@@ -21,5 +22,7 @@ def parse_llm_response(response, provider_name: str = "LLM") -> Optional[dict]:
 
     except Exception as e:
         print(f"[❌ {provider_name} JSON Parse Error]", e)
-        print("🔎 Raw LLM Output:\n", response.text if hasattr(response, 'text') else "")
+        print(
+            "🔎 Raw LLM Output:\n", response.text if hasattr(response, "text") else ""
+        )
         return None

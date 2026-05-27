@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
+import { ResumeAnalysisResult } from "@/lib/api";
+
 interface Props {
-  data: any;
+  data: ResumeAnalysisResult;
 }
 
 export default function OutputViewer({ data }: Props) {
@@ -163,7 +165,7 @@ export default function OutputViewer({ data }: Props) {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {data.roles.map((role: any, index: number) => (
+              {data.roles.map((role, index: number) => (
                 <div key={index} className="border-l-4 border-blue-500 pl-4 pb-4">
                   <h4 className="font-semibold text-lg">{role.title}</h4>
                   <p className="text-gray-600 font-medium">{role.company}</p>
@@ -195,7 +197,7 @@ export default function OutputViewer({ data }: Props) {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {data.projects.map((project: any, index: number) => (
+              {data.projects.map((project, index: number) => (
                 <div key={index} className="border rounded-lg p-3 bg-gray-50">
                   <h4 className="font-semibold">{project.name}</h4>
                   {project.tech_stack && project.tech_stack !== "N/A" && (

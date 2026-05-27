@@ -3,14 +3,16 @@ Analytics data models for RULE
 Handles data structures for metrics, reports, and analytics storage
 """
 
-from typing import Dict, List, Optional, Any, Union
 from datetime import datetime
-from pydantic import BaseModel, Field
 from enum import Enum
+from typing import Any, Dict, List, Optional, Union
+
+from pydantic import BaseModel, Field
 
 
 class MetricType(str, Enum):
     """Types of analytics metrics"""
+
     CANDIDATE_COUNT = "candidate_count"
     AVERAGE_FIT_SCORE = "average_fit_score"
     SKILLS_DISTRIBUTION = "skills_distribution"
@@ -23,6 +25,7 @@ class MetricType(str, Enum):
 
 class TimeRange(str, Enum):
     """Time range options for analytics"""
+
     TODAY = "today"
     WEEK = "week"
     MONTH = "month"
@@ -33,6 +36,7 @@ class TimeRange(str, Enum):
 
 class AnalyticsMetric(BaseModel):
     """Individual analytics metric"""
+
     metric_type: MetricType
     value: Union[int, float, str, Dict[str, Any]]
     timestamp: datetime = Field(default_factory=datetime.now)
@@ -41,6 +45,7 @@ class AnalyticsMetric(BaseModel):
 
 class CandidateAnalytics(BaseModel):
     """Analytics data for a single candidate"""
+
     resume_id: str
     filename: str
     full_name: Optional[str] = None
@@ -56,6 +61,7 @@ class CandidateAnalytics(BaseModel):
 
 class BatchAnalytics(BaseModel):
     """Analytics data for a batch processing session"""
+
     batch_id: str
     total_candidates: int
     successful_analyses: int
@@ -70,6 +76,7 @@ class BatchAnalytics(BaseModel):
 
 class SkillsAnalytics(BaseModel):
     """Analytics for skills across candidates"""
+
     skill_name: str
     frequency: int
     average_fit_score: float
@@ -78,6 +85,7 @@ class SkillsAnalytics(BaseModel):
 
 class ComparisonCriteria(str, Enum):
     """Criteria for comparing candidates"""
+
     FIT_SCORE = "fit_score"
     EXPERIENCE = "experience"
     SKILLS_MATCH = "skills_match"
@@ -87,6 +95,7 @@ class ComparisonCriteria(str, Enum):
 
 class CandidateComparison(BaseModel):
     """Comparison data between candidates"""
+
     candidate_a: CandidateAnalytics
     candidate_b: CandidateAnalytics
     criteria: ComparisonCriteria
@@ -97,6 +106,7 @@ class CandidateComparison(BaseModel):
 
 class ReportTemplate(BaseModel):
     """Template for generating reports"""
+
     template_id: str
     name: str
     description: str
@@ -109,6 +119,7 @@ class ReportTemplate(BaseModel):
 
 class AnalyticsReport(BaseModel):
     """Generated analytics report"""
+
     report_id: str
     template_id: str
     title: str
@@ -120,6 +131,7 @@ class AnalyticsReport(BaseModel):
 
 class DashboardWidget(BaseModel):
     """Dashboard widget configuration"""
+
     widget_id: str
     widget_type: str  # "chart", "metric", "table", etc.
     title: str
@@ -132,6 +144,7 @@ class DashboardWidget(BaseModel):
 
 class AnalyticsDashboard(BaseModel):
     """Complete dashboard configuration"""
+
     dashboard_id: str
     name: str
     description: str
@@ -144,6 +157,7 @@ class AnalyticsDashboard(BaseModel):
 
 class AnalyticsQuery(BaseModel):
     """Query parameters for analytics requests"""
+
     time_range: TimeRange = TimeRange.MONTH
     filters: Optional[Dict[str, Any]] = None
     group_by: Optional[str] = None
@@ -155,6 +169,7 @@ class AnalyticsQuery(BaseModel):
 
 class AnalyticsResponse(BaseModel):
     """Standard response format for analytics API"""
+
     success: bool
     data: Optional[Any] = None
     message: Optional[str] = None

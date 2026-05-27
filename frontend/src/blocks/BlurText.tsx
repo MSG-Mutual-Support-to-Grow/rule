@@ -104,6 +104,7 @@ const BlurText: React.FC<BlurTextProps> = ({
           times,
           delay: (index * delay) / 1000,
         };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (spanTransition as any).ease = easing;
 
         return (

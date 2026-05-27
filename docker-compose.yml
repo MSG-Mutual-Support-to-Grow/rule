@@ -10,6 +10,7 @@ services:
       - "8000:8000"
     volumes:
       - ./outputs:/app/outputs
+      - ./analytics_data:/app/analytics_data
       - ./backend:/app/backend
       - ./configs:/app/configs
     environment:
@@ -62,3 +63,4 @@ services:
 volumes:
   node_modules:
   outputs:
+  analytics_data:

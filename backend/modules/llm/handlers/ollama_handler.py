@@ -1,34 +1,30 @@
-import requests
 import os
+
+import requests
+
 from ..base_provider import BaseLLMProvider
 from ..utils import parse_llm_response
+
 
 class OllamaProvider(BaseLLMProvider):
     def __init__(self, model: str, api_key: str | None = None):
         super().__init__(model, api_key)
         # Get Ollama base URL from environment variable, fallback to localhost
         self.base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-    
+
     def send_prompt(self, prompt: str) -> dict | None:
         url = f"{self.base_url}/api/chat"
 
-        headers = {
-            "Content-Type": "application/json"
-        }
+        headers = {"Content-Type": "application/json"}
 
         payload = {
             "model": self.model,  # e.g., "mistral", "llama3"
-            "messages": [
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            "stream": False  # We expect a single response
+            "messages": [{"role": "user", "content": prompt}],
+            "stream": False,  # We expect a single response
         }
 
         try:
-            response = requests.post(url, headers=headers, json=payload)
+            response = requests.post(url, headers=headers, json=payload, timeout=120)
 
             if response.status_code == 200:
                 return parse_llm_response(response, provider_name="Ollama")
@@ -52,14 +48,18 @@ class OllamaProvider(BaseLLMProvider):
                 data = response.json()
                 # Extract model names from the response
                 models = [model["name"] for model in data.get("models", [])]
-                
+
                 # If no models found, return a helpful message
                 if not models:
-                    return ["No models installed - Run 'ollama pull <model_name>' to install models"]
-                
+                    return [
+                        "No models installed - Run 'ollama pull <model_name>' to install models"
+                    ]
+
                 return models
             else:
-                print("[❌ Ollama API Error when fetching models]", response.status_code)
+                print(
+                    "[❌ Ollama API Error when fetching models]", response.status_code
+                )
                 return ["Ollama server not responding - Make sure Ollama is running"]
         except Exception as e:
             print("[❌ Failed to fetch Ollama models]", e)

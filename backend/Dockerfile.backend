@@ -37,8 +37,8 @@ RUN python -m spacy download en_core_web_sm || true
 COPY backend/ ./backend/
 COPY configs/ ./configs/
 
-# Create outputs directory
-RUN mkdir -p outputs
+# Create required directories
+RUN mkdir -p outputs jd_jsons analytics_data
 
 # Expose port
 EXPOSE 8000

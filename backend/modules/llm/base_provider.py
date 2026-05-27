@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
-class BaseLLMProvider(ABC):    
+
+class BaseLLMProvider(ABC):
     def __init__(self, model: str, api_key: str | None = None):
         self.model = model
         self.api_key = api_key

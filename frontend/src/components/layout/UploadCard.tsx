@@ -43,9 +43,11 @@ export default function UploadCard({ title, description, onUpload, folder, multi
         className="hidden"
         accept={!folder ? "application/pdf" : ""}
         multiple={folder || multiple}
-        {...(folder ? { 
-          webkitdirectory: "" as any, 
-          directory: "" as any 
+        {...(folder ? {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          webkitdirectory: "" as any,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          directory: "" as any
         } : {})}
       />
 

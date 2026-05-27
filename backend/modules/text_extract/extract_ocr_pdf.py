@@ -1,13 +1,14 @@
 import os
 import re
+from datetime import datetime
+
 import cv2
-import spacy
-import pytesseract
 import numpy as np
-from spellchecker import SpellChecker
+import pytesseract
+import spacy
 from pdf2image import convert_from_path
 from PIL import Image
-from datetime import datetime
+from spellchecker import SpellChecker
 
 # Load NLP model and spell checker
 nlp = spacy.load("en_core_web_sm")
@@ -15,24 +16,29 @@ spell = SpellChecker()
 
 # -------------------- Utilities -------------------- #
 
+
 def extract_emails_names(text):
     emails = re.findall(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+", text)
     doc = nlp(text)
     names = [ent.text for ent in doc.ents if ent.label_ == "PERSON"]
     return set(emails), set(names)
 
+
 def enhance_image(pil_img):
     img = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2GRAY)
     img = cv2.bilateralFilter(img, 9, 75, 75)
-    img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                cv2.THRESH_BINARY, 11, 2)
+    img = cv2.adaptiveThreshold(
+        img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2
+    )
     return img
+
 
 def fix_common_ocr_errors(text):
     text = text.replace(" egmail.com", "@gmail.com")
     text = re.sub(r"\s+@\s*", "@", text)
     text = re.sub(r"\s+\.com", ".com", text)
     return text
+
 
 def convert_dates(text):
     def date_replacer(match):
@@ -44,10 +50,12 @@ def convert_dates(text):
     return re.sub(
         r"\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}\b",
         date_replacer,
-        text
+        text,
     )
 
+
 # -------------------- Cleaner -------------------- #
+
 
 def clean_text(raw_text):
     raw_text = fix_common_ocr_errors(raw_text)
@@ -83,7 +91,9 @@ def clean_text(raw_text):
 
     return clean.strip()
 
+
 # -------------------- OCR Pipeline -------------------- #
+
 
 def extract_text_easyocr_from_pdf(pdf_path: str, dpi: int = 300) -> str:
     """

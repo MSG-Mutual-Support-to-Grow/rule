@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { TrendingUp, Users, Target, Award, Download, RefreshCw, Calendar, Filter } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { TrendingUp, Users, Target, Award, Download, RefreshCw, Calendar } from "lucide-react";
 import { getAnalyticsMetrics, getCandidateAnalytics, getSkillsAnalysis, getDashboardSummary, exportAnalyticsData } from "@/lib/api";
 import Sidebar from "@/components/layout/Sidebar";
 import BlurText from "../blocks/BlurText";
@@ -66,15 +66,11 @@ export default function AnalyticsPage() {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [candidates, setCandidates] = useState<CandidateData[]>([]);
   const [dashboardSummary, setDashboardSummary] = useState<DashboardSummary | null>(null);
-  const [skillsAnalysis, setSkillsAnalysis] = useState<any>(null);
+  const [skillsAnalysis, setSkillsAnalysis] = useState<{ top_skills: Array<{ skill: string; count: number; percentage: number }> } | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
 
-  useEffect(() => {
-    loadAnalyticsData();
-  }, [timeRange]);
-
-  const loadAnalyticsData = async () => {
+  const loadAnalyticsData = useCallback(async () => {
     setLoading(true);
     try {
       const [metricsRes, candidatesRes, dashboardRes, skillsRes] = await Promise.all([
@@ -89,13 +85,17 @@ export default function AnalyticsPage() {
       if (dashboardRes.success) setDashboardSummary(dashboardRes.data);
       if (skillsRes.success) setSkillsAnalysis(skillsRes.data);
 
-    } catch (error) {
-      console.error("Error loading analytics:", error);
+    } catch (err) {
+      console.error("Error loading analytics:", err);
       toast.error("Failed to load analytics data");
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeRange]);
+
+  useEffect(() => {
+    loadAnalyticsData();
+  }, [loadAnalyticsData]);
 
   const handleExport = async (format: 'json' | 'csv' = 'json') => {
     try {
@@ -115,7 +115,7 @@ export default function AnalyticsPage() {
         URL.revokeObjectURL(url);
         toast.success(`Analytics data exported as ${format.toUpperCase()}`);
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to export analytics data");
     }
   };
@@ -407,12 +407,12 @@ export default function AnalyticsPage() {
                                 cx="50%"
                                 cy="50%"
                                 labelLine={false}
-                                label={(entry: any) => `${entry.skill}: ${entry.percentage?.toFixed(1) ?? 0}%`}
+                                label={(entry: { skill: string; percentage?: number }) => `${entry.skill}: ${entry.percentage?.toFixed(1) ?? 0}%`}
                                 outerRadius={80}
                                 fill="#8884d8"
                                 dataKey="count"
                               >
-                                {Array.isArray(skillsAnalysis?.top_skills) && skillsAnalysis.top_skills.map((_: any, index: number) => (
+                                {Array.isArray(skillsAnalysis?.top_skills) && skillsAnalysis.top_skills.map((_: unknown, index: number) => (
                                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                               </Pie>

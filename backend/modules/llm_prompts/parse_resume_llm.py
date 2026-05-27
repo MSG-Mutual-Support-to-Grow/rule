@@ -1,12 +1,13 @@
-import requests
 import json
 import os
+
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
-api_key = os.getenv("MISTRAL_API_KEY")
 
-def call_mistral_resume_analyzer(resume_text,job_description,api_key):
+
+def call_mistral_resume_analyzer(resume_text, job_description):
     # Example job description for filtering
     # job_description = job_description
 
@@ -104,22 +105,24 @@ STRICT RULES:
 
     # Dynamically load API key from llm_config.json
     # Always use the central configs/llm_config.json
-    config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../configs/llm_config.json'))
+    config_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../../../configs/llm_config.json")
+    )
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             llm_config = json.load(f)
-            provider = llm_config.get('provider', 'openrouter')
-            api_key = llm_config.get('api_key')
-            model = llm_config.get('model')
-            base_url = llm_config.get('base_url')
+            provider = llm_config.get("provider", "openrouter")
+            api_key = llm_config.get("api_key")
+            model = llm_config.get("model")
+            base_url = llm_config.get("base_url")
             # Only require api_key if provider is not ollama
-            if provider != 'ollama' and not api_key:
-                raise ValueError('API key not found in llm_config.json')
+            if provider != "ollama" and not api_key:
+                raise ValueError("API key not found in llm_config.json")
     except Exception as e:
-        raise RuntimeError(f'Error loading llm_config.json: {e}')
+        raise RuntimeError(f"Error loading llm_config.json: {e}")
 
     # Use config values for provider/model/base_url
-    if provider == 'ollama':
+    if provider == "ollama":
         # Default Ollama base URL if not set
         if not base_url:
             base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
@@ -127,70 +130,84 @@ STRICT RULES:
         headers = {"Content-Type": "application/json"}
         data = {
             "model": model,
-            "messages": [
-                {"role": "user", "content": prompt}
-            ]
+            "messages": [{"role": "user", "content": prompt}],
+            "stream": False,
         }
-        response = requests.post(url, headers=headers, json=data)
+        response = requests.post(url, headers=headers, json=data, timeout=120)
         if response.status_code == 200:
             try:
-                # Ollama returns streaming JSON objects - we need to concatenate all content
-                lines = response.text.strip().splitlines()
-                full_content = ""
-                
-                for line in lines:
-                    if line.strip():
-                        try:
-                            obj = json.loads(line)
-                            if 'message' in obj and 'content' in obj['message']:
-                                full_content += obj['message']['content']
-                        except Exception:
-                            continue
-                
+                resp_json = response.json()
+                full_content = resp_json.get("message", {}).get("content", "")
                 if not full_content:
-                    print('[WARNING] Ollama returned no content. Raw response:')
+                    # Fallback: try streaming format (older Ollama versions)
+                    lines = response.text.strip().splitlines()
+                    for line in lines:
+                        if line.strip():
+                            try:
+                                obj = json.loads(line)
+                                if "message" in obj and "content" in obj["message"]:
+                                    full_content += obj["message"]["content"]
+                            except Exception:
+                                continue
+
+                if not full_content:
+                    print("[WARNING] Ollama returned no content. Raw response:")
                     print(response.text)
-                    return {"fit_score": 1, "fit_score_reason": "Could not analyze resume properly - empty response from AI", "eligibility_status": "Not Eligible", "eligibility_reason": "AI returned empty response - cannot determine if background is relevant", "work_experience_raw": "Could not extract work experience"}
-                
+                    return {
+                        "fit_score": 1,
+                        "fit_score_reason": "Could not analyze resume properly - empty response from AI",
+                        "eligibility_status": "Not Eligible",
+                        "eligibility_reason": "AI returned empty response - cannot determine if background is relevant",
+                        "work_experience_raw": "Could not extract work experience",
+                    }
+
                 # Clean the concatenated content
                 cleaned = full_content.strip()
-                
+
                 # Remove markdown code blocks if present
                 if cleaned.startswith("```json"):
                     cleaned = cleaned[7:].strip()
                 elif cleaned.startswith("```"):
-                    first_newline = cleaned.find('\n')
+                    first_newline = cleaned.find("\n")
                     if first_newline != -1:
-                        cleaned = cleaned[first_newline + 1:].strip()
+                        cleaned = cleaned[first_newline + 1 :].strip()
                     else:
                         cleaned = cleaned[3:].strip()
-                        
+
                 if cleaned.endswith("```"):
                     cleaned = cleaned[:-3].strip()
-                
+
                 # Print for debugging
-                print('[DEBUG] Full concatenated Ollama content:')
+                print("[DEBUG] Full concatenated Ollama content:")
                 print(cleaned)
-                
+
                 if not cleaned:
-                    print('[ERROR] Ollama content is empty after cleaning. Raw response:')
+                    print(
+                        "[ERROR] Ollama content is empty after cleaning. Raw response:"
+                    )
                     print(response.text)
-                    return {"fit_score": 1, "fit_score_reason": "Could not analyze resume properly - unable to assess relevance to job", "eligibility_status": "Not Eligible", "eligibility_reason": "Resume processing failed - cannot determine if background is relevant", "work_experience_raw": "Could not extract work experience"}
-                
+                    return {
+                        "fit_score": 1,
+                        "fit_score_reason": "Could not analyze resume properly - unable to assess relevance to job",
+                        "eligibility_status": "Not Eligible",
+                        "eligibility_reason": "Resume processing failed - cannot determine if background is relevant",
+                        "work_experience_raw": "Could not extract work experience",
+                    }
+
                 try:
                     return json.loads(cleaned)
                 except Exception as e:
-                    print(f'[ERROR] Ollama JSON parsing error: {e}')
-                    print('[ERROR] Raw Ollama response:')
+                    print(f"[ERROR] Ollama JSON parsing error: {e}")
+                    print("[ERROR] Raw Ollama response:")
                     print(response.text)
-                    print('[ERROR] Cleaned content:')
+                    print("[ERROR] Cleaned content:")
                     print(cleaned)
-                    
+
                     # Try to extract basic info manually if JSON parsing fails
                     return {
-                        "full_name": "Unknown", 
-                        "email": "", 
-                        "phone_number": "", 
+                        "full_name": "Unknown",
+                        "email": "",
+                        "phone_number": "",
                         "total_experience_years": 0,
                         "roles": [],
                         "work_experience_raw": "Could not extract work experience due to parsing error",
@@ -199,21 +216,21 @@ STRICT RULES:
                         "leadership_signals": False,
                         "leadership_justification": "",
                         "candidate_fit_summary": "Unable to analyze due to AI response parsing error",
-                        "fit_score": 1, 
-                        "fit_score_reason": "Resume analysis failed - unable to parse AI response", 
-                        "eligibility_status": "Not Eligible", 
-                        "eligibility_reason": "Could not parse AI response to assess if background is relevant to this role"
+                        "fit_score": 1,
+                        "fit_score_reason": "Resume analysis failed - unable to parse AI response",
+                        "eligibility_status": "Not Eligible",
+                        "eligibility_reason": "Could not parse AI response to assess if background is relevant to this role",
                     }
             except Exception as e:
-                print(f'[ERROR] Ollama response parsing error: {e}')
-                print('[ERROR] Raw Ollama response:')
+                print(f"[ERROR] Ollama response parsing error: {e}")
+                print("[ERROR] Raw Ollama response:")
                 print(response.text)
-                
+
                 # Return complete fallback structure
                 return {
-                    "full_name": "Unknown", 
-                    "email": "", 
-                    "phone_number": "", 
+                    "full_name": "Unknown",
+                    "email": "",
+                    "phone_number": "",
                     "total_experience_years": 0,
                     "roles": [],
                     "work_experience_raw": "Could not extract work experience due to parsing error",
@@ -222,49 +239,61 @@ STRICT RULES:
                     "leadership_signals": False,
                     "leadership_justification": "",
                     "candidate_fit_summary": "Unable to analyze due to AI response parsing error",
-                    "fit_score": 1, 
-                    "fit_score_reason": f"Ollama response parsing error: {e}", 
-                    "eligibility_status": "Not Eligible", 
-                    "eligibility_reason": "System error prevented resume analysis"
+                    "fit_score": 1,
+                    "fit_score_reason": f"Ollama response parsing error: {e}",
+                    "eligibility_status": "Not Eligible",
+                    "eligibility_reason": "System error prevented resume analysis",
                 }
         else:
-            raise RuntimeError(f"Ollama API error: {response.status_code} {response.text}")
+            raise RuntimeError(
+                f"Ollama API error: {response.status_code} {response.text}"
+            )
     else:
         headers = {
             "Authorization": f"Bearer {api_key}",
             "HTTP-Referer": "http://localhost",  # Replace with your frontend URL if needed
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
         data = {
             "model": model,
             "temperature": 0.0,
-            "messages": [
-                {"role": "user", "content": prompt}
-            ]
+            "messages": [{"role": "user", "content": prompt}],
         }
         try:
-            response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=120)
+            response = requests.post(base_url, headers=headers, json=data, timeout=120)
         except requests.exceptions.Timeout:
             print("[ERROR] OpenRouter API request timed out after 120 seconds")
-            return {"fit_score": 1, "fit_score_reason": "OpenRouter API timeout - unable to analyze resume", "eligibility_status": "Not Eligible", "eligibility_reason": "System timeout prevented resume analysis", "work_experience_raw": "Could not extract work experience due to timeout"}
+            return {
+                "fit_score": 1,
+                "fit_score_reason": "OpenRouter API timeout - unable to analyze resume",
+                "eligibility_status": "Not Eligible",
+                "eligibility_reason": "System timeout prevented resume analysis",
+                "work_experience_raw": "Could not extract work experience due to timeout",
+            }
         except requests.exceptions.RequestException as e:
             print(f"[ERROR] OpenRouter API request failed: {e}")
-            return {"fit_score": 1, "fit_score_reason": "OpenRouter API connection failed", "eligibility_status": "Not Eligible", "eligibility_reason": "System error prevented resume analysis", "work_experience_raw": "Could not extract work experience due to connection error"}
-        
+            return {
+                "fit_score": 1,
+                "fit_score_reason": "OpenRouter API connection failed",
+                "eligibility_status": "Not Eligible",
+                "eligibility_reason": "System error prevented resume analysis",
+                "work_experience_raw": "Could not extract work experience due to connection error",
+            }
+
         if response.status_code == 200:
             try:
-                raw = response.json()['choices'][0]['message']['content']
+                raw = response.json()["choices"][0]["message"]["content"]
                 # Clean markdown code block if present
                 cleaned = raw.strip()
                 if cleaned.startswith("```"):
-                    first_newline = cleaned.find('\n')
+                    first_newline = cleaned.find("\n")
                     if first_newline != -1:
-                        cleaned = cleaned[first_newline + 1:]
+                        cleaned = cleaned[first_newline + 1 :]
                     else:
                         cleaned = cleaned[3:]
                 if cleaned.endswith("```"):
                     cleaned = cleaned[:-3]
-                
+
                 # Try to parse JSON
                 try:
                     return json.loads(cleaned.strip())
@@ -272,12 +301,12 @@ STRICT RULES:
                     print(f"[ERROR] JSON parsing failed: {je}")
                     print(f"[ERROR] Raw content: {raw}")
                     print(f"[ERROR] Cleaned content: {cleaned}")
-                    
+
                     # Return complete fallback structure
                     return {
-                        "full_name": "Unknown", 
-                        "email": "", 
-                        "phone_number": "", 
+                        "full_name": "Unknown",
+                        "email": "",
+                        "phone_number": "",
                         "total_experience_years": 0,
                         "roles": [],
                         "work_experience_raw": "Could not extract work experience due to JSON parsing error",
@@ -286,17 +315,17 @@ STRICT RULES:
                         "leadership_signals": False,
                         "leadership_justification": "",
                         "candidate_fit_summary": "Unable to analyze due to AI response JSON parsing error",
-                        "fit_score": 1, 
-                        "fit_score_reason": f"AI response parsing failed - JSON error: {je}", 
-                        "eligibility_status": "Not Eligible", 
-                        "eligibility_reason": "Resume analysis incomplete - cannot determine if candidate's background is relevant"
+                        "fit_score": 1,
+                        "fit_score_reason": f"AI response parsing failed - JSON error: {je}",
+                        "eligibility_status": "Not Eligible",
+                        "eligibility_reason": "Resume analysis incomplete - cannot determine if candidate's background is relevant",
                     }
             except Exception as e:
                 print(f"[ERROR] OpenRouter response processing failed: {e}")
                 return {
-                    "full_name": "Unknown", 
-                    "email": "", 
-                    "phone_number": "", 
+                    "full_name": "Unknown",
+                    "email": "",
+                    "phone_number": "",
                     "total_experience_years": 0,
                     "roles": [],
                     "work_experience_raw": "Could not extract work experience due to processing error",
@@ -305,10 +334,12 @@ STRICT RULES:
                     "leadership_signals": False,
                     "leadership_justification": "",
                     "candidate_fit_summary": "Unable to analyze due to system error",
-                    "fit_score": 1, 
-                    "fit_score_reason": f"OpenRouter response processing failed: {e}", 
-                    "eligibility_status": "Not Eligible", 
-                    "eligibility_reason": "System error prevented resume analysis"
+                    "fit_score": 1,
+                    "fit_score_reason": f"OpenRouter response processing failed: {e}",
+                    "eligibility_status": "Not Eligible",
+                    "eligibility_reason": "System error prevented resume analysis",
                 }
         else:
-            raise RuntimeError(f"OpenRouter API error: {response.status_code} {response.text}")
+            raise RuntimeError(
+                f"OpenRouter API error: {response.status_code} {response.text}"
+            )

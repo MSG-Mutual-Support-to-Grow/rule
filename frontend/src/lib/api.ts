@@ -1,15 +1,20 @@
 // API configuration and utility functions
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
 
 export interface ResumeAnalysisResult {
+  resume_id?: string;
+  filename?: string;
+  job_description?: string;
   full_name: string;
   email: string;
   phone_number: string;
   total_experience_years: number;
+  fit_score: number;
+  fit_score_reason: string;
   roles: Array<{
     title: string;
     company: string;
-    years: number;
+    duration: string;
   }>;
   skills: Record<string, {
     source: string;
@@ -67,7 +72,7 @@ export interface LLMProvider {
 
 export interface LLMPromptResult {
   success: boolean;
-  result?: any;
+  result?: unknown;
   message?: string;
   provider?: string;
   model?: string;
@@ -244,9 +249,11 @@ export const resetLLMConfig = async (): Promise<{ success: boolean; message: str
 
 export interface AnalyticsResponse {
   success: boolean;
-  data?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data?: Record<string, any>;
   message?: string;
-  metadata?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  metadata?: Record<string, any>;
   timestamp?: string;
 }
 

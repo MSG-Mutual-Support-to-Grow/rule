@@ -24,7 +24,7 @@ export default function LandingPage() {
         if (!result.success || !result.job_description?.trim()) {
           setShowJobDescriptionAlert(true);
         }
-      } catch (error) {
+      } catch {
         // If API fails, check localStorage
         const saved = localStorage.getItem("job_description");
         if (!saved?.trim()) {
